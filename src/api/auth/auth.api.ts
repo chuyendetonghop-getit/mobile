@@ -1,6 +1,11 @@
 import {createApi} from '@reduxjs/toolkit/query/react';
 import {axiosBaseQuery} from '../../services/baseApi';
-import {SignUpResponse} from '../../types/auth/auth.type';
+import {
+  LoginRequest,
+  LoginResponse,
+  SignupRequest,
+  SignupResponse,
+} from '../../types/auth/auth.type';
 import apiPath from '../../utils/apiPath';
 
 export const authApi = createApi({
@@ -8,7 +13,7 @@ export const authApi = createApi({
   tagTypes: ['Auth'],
   baseQuery: axiosBaseQuery(),
   endpoints: builder => ({
-    signUp: builder.mutation<SignUpResponse, SignUpResponse>({
+    signUp: builder.mutation<SignupResponse, SignupRequest>({
       query: body => ({
         url: apiPath.signUpUrl,
         method: 'POST',
@@ -16,17 +21,14 @@ export const authApi = createApi({
       }),
     }),
 
-    // login: builder.mutation<
-    //   SignInWithEmailPasswordResponse,
-    //   SignInWithEmailPasswordRequest
-    // >({
-    //   query: body => ({
-    //     url: apiPath.signInWithEmailPassword,
-    //     method: 'POST',
-    //     body,
-    //   }),
-    // }),
+    login: builder.mutation<LoginResponse, LoginRequest>({
+      query: body => ({
+        url: apiPath.signInWithEmailPassword,
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
-export const {useSignUpMutation} = authApi;
+export const {useSignUpMutation, useLoginMutation} = authApi;

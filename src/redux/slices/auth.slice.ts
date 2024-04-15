@@ -1,52 +1,42 @@
-import {PayloadAction, createSlice} from '@reduxjs/toolkit';
-// import {SignUpResponse} from 'types';
+import {createSlice} from '@reduxjs/toolkit';
+import {authApi} from '../../api/auth/auth.api';
+import {User} from '../../types/auth/auth.type';
 
 export interface AuthState {
   isSignedIn: boolean;
-  token: string | null;
-  // user: UserData | null;
+  user: User | null;
 }
 
 const initialState: AuthState = {
   isSignedIn: false,
-  token: null,
+  user: null,
 };
 
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    signIn: (state, action: PayloadAction<string>) => {
+    signIn: state => {
       state.isSignedIn = true;
-      state.token = action.payload;
     },
 
-    signOut: state => {
+    signOut: () => {
       return {
         ...initialState,
       };
     },
-
-    // signUp: (state, action: PayloadAction<SignUpResponse>) => {
-    //   if (action.payload.data) {
-    //     state.isSignedIn = true;
-    //     state.token = action.payload.data?.token;
-    //   }
-    // },
   },
   extraReducers: builder => {
-    // builder.addMatcher(
-    //   authApi.endpoints.signInWithEmailPassword.matchFulfilled,
-    //   (state, action) => {
-    //     if (action.payload.data && !action.payload.data.data) {
-    //       state.token = action.payload.data?.token;
-    //       state.user = action.payload.data.user;
-    //       state.isSignedIn = true;
-    //       state.isSelectedPersonalizeBoard =
-    //         !!action.payload.data.user.personalizationBoard;
-    //     }
-    //   },
-    // );
+    builder.addMatcher(
+      authApi.endpoints.login.matchFulfilled,
+      (state, action) => {
+        console.log('action.payload --> ', action.payload);
+        if (action.payload?.success) {
+          state.user = action.payload?.data ?? null;
+          state.isSignedIn = true;
+        }
+      },
+    );
   },
 });
 

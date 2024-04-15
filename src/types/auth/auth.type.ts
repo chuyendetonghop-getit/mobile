@@ -9,6 +9,10 @@ export type UserData = {
   updatedAt: string;
 };
 
+export type User = UserData & {
+  token: string;
+};
+
 export type SignupRequest = {
   name: string;
   email: string;
@@ -21,6 +25,15 @@ export type SignupResponse = TResponse<
     token: string;
   }
 >;
+
+export type LoginRequest = {
+  email: string;
+  password: string;
+};
+
+export type LoginResponse = TResponse<User>;
+
+// --------OLD CODE--------
 
 export type RecoverPasswordDefaultValue = {
   email: string;

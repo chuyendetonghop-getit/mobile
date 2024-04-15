@@ -1,26 +1,30 @@
 import React, {useState} from 'react';
 import {
+  ActivityIndicator,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import {useAppDispatch} from '../../redux/store';
-import {signIn} from '../../redux/slices/auth.slice';
+import {useLoginMutation} from '../../api/auth/auth.api';
 
 const LoginScreen = () => {
+  const [login, {isLoading}] = useLoginMutation();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const dispatch = useAppDispatch();
+  const handleLogin = async () => {
+    try {
+      const result = await login({email, password});
 
-  const handleLogin = () => {
-    // Xử lý logic đăng nhập ở đây
-    console.log('Email:', email);
-    console.log('Password:', password);
-
-    dispatch(signIn('token'));
+      if (result) {
+        console.log('Login successfully:', result);
+      }
+    } catch (error) {
+      console.log('Failed to login:', error);
+    }
   };
 
   return (
@@ -42,7 +46,13 @@ const LoginScreen = () => {
         secureTextEntry
       />
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Đăng nhập</Text>
+        <View>
+          {isLoading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.buttonText}>Đăng nhập</Text>
+          )}
+        </View>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
