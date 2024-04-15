@@ -7,6 +7,7 @@ import {AppNavigator} from './src/navigation/navigator/AppNavigator';
 import {Provider} from 'react-redux';
 import {persistor, store} from './src/redux/store';
 import {PersistGate} from 'redux-persist/integration/react';
+import {PaperProvider} from 'react-native-paper';
 
 if (__DEV__) {
   const scriptURL = NativeModules.SourceCode.scriptURL;
@@ -21,9 +22,11 @@ if (__DEV__) {
 function App(): React.JSX.Element {
   return (
     <Provider store={store}>
-      <PersistGate persistor={persistor}>
-        <AppNavigator />
-      </PersistGate>
+      <PaperProvider>
+        <PersistGate persistor={persistor}>
+          <AppNavigator />
+        </PersistGate>
+      </PaperProvider>
     </Provider>
   );
 }

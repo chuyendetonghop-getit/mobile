@@ -1,24 +1,20 @@
 import React, {useState} from 'react';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {ActivityIndicator, Pressable, StyleSheet} from 'react-native';
+import {Button, TextInput, Title, Text} from 'react-native-paper';
 import {useLoginMutation} from '../../api/auth/auth.api';
+import {navigate} from '../../navigation/NavigationUtils';
+import RouteName from '../../navigation/RouteName';
+import Container from '../../components/Container';
 
 const LoginScreen = () => {
   const [login, {isLoading}] = useLoginMutation();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [hidePassword, setHidePassword] = useState(true);
 
   const handleLogin = async () => {
     try {
       const result = await login({email, password});
-
       if (result) {
         console.log('Login successfully:', result);
       }
@@ -28,11 +24,11 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Đăng nhập</Text>
+    <Container>
+      <Title style={styles.title}>Đăng nhập</Title>
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        label="Email"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -40,63 +36,73 @@ const LoginScreen = () => {
       />
       <TextInput
         style={styles.input}
-        placeholder="Password"
+        label="Password"
         value={password}
         onChangeText={setPassword}
-        secureTextEntry
+        secureTextEntry={hidePassword}
+        right={
+          <TextInput.Icon
+            icon={hidePassword ? 'eye-off' : 'eye'}
+            onPress={() => setHidePassword(!hidePassword)}
+          />
+        }
       />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <View>
-          {isLoading ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text style={styles.buttonText}>Đăng nhập</Text>
-          )}
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity
+      <Pressable
+        style={styles.helperLink}
         onPress={() => {
-          // console.log('Navigate to Signup');
+          navigate(RouteName.RESET_PASSWORD);
         }}>
-        <Text style={styles.signupLink}>Chưa có tài khoản? Đăng ký ngay</Text>
-      </TouchableOpacity>
-    </View>
+        <Text>Quên mật khẩu?</Text>
+      </Pressable>
+
+      <Button
+        style={styles.button}
+        mode="contained"
+        onPress={handleLogin}
+        disabled={isLoading}>
+        {isLoading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.buttonText}>Đăng nhập</Text>
+        )}
+      </Button>
+      <Button
+        style={styles.signupLink}
+        onPress={() => {
+          navigate(RouteName.SIGNUP);
+        }}>
+        Chưa có tài khoản? Đăng ký ngay
+      </Button>
+    </Container>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    alignItems: 'center',
+    textAlign: 'center',
   },
   input: {
-    width: '100%',
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    paddingHorizontal: 10,
     marginBottom: 10,
   },
   button: {
-    width: '100%',
     height: 40,
-    backgroundColor: 'blue',
-    justifyContent: 'center',
-    alignItems: 'center',
     borderRadius: 5,
     marginTop: 10,
   },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+    textTransform: 'uppercase',
+  },
+  helperLink: {
+    marginTop: 2,
+    color: 'blue',
+    alignItems: 'flex-start',
+    padding: 0,
   },
   signupLink: {
     marginTop: 20,

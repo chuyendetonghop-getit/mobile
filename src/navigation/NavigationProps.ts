@@ -7,10 +7,13 @@ export type LoginScreenProps = {
   navigation: NativeStackScreenProps<RootStackParamList, RouteName.LOGIN>;
 };
 
-// export type SignupScreenProps = {
-//   navigation: NavigationProp<RootStackParamList, 'Signup'>;
-// };
-
 export type SignupScreenProps = {
   navigation: NativeStackScreenProps<RootStackParamList, RouteName.SIGNUP>;
+};
+
+export type ResetPassScreenProps = {
+  navigation: NativeStackScreenProps<
+    RootStackParamList,
+    RouteName.RESET_PASSWORD
+  >;
 };

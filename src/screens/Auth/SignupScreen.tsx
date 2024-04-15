@@ -1,62 +1,107 @@
 import React, {useState} from 'react';
-import {View, Text, TextInput, Button, StyleSheet} from 'react-native';
+import {ActivityIndicator, StyleSheet} from 'react-native';
+import {Button, TextInput, Title, Text} from 'react-native-paper';
+import {useLoginMutation} from '../../api/auth/auth.api';
 import {navigate} from '../../navigation/NavigationUtils';
 import RouteName from '../../navigation/RouteName';
+import Container from '../../components/Container';
 
-const SignUpScreen = () => {
+const SignupScreen = () => {
+  const [login, {isLoading}] = useLoginMutation();
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [hidePassword, setHidePassword] = useState(true);
 
-  const handleSignUp = () => {
-    // Đặt logic xử lý đăng ký ở đây
-    console.log('Đăng ký với email:', email, 'và password:', password);
+  const handleSignup = async () => {
+    try {
+      // const result = await login({email, password});
+      // if (result) {
+      //   console.log('Login successfully:', result);
+      // }
+    } catch (error) {
+      console.log('Failed to login:', error);
+    }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Đăng Ký</Text>
+    <Container>
+      <Title style={styles.title}>Đăng ký</Title>
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        label="Email"
         value={email}
         onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
-        placeholder="Password"
+        label="Phone"
+        value={phone}
+        onChangeText={setPhone}
+        keyboardType="phone-pad"
+      />
+      <TextInput
+        style={styles.input}
+        label="Password"
         value={password}
         onChangeText={setPassword}
-        secureTextEntry
+        secureTextEntry={hidePassword}
+        right={
+          <TextInput.Icon
+            icon={hidePassword ? 'eye-off' : 'eye'}
+            onPress={() => setHidePassword(!hidePassword)}
+          />
+        }
       />
-      <Button title="Đăng Ký" onPress={handleSignUp} />
       <Button
-        title="Đã có tài khoản? Đăng nhập ngay"
+        style={styles.button}
+        mode="contained"
+        onPress={handleSignup}
+        disabled={isLoading}>
+        {isLoading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.buttonText}>Đăng ký</Text>
+        )}
+      </Button>
+      <Button
+        style={styles.signupLink}
         onPress={() => {
           navigate(RouteName.LOGIN);
-        }}
-      />
-    </View>
+        }}>
+        Đã có tài khoản? Đăng nhập ngay
+      </Button>
+    </Container>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   title: {
     fontSize: 24,
+    fontWeight: 'bold',
     marginBottom: 20,
+    alignItems: 'center',
+    textAlign: 'center',
   },
   input: {
-    width: '80%',
+    marginBottom: 10,
+  },
+  button: {
     height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+  },
+  signupLink: {
+    marginTop: 20,
+    color: 'blue',
   },
 });
 
-export default SignUpScreen;
+export default SignupScreen;

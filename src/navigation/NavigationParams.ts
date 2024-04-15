@@ -1,5 +1,6 @@
 export type LoginScreenParams = undefined;
 export type SignupScreenParams = undefined;
+export type ResetPassScreenParams = undefined;
 
 export type VerifyScreenParams = {
   email?: string;

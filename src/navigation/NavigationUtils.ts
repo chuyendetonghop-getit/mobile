@@ -31,13 +31,14 @@ export function navigate<Params extends object>(
   routeName: string,
   params?: Params,
 ) {
-  if (navigation.current)
+  if (navigation.current) {
     navigation.current?.dispatch(
       CommonActions.navigate({
         name: routeName,
         params,
       }),
     );
+  }
 }
 
 export function goBack() {
