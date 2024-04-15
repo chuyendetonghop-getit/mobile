@@ -1,6 +1,18 @@
 import React, {useState} from 'react';
-import {ActivityIndicator, Pressable, StyleSheet} from 'react-native';
-import {Button, TextInput, Title, Text} from 'react-native-paper';
+import {
+  ActivityIndicator,
+  Dimensions,
+  Pressable,
+  StyleSheet,
+} from 'react-native';
+import {
+  Button,
+  TextInput,
+  Title,
+  Text,
+  Snackbar,
+  HelperText,
+} from 'react-native-paper';
 import {useLoginMutation} from '../../api/auth/auth.api';
 import {navigate} from '../../navigation/NavigationUtils';
 import RouteName from '../../navigation/RouteName';
@@ -12,14 +24,34 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [hidePassword, setHidePassword] = useState(true);
 
+  // SnackBar state
+  const [visible, setVisible] = React.useState(false);
+  const onShowSnackBar = () => setVisible(true);
+  const onHideSnackBar = () => setVisible(false);
+
+  // Validate email and password
+  const hasErrorsEmail = () => {
+    return !email.includes('@');
+  };
+
+  const hasErrorsPassword = () => {
+    return password.length < 6;
+  };
+
   const handleLogin = async () => {
+    if (email === '' || password === '') {
+      return;
+    }
     try {
-      const result = await login({email, password});
-      if (result) {
-        console.log('Login successfully:', result);
-      }
+      const result = await login({email, password}).unwrap();
+      // console.log('result --> ', result);
+      // if (result && result?.data && result?.data?.success) {
+      //   console.log('Login successfully:', result?.data);
+      //   onToggleSnackBar();
+      // }
     } catch (error) {
       console.log('Failed to login:', error);
+      onShowSnackBar();
     }
   };
 
@@ -34,6 +66,15 @@ const LoginScreen = () => {
         keyboardType="email-address"
         autoCapitalize="none"
       />
+      {!!email && hasErrorsEmail() ? (
+        <HelperText
+          type="error"
+          visible={hasErrorsEmail()}
+          style={styles.helperText}>
+          Email address is invalid!
+        </HelperText>
+      ) : null}
+
       <TextInput
         style={styles.input}
         label="Password"
@@ -47,6 +88,15 @@ const LoginScreen = () => {
           />
         }
       />
+      {!!password && hasErrorsPassword() ? (
+        <HelperText
+          type="error"
+          visible={hasErrorsPassword()}
+          style={styles.helperText}>
+          Password must be at least 6 characters
+        </HelperText>
+      ) : null}
+
       <Pressable
         style={styles.helperLink}
         onPress={() => {
@@ -59,7 +109,7 @@ const LoginScreen = () => {
         style={styles.button}
         mode="contained"
         onPress={handleLogin}
-        disabled={isLoading}>
+        disabled={isLoading || !email || !password}>
         {isLoading ? (
           <ActivityIndicator color="white" />
         ) : (
@@ -73,6 +123,20 @@ const LoginScreen = () => {
         }}>
         Chưa có tài khoản? Đăng ký ngay
       </Button>
+      <Snackbar
+        visible={visible}
+        onDismiss={onHideSnackBar}
+        duration={3000}
+        action={{
+          label: 'OK',
+          onPress: () => {
+            // Do something
+            onHideSnackBar();
+          },
+        }}
+        style={styles.snackBar}>
+        Đăng nhập thất bại!
+      </Snackbar>
     </Container>
   );
 };
@@ -84,6 +148,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignItems: 'center',
     textAlign: 'center',
+  },
+  helperText: {
+    marginBottom: 10,
+    marginTop: -10,
   },
   input: {
     marginBottom: 10,
@@ -107,6 +175,11 @@ const styles = StyleSheet.create({
   signupLink: {
     marginTop: 20,
     color: 'blue',
+  },
+  snackBar: {
+    width: Dimensions.get('window').width - 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

@@ -1,6 +1,13 @@
 import React, {useState} from 'react';
-import {ActivityIndicator, StyleSheet} from 'react-native';
-import {Button, TextInput, Title, Text} from 'react-native-paper';
+import {ActivityIndicator, Dimensions, StyleSheet} from 'react-native';
+import {
+  Button,
+  TextInput,
+  Title,
+  Text,
+  HelperText,
+  Snackbar,
+} from 'react-native-paper';
 import {useLoginMutation} from '../../api/auth/auth.api';
 import {navigate} from '../../navigation/NavigationUtils';
 import RouteName from '../../navigation/RouteName';
@@ -13,7 +20,28 @@ const SignupScreen = () => {
   const [password, setPassword] = useState('');
   const [hidePassword, setHidePassword] = useState(true);
 
+  // SnackBar state
+  const [visible, setVisible] = React.useState(false);
+  const onShowSnackBar = () => setVisible(!visible);
+  const onHideSnackBar = () => setVisible(false);
+
+  // Validate email and password
+  const hasErrorsEmail = () => {
+    return !email.includes('@');
+  };
+
+  const hasPhoneErrors = () => {
+    return phone.length < 10;
+  };
+
+  const hasErrorsPassword = () => {
+    return password.length < 6;
+  };
+
   const handleSignup = async () => {
+    if (email === '' || password === '' || phone === '') {
+      return;
+    }
     try {
       // const result = await login({email, password});
       // if (result) {
@@ -21,6 +49,7 @@ const SignupScreen = () => {
       // }
     } catch (error) {
       console.log('Failed to login:', error);
+      onHideSnackBar();
     }
   };
 
@@ -35,6 +64,15 @@ const SignupScreen = () => {
         keyboardType="email-address"
         autoCapitalize="none"
       />
+      {!!email && hasErrorsEmail() ? (
+        <HelperText
+          type="error"
+          visible={hasErrorsEmail()}
+          style={styles.helperText}>
+          Email address is invalid!
+        </HelperText>
+      ) : null}
+
       <TextInput
         style={styles.input}
         label="Phone"
@@ -42,6 +80,15 @@ const SignupScreen = () => {
         onChangeText={setPhone}
         keyboardType="phone-pad"
       />
+      {!!phone && hasPhoneErrors() ? (
+        <HelperText
+          type="error"
+          visible={hasPhoneErrors()}
+          style={styles.helperText}>
+          Phone number is invalid!
+        </HelperText>
+      ) : null}
+
       <TextInput
         style={styles.input}
         label="Password"
@@ -55,11 +102,20 @@ const SignupScreen = () => {
           />
         }
       />
+      {!!password && hasErrorsPassword ? (
+        <HelperText
+          type="error"
+          visible={hasErrorsPassword()}
+          style={styles.helperText}>
+          Password must be at least 6 characters
+        </HelperText>
+      ) : null}
+
       <Button
         style={styles.button}
         mode="contained"
         onPress={handleSignup}
-        disabled={isLoading}>
+        disabled={isLoading || !email || !phone || !password}>
         {isLoading ? (
           <ActivityIndicator color="white" />
         ) : (
@@ -73,6 +129,21 @@ const SignupScreen = () => {
         }}>
         Đã có tài khoản? Đăng nhập ngay
       </Button>
+
+      <Snackbar
+        visible={visible}
+        onDismiss={onHideSnackBar}
+        duration={3000}
+        action={{
+          label: 'OK',
+          onPress: () => {
+            // Do something
+            onHideSnackBar();
+          },
+        }}
+        style={styles.snackBar}>
+        Đăng ký thất bại!
+      </Snackbar>
     </Container>
   );
 };
@@ -84,6 +155,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignItems: 'center',
     textAlign: 'center',
+  },
+  helperText: {
+    marginBottom: 10,
+    marginTop: -10,
   },
   input: {
     marginBottom: 10,
@@ -101,6 +176,11 @@ const styles = StyleSheet.create({
   signupLink: {
     marginTop: 20,
     color: 'blue',
+  },
+  snackBar: {
+    width: Dimensions.get('window').width - 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
