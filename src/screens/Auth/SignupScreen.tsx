@@ -2,19 +2,21 @@ import React, {useState} from 'react';
 import {ActivityIndicator, Dimensions, StyleSheet} from 'react-native';
 import {
   Button,
-  TextInput,
-  Title,
-  Text,
   HelperText,
   Snackbar,
+  Text,
+  TextInput,
+  Title,
 } from 'react-native-paper';
-import {useLoginMutation} from '../../api/auth/auth.api';
+
+import {useSignUpMutation} from '../../api/auth/auth.api';
+import Container from '../../components/Container';
 import {navigate} from '../../navigation/NavigationUtils';
 import RouteName from '../../navigation/RouteName';
-import Container from '../../components/Container';
 
 const SignupScreen = () => {
-  const [login, {isLoading}] = useLoginMutation();
+  const [signup, {isLoading}] = useSignUpMutation();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -25,7 +27,11 @@ const SignupScreen = () => {
   const onShowSnackBar = () => setVisible(!visible);
   const onHideSnackBar = () => setVisible(false);
 
-  // Validate email and password
+  // Validate input data: email, name, phone, password
+  const hasErrorsName = () => {
+    return name.length < 3;
+  };
+
   const hasErrorsEmail = () => {
     return !email.includes('@');
   };
@@ -43,19 +49,36 @@ const SignupScreen = () => {
       return;
     }
     try {
-      // const result = await login({email, password});
+      const result = await signup({name, email, phone, password}).unwrap();
       // if (result) {
-      //   console.log('Login successfully:', result);
+      //   console.log('Signup successfully:', result);
       // }
     } catch (error) {
-      console.log('Failed to login:', error);
-      onHideSnackBar();
+      console.log('Failed to signup:', error);
+      onShowSnackBar();
     }
   };
 
   return (
     <Container>
       <Title style={styles.title}>Đăng ký</Title>
+      <TextInput
+        style={styles.input}
+        label="Name"
+        value={name}
+        onChangeText={setName}
+        // keyboardType="email-address"
+        autoCapitalize="none"
+      />
+      {!!name && hasErrorsName() ? (
+        <HelperText
+          type="error"
+          visible={hasErrorsName()}
+          style={styles.helperText}>
+          Name must be at least 3 characters
+        </HelperText>
+      ) : null}
+
       <TextInput
         style={styles.input}
         label="Email"
@@ -115,7 +138,7 @@ const SignupScreen = () => {
         style={styles.button}
         mode="contained"
         onPress={handleSignup}
-        disabled={isLoading || !email || !phone || !password}>
+        disabled={isLoading || !name || !email || !phone || !password}>
         {isLoading ? (
           <ActivityIndicator color="white" />
         ) : (
@@ -142,7 +165,7 @@ const SignupScreen = () => {
           },
         }}
         style={styles.snackBar}>
-        Đăng ký thất bại!
+        Người dùng đã tồn tại!
       </Snackbar>
     </Container>
   );

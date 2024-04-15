@@ -37,6 +37,17 @@ export const authSlice = createSlice({
         }
       },
     );
+
+    builder.addMatcher(
+      authApi.endpoints.signUp.matchFulfilled,
+      (state, action) => {
+        console.log('action.payload --> ', action.payload);
+        if (action.payload?.success) {
+          state.user = action.payload?.data ?? null;
+          state.isSignedIn = true;
+        }
+      },
+    );
   },
 });
 
