@@ -1,19 +1,31 @@
 // import {NavigationProp} from '@react-navigation/native';
-import RootStackParamList from './RootStackParamList';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import type {StackScreenProps} from '@react-navigation/stack';
+import RootStackParamList from './RootStackParamList';
+
 import RouteName from './RouteName';
 
-export type LoginScreenProps = {
-  navigation: NativeStackScreenProps<RootStackParamList, RouteName.LOGIN>;
-};
+export type LoginScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  RouteName.LOGIN
+>;
 
-export type SignupScreenProps = {
-  navigation: NativeStackScreenProps<RootStackParamList, RouteName.SIGNUP>;
-};
+export type SignupScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  RouteName.SIGNUP
+>;
 
-export type ResetPassScreenProps = {
-  navigation: NativeStackScreenProps<
-    RootStackParamList,
-    RouteName.RESET_PASSWORD
-  >;
-};
+export type ResetPassScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  RouteName.RESET_PASSWORD
+>;
+
+export type VerifyOTPScreenProps = StackScreenProps<
+  RootStackParamList,
+  RouteName.VERIFY_OTP
+>;
+
+export type UpdatePasswordScreenProps = StackScreenProps<
+  RootStackParamList,
+  RouteName.UPDATE_PASSWORD
+>;

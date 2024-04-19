@@ -4,34 +4,44 @@ export type UserData = {
   _id: string;
   name: string;
   phone: string;
-  email: string;
+  verify: boolean;
+  role: string;
+  email?: string;
   createdAt: string;
   updatedAt: string;
 };
 
 export type User = UserData & {
-  token: string;
+  accessToken: string;
 };
 
 export type SignupRequest = {
   name: string;
-  email: string;
   phone: string;
   password: string;
 };
 
-export type SignupResponse = TResponse<
-  UserData & {
-    token: string;
-  }
->;
+export type SignupResponse = TResponse<User>;
+
+export type VerifySignupRequest = {
+  phone: string;
+  otpVerify: string;
+};
+
+export type VerifySignupResponse = TResponse<User>;
 
 export type LoginRequest = {
-  email: string;
+  phone: string;
   password: string;
 };
 
 export type LoginResponse = TResponse<User>;
+
+export type ForgotPasswordRequest = {
+  phone: string;
+};
+
+export type ForgotPasswordResponse = TResponse;
 
 // --------OLD CODE--------
 

@@ -20,7 +20,7 @@ import Container from '../../components/Container';
 
 const LoginScreen = () => {
   const [login, {isLoading}] = useLoginMutation();
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [hidePassword, setHidePassword] = useState(true);
 
@@ -29,9 +29,10 @@ const LoginScreen = () => {
   const onShowSnackBar = () => setVisible(true);
   const onHideSnackBar = () => setVisible(false);
 
-  // Validate email and password
-  const hasErrorsEmail = () => {
-    return !email.includes('@');
+  // Validate phone and password
+  const hasErrorsPhone = () => {
+    const phoneRegex = /^[0-9]{10}$/;
+    return !phoneRegex.test(phone);
   };
 
   const hasErrorsPassword = () => {
@@ -39,16 +40,11 @@ const LoginScreen = () => {
   };
 
   const handleLogin = async () => {
-    if (email === '' || password === '') {
+    if (phone === '' || password === '') {
       return;
     }
     try {
-      const result = await login({email, password}).unwrap();
-      // console.log('result --> ', result);
-      // if (result && result?.data && result?.data?.success) {
-      //   console.log('Login successfully:', result?.data);
-      //   onToggleSnackBar();
-      // }
+      await login({phone, password}).unwrap();
     } catch (error) {
       console.log('Failed to login:', error);
       onShowSnackBar();
@@ -60,24 +56,23 @@ const LoginScreen = () => {
       <Title style={styles.title}>Đăng nhập</Title>
       <TextInput
         style={styles.input}
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
+        label="Số điện thoại"
+        value={phone}
+        onChangeText={setPhone}
+        keyboardType="phone-pad"
       />
-      {!!email && hasErrorsEmail() ? (
+      {!!phone && hasErrorsPhone() ? (
         <HelperText
           type="error"
-          visible={hasErrorsEmail()}
+          visible={hasErrorsPhone()}
           style={styles.helperText}>
-          Email address is invalid!
+          Số điện thoại không hợp lệ
         </HelperText>
       ) : null}
 
       <TextInput
         style={styles.input}
-        label="Password"
+        label="Mật khẩu"
         value={password}
         onChangeText={setPassword}
         secureTextEntry={hidePassword}
@@ -93,7 +88,7 @@ const LoginScreen = () => {
           type="error"
           visible={hasErrorsPassword()}
           style={styles.helperText}>
-          Password must be at least 6 characters
+          Mật khẩu phải có ít nhất 6 ký tự
         </HelperText>
       ) : null}
 
@@ -109,7 +104,7 @@ const LoginScreen = () => {
         style={styles.button}
         mode="contained"
         onPress={handleLogin}
-        disabled={isLoading || !email || !password}>
+        disabled={isLoading || !phone || !password}>
         {isLoading ? (
           <ActivityIndicator color="white" />
         ) : (
@@ -135,7 +130,7 @@ const LoginScreen = () => {
           },
         }}
         style={styles.snackBar}>
-        Đăng nhập thất bại!
+        Số điện thoại hoặc mật khẩu không đúng!
       </Snackbar>
     </Container>
   );

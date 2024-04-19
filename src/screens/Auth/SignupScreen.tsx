@@ -13,11 +13,12 @@ import {useSignUpMutation} from '../../api/auth/auth.api';
 import Container from '../../components/Container';
 import {navigate} from '../../navigation/NavigationUtils';
 import RouteName from '../../navigation/RouteName';
+import {ETokenTypes} from '../../utils/enum';
+import {VerifyOTPScreenParams} from '../../navigation/NavigationParams';
 
 const SignupScreen = () => {
   const [signup, {isLoading}] = useSignUpMutation();
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [hidePassword, setHidePassword] = useState(true);
@@ -32,10 +33,6 @@ const SignupScreen = () => {
     return name.length < 3;
   };
 
-  const hasErrorsEmail = () => {
-    return !email.includes('@');
-  };
-
   const hasPhoneErrors = () => {
     return phone.length < 10;
   };
@@ -45,14 +42,18 @@ const SignupScreen = () => {
   };
 
   const handleSignup = async () => {
-    if (email === '' || password === '' || phone === '') {
+    if (name === '' || password === '' || phone === '') {
       return;
     }
     try {
-      const result = await signup({name, email, phone, password}).unwrap();
-      // if (result) {
-      //   console.log('Signup successfully:', result);
-      // }
+      const result = await signup({name, phone, password}).unwrap();
+      if (result.success) {
+        console.log('Signup successfully:', result);
+        navigate<VerifyOTPScreenParams>(RouteName.VERIFY_OTP, {
+          phone,
+          resendType: ETokenTypes.OTP_VERIFY,
+        });
+      }
     } catch (error) {
       console.log('Failed to signup:', error);
       onShowSnackBar();
@@ -64,10 +65,9 @@ const SignupScreen = () => {
       <Title style={styles.title}>Đăng ký</Title>
       <TextInput
         style={styles.input}
-        label="Name"
+        label="Tên người dùng"
         value={name}
         onChangeText={setName}
-        // keyboardType="email-address"
         autoCapitalize="none"
       />
       {!!name && hasErrorsName() ? (
@@ -75,30 +75,13 @@ const SignupScreen = () => {
           type="error"
           visible={hasErrorsName()}
           style={styles.helperText}>
-          Name must be at least 3 characters
+          Tên người dùng phải có ít nhất 3 ký tự
         </HelperText>
       ) : null}
 
       <TextInput
         style={styles.input}
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      {!!email && hasErrorsEmail() ? (
-        <HelperText
-          type="error"
-          visible={hasErrorsEmail()}
-          style={styles.helperText}>
-          Email address is invalid!
-        </HelperText>
-      ) : null}
-
-      <TextInput
-        style={styles.input}
-        label="Phone"
+        label="Số điện thoại"
         value={phone}
         onChangeText={setPhone}
         keyboardType="phone-pad"
@@ -108,13 +91,13 @@ const SignupScreen = () => {
           type="error"
           visible={hasPhoneErrors()}
           style={styles.helperText}>
-          Phone number is invalid!
+          Số điện thoại không hợp lệ
         </HelperText>
       ) : null}
 
       <TextInput
         style={styles.input}
-        label="Password"
+        label="Mật khẩu"
         value={password}
         onChangeText={setPassword}
         secureTextEntry={hidePassword}
@@ -130,7 +113,7 @@ const SignupScreen = () => {
           type="error"
           visible={hasErrorsPassword()}
           style={styles.helperText}>
-          Password must be at least 6 characters
+          Mật khẩu phải có ít nhất 6 ký tự
         </HelperText>
       ) : null}
 
@@ -138,7 +121,7 @@ const SignupScreen = () => {
         style={styles.button}
         mode="contained"
         onPress={handleSignup}
-        disabled={isLoading || !name || !email || !phone || !password}>
+        disabled={isLoading || !name || !phone || !password}>
         {isLoading ? (
           <ActivityIndicator color="white" />
         ) : (

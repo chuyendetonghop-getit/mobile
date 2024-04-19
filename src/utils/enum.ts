@@ -3,3 +3,8 @@ export enum EUserRoles {
   USER = 'user',
   GUEST = 'guest',
 }
+
+export enum ETokenTypes {
+  OTP_VERIFY = 'otpVerify',
+  OTP_RESET = 'otpReset',
+}

@@ -5,11 +5,12 @@ export default {
   signUpUrl: 'auth/signup',
   login: 'auth/local/',
   logOut: 'auth/logout',
-  recoverPassword: 'auth/forgot-password',
+  forgotPassword: 'auth/forgot-password',
   resetPassword: 'auth/reset-password',
   verifySignUp: 'auth/verify-signup',
   verifyResetPassword: 'auth/verify-forgot-password',
-  resendVerifyCode: 'auth/resend-otp-code',
+  resendVerifyCode: 'auth/resend-otp',
+  updatePassword: 'auth/update-password',
 
   //Account
   getProfile: 'users/profile',

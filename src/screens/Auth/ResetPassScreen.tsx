@@ -1,55 +1,104 @@
 import React, {useState} from 'react';
-import {StyleSheet} from 'react-native';
-import {Button, TextInput, Title, HelperText} from 'react-native-paper';
+import {ActivityIndicator, Dimensions, StyleSheet, Text} from 'react-native';
+import {
+  Button,
+  HelperText,
+  Snackbar,
+  TextInput,
+  Title,
+} from 'react-native-paper';
+import {useForgotPasswordMutation} from '../../api/auth/auth.api';
 import Container from '../../components/Container';
+import {VerifyOTPScreenParams} from '../../navigation/NavigationParams';
+import {navigate} from '../../navigation/NavigationUtils';
+import RouteName from '../../navigation/RouteName';
+import {ETokenTypes} from '../../utils/enum';
 
 const ResetPassScreen = () => {
-  const [email, setEmail] = useState('');
-  const [emailError, setEmailError] = useState('');
+  const [forgotPassword, {isLoading}] = useForgotPasswordMutation();
 
-  const handleResetPassword = () => {
+  const [phone, setPhone] = useState('');
+
+  const handleResetPassword = async () => {
     // Handle reset password logic here
-    console.log('Reset password for email:', email);
+    console.log('Reset password for phone:', phone);
+
+    // Call API to reset password
+    try {
+      const result = await forgotPassword({phone}).unwrap();
+      console.log('Reset password successfully:', result);
+
+      if (result.success) {
+        navigate<VerifyOTPScreenParams>(RouteName.VERIFY_OTP, {
+          phone,
+          resendType: ETokenTypes.OTP_RESET,
+        });
+      }
+    } catch (error) {
+      console.log('Failed to reset password:', error);
+      onShowSnackBar();
+    }
   };
 
-  const validateEmail = value => {
-    if (!email.includes('@')) {
-      setEmailError('Email address is invalid');
-    } else {
-      setEmailError('');
-    }
+  // SnackBar state
+  const [visible, setVisible] = React.useState(false);
+  const onShowSnackBar = () => setVisible(true);
+  const onHideSnackBar = () => setVisible(false);
+
+  // Validate phone
+  const hasErrorsPhone = () => {
+    const phoneRegex = /^[0-9]{10}$/;
+    return !phoneRegex.test(phone);
   };
 
   return (
     <Container>
-      <Title style={styles.title}>Reset Password</Title>
+      <Title style={styles.title}>Quên mật khẩu</Title>
       <TextInput
         style={styles.input}
-        label="Email"
-        value={email}
+        label="Số điện thoại"
+        value={phone}
         onChangeText={value => {
-          setEmail(value);
-          validateEmail(value);
+          setPhone(value);
         }}
-        keyboardType="email-address"
-        onBlur={validateEmail}
-        error={emailError !== ''}
+        keyboardType="phone-pad"
+        error={hasErrorsPhone() && phone !== ''}
       />
-      {!!emailError ? (
+      {!!hasErrorsPhone() ? (
         <HelperText
           type="error"
-          visible={emailError !== ''}
+          visible={phone !== ''}
           style={styles.helperText}>
-          {emailError}
+          Số điện thoại không hợp lệ
         </HelperText>
       ) : null}
+
       <Button
         style={styles.button}
         mode="contained"
+        // loading={isLoading}
         onPress={handleResetPassword}
-        disabled={!email || emailError !== ''}>
-        RESET PASSWORD
+        disabled={!phone || hasErrorsPhone()}>
+        {isLoading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.buttonText}>Tiếp tục</Text>
+        )}
       </Button>
+      <Snackbar
+        visible={visible}
+        onDismiss={onHideSnackBar}
+        duration={3000}
+        action={{
+          label: 'OK',
+          onPress: () => {
+            // Do something
+            onHideSnackBar();
+          },
+        }}
+        style={styles.snackBar}>
+        Người dùng không tồn tại
+      </Snackbar>
     </Container>
   );
 };
@@ -68,10 +117,21 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 5,
     marginTop: 10,
+    textTransform: 'uppercase',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
   helperText: {
     marginBottom: 10,
     marginTop: -10,
+  },
+  snackBar: {
+    width: Dimensions.get('window').width - 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
