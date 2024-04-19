@@ -4,7 +4,7 @@ import {Button} from 'react-native-paper';
 import Container from '../components/Container';
 import {useAppDispatch} from '../redux/store';
 
-const HomeScreen = () => {
+const PostScreen = () => {
   const dispatch = useAppDispatch();
   return (
     <Container>
@@ -13,7 +13,7 @@ const HomeScreen = () => {
         onPress={() => {
           dispatch({type: 'auth/signOut'});
         }}>
-        This is the Home Screen
+        This is the Post Screen
       </Text>
 
       {/* <Button mode="contained" onPress={() => console.log('Pressed')}>
@@ -23,7 +23,7 @@ const HomeScreen = () => {
   );
 };
 
-export default HomeScreen;
+export default PostScreen;
 
 const styles = StyleSheet.create({
   fab: {
