@@ -1,19 +1,23 @@
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs/lib/typescript/src/types';
-import React from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
-import {useTheme, IconButton} from 'react-native-paper'; // Import IconButton từ thư viện react-native-paper
+import React, {ReactNode} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {useTheme} from 'react-native-paper'; // Import IconButton từ thư viện react-native-paper
+import IconIoni from 'react-native-vector-icons/Ionicons';
+import IconMetarialCommunity from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import RouteName from '../RouteName';
 
 function CustomTab({state, descriptors, navigation}: BottomTabBarProps) {
   const theme = useTheme(); // Sử dụng theme của React Native Paper
 
   return (
     <View
-      style={{
-        flexDirection: 'row',
-        backgroundColor: theme.colors.surface,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-      }}>
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.colors.surface,
+        },
+      ]}>
       {state.routes.map((route, index) => {
         const {options} = descriptors[route.key];
         const label =
@@ -44,27 +48,43 @@ function CustomTab({state, descriptors, navigation}: BottomTabBarProps) {
           });
         };
 
-        // Định nghĩa icon cho từng tab dựa trên route.name
-        let iconName: string;
+        let IconCpn: ReactNode = null;
         switch (route.name) {
-          case 'Home':
-            iconName = 'home';
+          case RouteName.HOME:
+            IconCpn = (
+              <IconIoni
+                name={isFocused ? 'home' : 'home-outline'}
+                size={24}
+                color={isFocused ? theme.colors.primary : 'black'}
+              />
+            );
             break;
-
-          case 'Post':
-            iconName = 'plus-circle';
+          case RouteName.POST:
+            IconCpn = (
+              <IconMetarialCommunity
+                name={isFocused ? 'note-edit' : 'note-edit-outline'}
+                size={24}
+                color={isFocused ? theme.colors.primary : 'black'}
+              />
+            );
             break;
-
-          case 'Chat':
-            iconName = 'chat';
+          case RouteName.CHAT:
+            IconCpn = (
+              <IconIoni
+                name={isFocused ? 'chatbubbles' : 'chatbubbles-outline'}
+                size={24}
+                color={isFocused ? theme.colors.primary : 'black'}
+              />
+            );
             break;
-
-          case 'Me':
-            iconName = 'account';
-            break;
-
-          default:
-            iconName = '';
+          case RouteName.ME:
+            IconCpn = (
+              <IconMetarialCommunity
+                name={isFocused ? 'account' : 'account-outline'}
+                size={24}
+                color={isFocused ? theme.colors.primary : 'black'}
+              />
+            );
             break;
         }
 
@@ -73,15 +93,11 @@ function CustomTab({state, descriptors, navigation}: BottomTabBarProps) {
             key={route.key}
             onPress={onPress}
             onLongPress={onLongPress}
-            style={{flex: 1, alignItems: 'center'}}>
-            <IconButton
-              icon={iconName}
-              color={isFocused ? theme.colors.primary : theme.colors.text}
-              size={24}
-            />
+            style={styles.item}>
+            {IconCpn}
             <Text
               style={{
-                color: isFocused ? theme.colors.primary : theme.colors.text,
+                color: isFocused ? 'blue' : 'black',
               }}>
               {label}
             </Text>
@@ -91,5 +107,19 @@ function CustomTab({state, descriptors, navigation}: BottomTabBarProps) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+
+  item: {
+    flex: 1,
+    alignItems: 'center',
+    // backgroundColor: 'red',
+  },
+});
 
 export default CustomTab;
