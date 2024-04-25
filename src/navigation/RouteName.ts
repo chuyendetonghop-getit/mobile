@@ -5,10 +5,10 @@ enum RouteName {
   VERIFY_OTP = 'VerifyOTP',
   UPDATE_PASSWORD = 'UpdatePassword',
   MAIN_TAB = 'MainTab',
-  HOME = 'Home',
-  POST = 'Post',
-  CHAT = 'Chat',
-  ME = 'Me',
+  HOME = 'Trang chủ',
+  POST = 'Đăng tin',
+  CHAT = 'Trò chuyện',
+  ME = 'Tôi',
 }
 
 export default RouteName;
