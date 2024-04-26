@@ -148,6 +148,7 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
       <PostAction
         phone={fakePosts.author.phone}
         authorId={fakePosts.author.id}
+        postTitle={fakePosts.title}
       />
 
       <ImageView

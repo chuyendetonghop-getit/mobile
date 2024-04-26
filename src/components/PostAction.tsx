@@ -1,24 +1,28 @@
 import React from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {Linking, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Icon, MD3Colors, Text} from 'react-native-paper';
 import {appWidth} from '../themes/spacing';
 
 type Props = {
   phone: string | number;
   authorId: string | number;
+  postTitle: string;
 };
 
-const PostAction = ({phone, authorId}: Props) => {
+const PostAction = ({phone, authorId, postTitle}: Props) => {
   const onCall = async () => {
     console.log('Call to seller');
+    Linking.openURL(`tel:${phone}`);
   };
 
   const onSMS = async () => {
     console.log('SMS with seller');
+    const body = `Xin chào, tôi muốn hỏi về bài đăng ${postTitle} của bạn`;
+    Linking.openURL(`sms:${phone}?body=${body}`);
   };
 
   const onChat = async () => {
-    console.log('Chat with seller');
+    console.log('Chat with seller ID:', authorId);
   };
   return (
     <View style={styles.container}>
