@@ -1,12 +1,12 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import RouteName from '../RouteName';
-import HomeScreen from '../../screens/HomeScreen';
-import CustomTab from './CustomTab';
-
 import React from 'react';
-import PostScreen from '../../screens/PostScreen';
-import ChatScreen from '../../screens/ChatScreen';
-import MeScreen from '../../screens/MeScreen';
+
+import RouteName from '../RouteName';
+import CustomTab from './CustomTab';
+import HomeScreen from '../../screens/BottomTabs/HomeScreen';
+import PostScreen from '../../screens/BottomTabs/PostScreen';
+import ChatScreen from '../../screens/BottomTabs/ChatScreen';
+import MeScreen from '../../screens/BottomTabs/MeScreen';
 
 const Tab = createBottomTabNavigator();
 

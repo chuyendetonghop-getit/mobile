@@ -1,10 +1,10 @@
 import React from 'react';
 import {StyleSheet, Text} from 'react-native';
-import {Button} from 'react-native-paper';
-import Container from '../components/Container';
-import {useAppDispatch} from '../redux/store';
 
-const ChatScreen = () => {
+import Container from '../../components/Container';
+import {useAppDispatch} from '../../redux/store';
+
+const PostScreen = () => {
   const dispatch = useAppDispatch();
   return (
     <Container>
@@ -13,7 +13,7 @@ const ChatScreen = () => {
         onPress={() => {
           dispatch({type: 'auth/signOut'});
         }}>
-        This is the Chat Screen
+        This is the Post Screen
       </Text>
 
       {/* <Button mode="contained" onPress={() => console.log('Pressed')}>
@@ -23,7 +23,7 @@ const ChatScreen = () => {
   );
 };
 
-export default ChatScreen;
+export default PostScreen;
 
 const styles = StyleSheet.create({
   fab: {

@@ -2,12 +2,12 @@ import React from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Chip, Divider, Icon, MD3Colors, Text} from 'react-native-paper';
 
-import Container from '../components/Container';
-import Post from '../components/Post';
-import {navigate} from '../navigation/NavigationUtils';
-import RouteName from '../navigation/RouteName';
-import {appWidth} from '../themes/spacing';
-import {category} from '../utils/category';
+import Container from '../../components/Container';
+import {navigate} from '../../navigation/NavigationUtils';
+import RouteName from '../../navigation/RouteName';
+import {category} from '../../utils/category';
+import {appWidth} from '../../themes/spacing';
+import Post from '../../components/Post';
 
 const fakePosts = [
   {
