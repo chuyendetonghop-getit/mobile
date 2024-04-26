@@ -9,6 +9,7 @@ enum RouteName {
   POST = 'Đăng tin',
   CHAT = 'Trò chuyện',
   ME = 'Tôi',
+  SEARCH = 'Search',
 }
 
 export default RouteName;
