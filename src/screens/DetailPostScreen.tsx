@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {
@@ -11,6 +11,7 @@ import {
 } from 'react-native-paper';
 // @ts-ignore
 import {SliderBox} from 'react-native-image-slider-box';
+import ImageView from 'react-native-image-viewing';
 
 import Container from '../components/Container';
 import {DetailPostScreenProps} from '../navigation/NavigationProps';
@@ -19,36 +20,39 @@ import {category} from '../utils/category';
 import {DEFAULT_AVATAR} from '../utils/constant';
 import PostAction from '../components/PostAction';
 
+const images = [
+  'https://source.unsplash.com/1024x768/?nature',
+  'https://source.unsplash.com/1024x768/?water',
+  'https://source.unsplash.com/1024x768/?animal',
+  'https://source.unsplash.com/1024x768/?tree',
+];
+
+const fakePosts = {
+  id: 2,
+  title: 'Bài viết 2',
+  description:
+    'Ipsum dolor sit amet, consectetur adipiscing elit. Ipsum dolor sit amet, consectetur adipiscing elit. Ipsum dolor sit amet, consectetur adipiscing elit. Ipsum dolor sit amet, consectetur adipiscing elit. Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.----',
+  category: category[0],
+  address: 'An Khanh, Hoai Duc, Ha Noi',
+  time: '1 giờ trước',
+  price: '1.000.000 đ',
+  image: 'https://picsum.photos/200/300',
+  author: {
+    id: 1,
+    name: 'Nguyen Van A',
+    avatar: DEFAULT_AVATAR,
+    sold: 100,
+    phone: '0123456789',
+  },
+};
+
 const DetailPostScreen = (props: DetailPostScreenProps) => {
+  const [visible, setIsVisible] = useState(false);
+  const [currentImage, setCurrentImage] = useState(0);
+
   const postId = props.route.params.postId;
 
   console.log('Detail Post with ID:', postId);
-
-  const images = [
-    'https://source.unsplash.com/1024x768/?nature',
-    'https://source.unsplash.com/1024x768/?water',
-    'https://source.unsplash.com/1024x768/?animal',
-    'https://source.unsplash.com/1024x768/?tree',
-  ];
-
-  const fakePosts = {
-    id: 2,
-    title: 'Bài viết 2',
-    description:
-      'Ipsum dolor sit amet, consectetur adipiscing elit. Ipsum dolor sit amet, consectetur adipiscing elit. Ipsum dolor sit amet, consectetur adipiscing elit. Ipsum dolor sit amet, consectetur adipiscing elit. Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.----',
-    category: category[0],
-    address: 'An Khanh, Hoai Duc, Ha Noi',
-    time: '1 giờ trước',
-    price: '1.000.000 đ',
-    image: 'https://picsum.photos/200/300',
-    author: {
-      id: 1,
-      name: 'Nguyen Van A',
-      avatar: DEFAULT_AVATAR,
-      sold: 100,
-      phone: '0123456789',
-    },
-  };
 
   return (
     <View style={styles.container}>
@@ -80,9 +84,11 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
         <SliderBox
           images={images}
           sliderBoxHeight={300}
-          onCurrentImagePressed={(index: any) =>
-            console.warn(`image ${index} pressed`)
-          }
+          onCurrentImagePressed={(index: any) => {
+            console.log(`image ${index} pressed`);
+            setCurrentImage(index);
+            setIsVisible(true);
+          }}
           dotColor="#FFF"
           inactiveDotColor="rgba(0,0,0,0.5)"
           dotStyle={styles.dots}
@@ -142,6 +148,13 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
       <PostAction
         phone={fakePosts.author.phone}
         authorId={fakePosts.author.id}
+      />
+
+      <ImageView
+        images={images.map(item => ({uri: item}))}
+        imageIndex={currentImage}
+        visible={visible}
+        onRequestClose={() => setIsVisible(false)}
       />
     </View>
   );
