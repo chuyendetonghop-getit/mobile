@@ -6,8 +6,10 @@ import IconIoni from 'react-native-vector-icons/Ionicons';
 import IconMetarialCommunity from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import RouteName from '../RouteName';
+import {MAPPED_ROUTE_NAME} from '../../utils/constant';
+import {EPostScreenTypes} from '../../utils/enum';
 
-function CustomTab({state, descriptors, navigation}: BottomTabBarProps) {
+function CustomTab({state, navigation}: BottomTabBarProps) {
   const theme = useTheme(); // Sử dụng theme của React Native Paper
 
   return (
@@ -19,13 +21,7 @@ function CustomTab({state, descriptors, navigation}: BottomTabBarProps) {
         },
       ]}>
       {state.routes.map((route, index) => {
-        const {options} = descriptors[route.key];
-        const label =
-          options.tabBarLabel !== undefined
-            ? options.tabBarLabel
-            : options.title !== undefined
-            ? options.title
-            : route.name;
+        const label = MAPPED_ROUTE_NAME[route.name as RouteName] || route.name;
 
         const isFocused = state.index === index;
 
@@ -37,7 +33,14 @@ function CustomTab({state, descriptors, navigation}: BottomTabBarProps) {
           });
 
           if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name, route.params);
+            // The weird way to navigate to PostScreen
+            if (route.name === RouteName.CLONE_POST) {
+              navigation.navigate(RouteName.POST, {
+                mode: EPostScreenTypes.CREATE,
+              });
+            } else {
+              navigation.navigate(route.name, route.params);
+            }
           }
         };
 
@@ -59,7 +62,7 @@ function CustomTab({state, descriptors, navigation}: BottomTabBarProps) {
               />
             );
             break;
-          case RouteName.POST:
+          case RouteName.CLONE_POST:
             IconCpn = (
               <IconMetarialCommunity
                 name={isFocused ? 'note-edit' : 'note-edit-outline'}

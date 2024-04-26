@@ -1,12 +1,12 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import React from 'react';
 
+import ChatScreen from '../../screens/BottomTabs/ChatScreen';
+import ClonePostScreen from '../../screens/BottomTabs/ClonePostScreen';
+import HomeScreen from '../../screens/BottomTabs/HomeScreen';
+import MeScreen from '../../screens/BottomTabs/MeScreen';
 import RouteName from '../RouteName';
 import CustomTab from './CustomTab';
-import HomeScreen from '../../screens/BottomTabs/HomeScreen';
-import PostScreen from '../../screens/BottomTabs/PostScreen';
-import ChatScreen from '../../screens/BottomTabs/ChatScreen';
-import MeScreen from '../../screens/BottomTabs/MeScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -19,7 +19,7 @@ function TabNavigator() {
         headerShown: false,
       }}>
       <Tab.Screen name={RouteName.HOME} component={HomeScreen} />
-      <Tab.Screen name={RouteName.POST} component={PostScreen} />
+      <Tab.Screen name={RouteName.CLONE_POST} component={ClonePostScreen} />
       <Tab.Screen name={RouteName.CHAT} component={ChatScreen} />
       <Tab.Screen name={RouteName.ME} component={MeScreen} />
     </Tab.Navigator>

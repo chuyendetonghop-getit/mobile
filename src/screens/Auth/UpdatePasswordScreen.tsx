@@ -54,7 +54,7 @@ const UpdatePasswordScreen = (props: UpdatePasswordScreenProps) => {
   };
 
   return (
-    <Container>
+    <Container style={styles.container}>
       <Title style={styles.title}>Đặt mật khẩu mới</Title>
 
       <TextInput
@@ -139,6 +139,9 @@ const UpdatePasswordScreen = (props: UpdatePasswordScreenProps) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    justifyContent: 'center',
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',

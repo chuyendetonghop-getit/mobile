@@ -1,4 +1,4 @@
-import {ETokenTypes} from '../utils/enum';
+import {EPostScreenTypes, ETokenTypes} from '../utils/enum';
 
 export type LoginScreenParams = undefined;
 export type SignupScreenParams = undefined;
@@ -9,6 +9,11 @@ export type VerifyOTPScreenParams = {
 };
 export type UpdatePasswordScreenParams = {
   phone: string;
+};
+
+export type PostScreenParams = {
+  mode?: EPostScreenTypes;
+  postId?: string;
 };
 
 export type DetailPostScreenParams = {

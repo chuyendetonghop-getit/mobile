@@ -108,7 +108,7 @@ const VerifyOTPScreen = (props: VerifyOTPScreenProps) => {
   }, [countdown]);
 
   return (
-    <Container>
+    <Container style={styles.container}>
       <Title style={styles.title}>Xác thực OTP</Title>
       <TextInput
         style={styles.input}
@@ -164,6 +164,9 @@ const VerifyOTPScreen = (props: VerifyOTPScreenProps) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    justifyContent: 'center',
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',

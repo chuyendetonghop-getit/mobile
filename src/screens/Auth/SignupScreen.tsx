@@ -61,7 +61,7 @@ const SignupScreen = () => {
   };
 
   return (
-    <Container>
+    <Container style={styles.container}>
       <Title style={styles.title}>Đăng ký</Title>
       <TextInput
         style={styles.input}
@@ -155,6 +155,9 @@ const SignupScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    justifyContent: 'center',
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',

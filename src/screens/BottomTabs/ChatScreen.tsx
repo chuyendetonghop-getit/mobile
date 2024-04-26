@@ -1,38 +1,46 @@
 import React from 'react';
-import {StyleSheet, Text} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 
+import {Appbar, Text} from 'react-native-paper';
 import Container from '../../components/Container';
-import {useAppDispatch} from '../../redux/store';
 
 const ChatScreen = () => {
-  const dispatch = useAppDispatch();
-  return (
-    <Container>
-      <Text
-        style={styles.text}
-        onPress={() => {
-          dispatch({type: 'auth/signOut'});
-        }}>
-        This is the Chat Screen
-      </Text>
+  const _handleSearch = () => console.log('Searching');
 
-      {/* <Button mode="contained" onPress={() => console.log('Pressed')}>
-        Press me
-      </Button> */}
-    </Container>
+  const _handleMore = () => console.log('Shown more');
+  return (
+    <View style={styles.wrapper}>
+      <Appbar.Header style={styles.header}>
+        {/* <Appbar.BackAction onPress={goBack} /> */}
+        <Appbar.Content
+          title="Danh sách tin nhắn"
+          // titleStyle={styles.titleStyle}
+        />
+        <Appbar.Action icon="magnify" onPress={_handleSearch} />
+        <Appbar.Action icon="dots-vertical" onPress={_handleMore} />
+      </Appbar.Header>
+      <Container style={styles.container} scrollable>
+        <Text>Post Screen</Text>
+      </Container>
+    </View>
   );
 };
 
 export default ChatScreen;
 
 const styles = StyleSheet.create({
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
+  wrapper: {
+    flex: 1,
+    backgroundColor: 'red',
   },
-  text: {
-    textAlign: 'center',
+  header: {
+    height: 64,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: 'green',
+  },
+  titleStyle: {
+    fontSize: 20,
   },
 });

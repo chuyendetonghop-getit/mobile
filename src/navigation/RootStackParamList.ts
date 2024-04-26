@@ -1,6 +1,7 @@
 import {
   DetailPostScreenParams,
   LoginScreenParams,
+  PostScreenParams,
   ResetPassScreenParams,
   SignupScreenParams,
   UpdatePasswordScreenParams,
@@ -14,6 +15,7 @@ type RootStackParamList = {
   [RouteName.RESET_PASSWORD]: ResetPassScreenParams;
   [RouteName.VERIFY_OTP]: VerifyOTPScreenParams;
   [RouteName.UPDATE_PASSWORD]: UpdatePasswordScreenParams;
+  [RouteName.POST]: PostScreenParams;
   [RouteName.DETAIL_POST]: DetailPostScreenParams;
 };
 

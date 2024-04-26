@@ -8,3 +8,8 @@ export enum ETokenTypes {
   OTP_VERIFY = 'otpVerify',
   OTP_RESET = 'otpReset',
 }
+
+export enum EPostScreenTypes {
+  CREATE = 'create',
+  UPDATE = 'update',
+}

@@ -30,6 +30,11 @@ export type UpdatePasswordScreenProps = StackScreenProps<
   RouteName.UPDATE_PASSWORD
 >;
 
+export type PostScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  RouteName.POST
+>;
+
 export type DetailPostScreenProps = NativeStackScreenProps<
   RootStackParamList,
   RouteName.DETAIL_POST

@@ -52,7 +52,7 @@ const ResetPassScreen = () => {
   };
 
   return (
-    <Container>
+    <Container style={styles.container}>
       <Title style={styles.title}>Quên mật khẩu</Title>
       <TextInput
         style={styles.input}
@@ -104,6 +104,9 @@ const ResetPassScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    justifyContent: 'center',
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
