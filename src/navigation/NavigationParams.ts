@@ -10,3 +10,7 @@ export type VerifyOTPScreenParams = {
 export type UpdatePasswordScreenParams = {
   phone: string;
 };
+
+export type DetailPostScreenParams = {
+  postId: string;
+};

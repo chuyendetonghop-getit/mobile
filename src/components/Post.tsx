@@ -1,8 +1,11 @@
 import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {Divider, Text} from 'react-native-paper';
+import {navigate} from '../navigation/NavigationUtils';
+import RouteName from '../navigation/RouteName';
 
 type Props = {
+  id: string | number;
   title: string;
   description: string;
   address: string;
@@ -11,9 +14,13 @@ type Props = {
   image: string;
 };
 
-const Post = ({title, description, address, time, price, image}: Props) => {
+const Post = ({id, title, description, address, time, price, image}: Props) => {
+  const onPress = () => {
+    console.log('Post ID: ', id);
+    navigate(RouteName.DETAIL_POST, {postId: id});
+  };
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onPress}>
       <Divider />
       <Image
         source={{
