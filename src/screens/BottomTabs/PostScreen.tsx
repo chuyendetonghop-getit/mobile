@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, StyleSheet, View} from 'react-native';
+import {Alert, Image, StyleSheet, TouchableOpacity, View} from 'react-native';
+import ImageView from 'react-native-image-viewing';
 import MaskInput, {createNumberMask} from 'react-native-mask-input';
 import {
   Appbar,
@@ -13,9 +14,11 @@ import {
 import Container from '../../components/Container';
 import Section from '../../components/Section';
 import CategoryModal from '../../components/modals/CategoryModal';
+import SelectMediaModal from '../../components/modals/SelectMediaModal';
 import StatusModal from '../../components/modals/StatusModal';
 import {PostScreenProps} from '../../navigation/NavigationProps';
 import {goBack} from '../../navigation/NavigationUtils';
+import {appWidth} from '../../themes/spacing';
 import {category} from '../../utils/category';
 import {EPostScreenTypes} from '../../utils/enum';
 
@@ -31,23 +34,29 @@ const VNDMask = createNumberMask({
   precision: 0,
 });
 
+type TModalTypes = 'category' | 'media' | 'status';
+
 const PostScreen = (props: PostScreenProps) => {
   const [visibleModal, setVisibleModal] = React.useState<{
     [key: string]: boolean;
   }>({
     category: false,
+    media: false,
     status: false,
   });
 
-  const showModal = (type: 'category' | 'status') =>
+  const showModal = (type: TModalTypes) =>
     setVisibleModal({...visibleModal, [type]: true});
-  const hideModal = (type: 'category' | 'status') =>
+  const hideModal = (type: TModalTypes) =>
     setVisibleModal({...visibleModal, [type]: false});
+
+  const [visible, setIsVisible] = useState(false);
+  const [currentImage, setCurrentImage] = useState(0);
 
   const navigation = props.navigation;
   const [data, setData] = useState({
     category: category[0],
-    images: [],
+    images: [] as string[],
     title: '',
     price: '',
     status: '',
@@ -76,7 +85,34 @@ const PostScreen = (props: PostScreenProps) => {
     goBack();
   };
 
-  const onDone = () => console.log('Done post');
+  const onDone = () => {
+    // Check data before post
+
+    if (data.images.length === 0) {
+      Alert.alert('Ảnh không được để trống', 'Vui lòng chọn it nhất 01 ảnh');
+      return;
+    } else if (data.title.length < 3) {
+      Alert.alert('Tiêu đề quá ngắn', 'Tiêu đề phải có ít nhất 3 ký tự');
+      return;
+    } else if (data.price.length === 0) {
+      Alert.alert('Giá bán không được để trống', 'Vui lòng nhập giá bán');
+      return;
+    } else if (data.status.length === 0) {
+      Alert.alert('Tình trạng không được để trống', 'Vui lòng chọn tình trạng');
+      return;
+    } else if (data.description.length < 20) {
+      Alert.alert('Mô tả quá ngắn', 'Mô tả phải có ít nhất 20 ký tự');
+      return;
+    } else if (data.phone.length === 0) {
+      Alert.alert(
+        'Số điện thoại không được để trống',
+        'Vui lòng nhập số điện thoại',
+      );
+      return;
+    }
+
+    console.log('Post data:', data);
+  };
 
   useEffect(() => {
     if (!postId) return;
@@ -135,6 +171,16 @@ const PostScreen = (props: PostScreenProps) => {
         }}
       />
 
+      <SelectMediaModal
+        visible={visibleModal.media}
+        onDismiss={() => hideModal('media')}
+        onSelectMedia={mediaURL => {
+          console.log('mediaURL ->', mediaURL);
+          // setData({...data, images: mediaURL});
+          setData({...data, images: [...data.images, ...mediaURL]});
+        }}
+      />
+
       <StatusModal
         visible={visibleModal.status}
         onDismiss={() => hideModal('status')}
@@ -183,8 +229,63 @@ const PostScreen = (props: PostScreenProps) => {
         <Divider />
 
         {/* image upload */}
+        <Section style={styles.uploadWrapper}>
+          <TouchableOpacity
+            style={styles.upload}
+            onPress={() => showModal('media')}>
+            <Icon source="camera-plus" color={MD3Colors.primary50} size={20} />
+            <Text>Đăng ảnh</Text>
+          </TouchableOpacity>
+
+          {data.images.map((item, index) => (
+            <TouchableOpacity
+              style={[
+                styles.upload,
+                {
+                  borderWidth: 0,
+                  borderColor: 'transparent',
+                },
+              ]}
+              onPress={() => {
+                setCurrentImage(index);
+                setIsVisible(true);
+              }}
+              key={index}>
+              {/* clear icon */}
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.clearIcon}
+                onPress={() => {
+                  console.log('Clear image :', index + 1);
+                  const newImages = data.images.filter((_, i) => i !== index);
+                  setData({...data, images: newImages});
+                }}>
+                <Icon
+                  source="close-circle"
+                  color={MD3Colors.primary50}
+                  size={24}
+                />
+              </TouchableOpacity>
+
+              <Image
+                resizeMode="cover"
+                source={{
+                  uri: item,
+                }}
+                style={{
+                  borderRadius: 8,
+                  width: (appWidth - 32 - 50) / 4,
+                  height: (appWidth - 32 - 50) / 4,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              />
+            </TouchableOpacity>
+          ))}
+        </Section>
 
         {/* title */}
+        <Divider />
         <Section>
           <TextInput
             mode="outlined"
@@ -302,6 +403,13 @@ const PostScreen = (props: PostScreenProps) => {
         </Section>
         <Divider />
       </Container>
+
+      <ImageView
+        images={data.images.map(item => ({uri: item}))}
+        imageIndex={currentImage}
+        visible={visible}
+        onRequestClose={() => setIsVisible(false)}
+      />
     </View>
   );
 };
@@ -328,6 +436,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
+  },
+  uploadWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    gap: 16,
+    // backgroundColor: 'red',
+  },
+  upload: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    paddingVertical: 16,
+    width: (appWidth - 32 - 50) / 4,
+    height: (appWidth - 32 - 50) / 4,
+    // backgroundColor: 'pink',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#d1d1d1',
+    // overflow: 'hidden',
+  },
+  clearIcon: {
+    position: 'absolute',
+    top: -8,
+    right: -5.8,
+    zIndex: 1,
+    borderWidth: 0.5,
+    borderColor: '#fff',
+    borderRadius: 100,
+    backgroundColor: '#fff',
   },
   inputOutline: {},
   input: {
