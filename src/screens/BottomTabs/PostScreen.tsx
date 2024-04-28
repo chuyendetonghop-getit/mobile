@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Alert, StyleSheet, View} from 'react-native';
+import MaskInput, {createNumberMask} from 'react-native-mask-input';
 import {
   Appbar,
   Divider,
@@ -8,10 +9,11 @@ import {
   Text,
   TextInput,
 } from 'react-native-paper';
-import MaskInput, {createNumberMask, Masks} from 'react-native-mask-input';
 
 import Container from '../../components/Container';
 import Section from '../../components/Section';
+import CategoryModal from '../../components/modals/CategoryModal';
+import StatusModal from '../../components/modals/StatusModal';
 import {PostScreenProps} from '../../navigation/NavigationProps';
 import {goBack} from '../../navigation/NavigationUtils';
 import {category} from '../../utils/category';
@@ -30,9 +32,20 @@ const VNDMask = createNumberMask({
 });
 
 const PostScreen = (props: PostScreenProps) => {
+  const [visibleModal, setVisibleModal] = React.useState<{
+    [key: string]: boolean;
+  }>({
+    category: false,
+    status: false,
+  });
+
+  const showModal = (type: 'category' | 'status') =>
+    setVisibleModal({...visibleModal, [type]: true});
+  const hideModal = (type: 'category' | 'status') =>
+    setVisibleModal({...visibleModal, [type]: false});
+
   const navigation = props.navigation;
   const [data, setData] = useState({
-    location: '',
     category: category[0],
     images: [],
     title: '',
@@ -109,6 +122,28 @@ const PostScreen = (props: PostScreenProps) => {
 
   return (
     <View style={styles.wrapper}>
+      <CategoryModal
+        visible={visibleModal.category}
+        onDismiss={() => hideModal('category')}
+        onSelectCategory={cat_id => {
+          console.log('onSelectCategory =>', cat_id);
+          setData({
+            ...data,
+            category:
+              category.find(item => item.cat_id === cat_id) ?? category[0],
+          });
+        }}
+      />
+
+      <StatusModal
+        visible={visibleModal.status}
+        onDismiss={() => hideModal('status')}
+        onSelectStatus={status => {
+          console.log('onSelectStatus ->', status);
+          setData({...data, status});
+        }}
+      />
+
       <Appbar.Header mode="center-aligned">
         <Appbar.Action icon="close" onPress={onCancel} />
         <Appbar.Content title={titleByMode} titleStyle={styles.titleStyle} />
@@ -117,7 +152,11 @@ const PostScreen = (props: PostScreenProps) => {
 
       <Container style={styles.container} scrollable>
         {/* location */}
-        <Section style={styles.location} touchable>
+        <Section
+          style={styles.location}
+          // touchable
+          // onPress={() => showModal('location')}
+        >
           <Text>Đăng bài tại: </Text>
           <Icon
             source="map-marker-radius"
@@ -129,13 +168,16 @@ const PostScreen = (props: PostScreenProps) => {
         <Divider />
 
         {/* category */}
-        <Section style={styles.location} touchable>
+        <Section
+          style={styles.location}
+          touchable
+          onPress={() => showModal('category')}>
           <Icon
-            source={fakeStore.category.cat_icon}
+            source={data.category.cat_icon}
             color={MD3Colors.primary50}
             size={20}
           />
-          <Text> {fakeStore.category.cat_name}</Text>
+          <Text> {data.category.cat_name}</Text>
           <Icon source="chevron-down" color={MD3Colors.primary50} size={20} />
         </Section>
         <Divider />
@@ -188,8 +230,13 @@ const PostScreen = (props: PostScreenProps) => {
         <Divider />
 
         {/* status */}
-        <Section style={styles.location} touchable>
-          <Text>Chọn tình trạng</Text>
+        <Section
+          style={styles.location}
+          touchable
+          onPress={() => showModal('status')}>
+          <Icon source="menu" color={MD3Colors.primary50} size={20} />
+          <Text>Tình trạng: </Text>
+          <Text>{data?.status ? data.status : 'Chọn tình trạng'}</Text>
           <Icon source="chevron-down" color={MD3Colors.primary50} size={20} />
         </Section>
         <Divider />

@@ -11,11 +11,12 @@ type Props = {
   children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   touchable?: boolean;
+  onPress?: () => void;
 };
 
-const Section = ({children, style, touchable}: Props) => {
+const Section = ({children, style, touchable, onPress}: Props) => {
   return touchable ? (
-    <TouchableOpacity style={[styles.container, style]}>
+    <TouchableOpacity style={[styles.container, style]} onPress={onPress}>
       {children}
     </TouchableOpacity>
   ) : (
