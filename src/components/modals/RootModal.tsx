@@ -3,9 +3,10 @@ import {Animated, StyleProp, StyleSheet, ViewStyle} from 'react-native';
 import {Modal, Portal} from 'react-native-paper';
 
 export type RootModalProps = {
-  children?: React.ReactNode;
+  children: React.ReactNode;
   visible: boolean;
   onDismiss: () => void;
+  dismissable?: boolean;
   style?: StyleProp<ViewStyle>;
   contentContainerStyle?: Animated.WithAnimatedValue<StyleProp<ViewStyle>>;
 };
@@ -19,6 +20,7 @@ const RootModal = ({
   children,
   visible,
   onDismiss,
+  dismissable = true,
   style,
   contentContainerStyle,
 }: RootModalProps) => {
@@ -27,6 +29,7 @@ const RootModal = ({
       <Modal
         visible={visible}
         onDismiss={onDismiss}
+        dismissable={dismissable}
         style={[styles.content, style]}
         contentContainerStyle={[styles.container, contentContainerStyle]}>
         {children}

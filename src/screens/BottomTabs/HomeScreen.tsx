@@ -3,11 +3,12 @@ import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Chip, Divider, Icon, MD3Colors, Text} from 'react-native-paper';
 
 import Container from '../../components/Container';
+import Post from '../../components/Post';
+import SelectLocationModal from '../../components/modals/SelectLocationModal';
 import {navigate} from '../../navigation/NavigationUtils';
 import RouteName from '../../navigation/RouteName';
-import {category} from '../../utils/category';
 import {appWidth} from '../../themes/spacing';
-import Post from '../../components/Post';
+import {category} from '../../utils/category';
 
 const fakePosts = [
   {
@@ -103,8 +104,16 @@ const fakePosts = [
 ];
 
 const HomeScreen = () => {
+  const hasLocation = true;
+
   return (
     <Container style={styles.container} scrollable>
+      <SelectLocationModal
+        visible={!hasLocation}
+        dismissable={hasLocation}
+        onDismiss={() => console.log('Location')}
+      />
+
       <Chip
         icon="magnify"
         mode="outlined"
