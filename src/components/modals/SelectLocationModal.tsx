@@ -1313,7 +1313,7 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
         <TouchableOpacity
           style={styles.useLocation}
           onPress={onGetCurrenLocation}>
-          <Icon source="camera" color={MD3Colors.primary80} size={20} />
+          <Icon source="crosshairs-gps" color={MD3Colors.primary80} size={20} />
           <Text>Sử dụng vị trí hiện tại</Text>
         </TouchableOpacity>
       </View>
