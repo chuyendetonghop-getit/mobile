@@ -1,1263 +1,18 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Divider, Icon, MD3Colors, Searchbar, Text} from 'react-native-paper';
 
-import Geolocation, {
-  GeolocationResponse,
-} from '@react-native-community/geolocation';
+import Geolocation from '@react-native-community/geolocation';
+import Slider from '@react-native-community/slider';
+import {autoCompleteLocation, reverseGeocode} from '../../api/locationApi';
+import useDebounce from '../../hooks/useDebounce';
+import {setAppLocation, setAppRadius} from '../../redux/slices/profile.slice';
+import {useAppDispatch, useAppSelector} from '../../redux/store';
 import {appWidth} from '../../themes/spacing';
+import {TLocation} from '../../types/location.type';
+import {MAX_RADIUS, MIN_RADIUS, RADIUS_STEP} from '../../utils/constant';
 import Header from '../Header';
 import RootModal, {BaseModalComponentProps} from './RootModal';
-
-const fakeLocations = [
-  {
-    place_id: '322705741313',
-    osm_id: '4137570235',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.9584322',
-    lon: '105.1145857',
-    boundingbox: ['10.9384322', '10.9784322', '105.0945857', '105.1345857'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh An, Xã Khánh An, Huyện An Phú, An Giang, Việt Nam',
-    display_place: 'Khánh An',
-    display_address: 'Xã Khánh An, Huyện An Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Khánh An',
-      city: 'Xã Khánh An',
-      county: 'Huyện An Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '323314292986',
-    osm_id: '14672616',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.9445752',
-    lon: '105.10842477',
-    boundingbox: ['10.9280548', '10.962188', '105.0925301', '105.1178694'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh An, Huyện An Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh An',
-    display_address: 'Huyện An Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh An',
-      county: 'Huyện An Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '323092395950',
-    osm_id: '936706403',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '20.2212282',
-    lon: '106.0248242',
-    boundingbox: ['20.2012282', '20.2412282', '106.0048242', '106.0448242'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh An, Yên Khánh, Tỉnh Ninh Bình, Việt Nam',
-    display_place: 'Khánh An',
-    display_address: 'Yên Khánh, Tỉnh Ninh Bình, Việt Nam',
-    address: {
-      name: 'Khánh An',
-      county: 'Yên Khánh',
-      state: 'Tỉnh Ninh Bình',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '323271923511',
-    osm_id: '11367508',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '21.0002679',
-    lon: '105.72197311',
-    boundingbox: ['20.9784895', '21.0214291', '105.7059174', '105.7358041'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã An Khánh, Hà Nội, Việt Nam',
-    display_place: 'Xã An Khánh',
-    display_address: 'Hà Nội, Việt Nam',
-    address: {
-      name: 'Xã An Khánh',
-      city: 'Hà Nội',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '321375738007',
-    osm_id: '4781305699',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.2173205',
-    lon: '105.8556568',
-    boundingbox: ['10.1973205', '10.2373205', '105.8356568', '105.8756568'],
-    class: 'place',
-    type: 'village',
-    display_name:
-      'An Khánh, Xã An Khánh, Huyện Châu Thành, Đồng Tháp, Việt Nam',
-    display_place: 'An Khánh',
-    display_address: 'Xã An Khánh, Huyện Châu Thành, Đồng Tháp, Việt Nam',
-    address: {
-      name: 'An Khánh',
-      city: 'Xã An Khánh',
-      county: 'Huyện Châu Thành',
-      state: 'Đồng Tháp',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320382795516',
-    osm_id: '15628055',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '9.2390898',
-    lon: '105.0339746',
-    boundingbox: ['9.1862054', '9.312167', '104.9303614', '105.087866'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh An, Huyện U Minh, Cà Mau, Việt Nam',
-    display_place: 'Khánh An',
-    display_address: 'Huyện U Minh, Cà Mau, Việt Nam',
-    address: {
-      name: 'Khánh An',
-      county: 'Huyện U Minh',
-      state: 'Cà Mau',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '321378025164',
-    osm_id: '7351897',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.7916585',
-    lon: '106.7318343',
-    boundingbox: ['10.776362', '10.800093', '106.7212841', '106.7478449'],
-    class: 'place',
-    type: 'suburb',
-    display_name: 'An Khánh, Thành phố Hồ Chí Minh, 71108, Việt Nam',
-    display_place: 'An Khánh',
-    display_address: 'Thành phố Hồ Chí Minh, 71108, Việt Nam',
-    address: {
-      name: 'An Khánh',
-      city: 'Thành phố Hồ Chí Minh',
-      postcode: '71108',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '324100956766',
-    osm_id: '15618457',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.3108526',
-    lon: '106.342257',
-    boundingbox: ['10.2990081', '10.3311743', '106.3069931', '106.3579117'],
-    class: 'place',
-    type: 'village',
-    display_name: 'An Khánh, Huyện Châu Thành, Bến Tre, Việt Nam',
-    display_place: 'An Khánh',
-    display_address: 'Huyện Châu Thành, Bến Tre, Việt Nam',
-    address: {
-      name: 'An Khánh',
-      county: 'Huyện Châu Thành',
-      state: 'Bến Tre',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '323987510378',
-    osm_id: '4137571213',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.9321093',
-    lon: '105.0772768',
-    boundingbox: ['10.9121093', '10.9521093', '105.0572768', '105.0972768'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh Bình, Xã Khánh Bình, Huyện An Phú, An Giang, Việt Nam',
-    display_place: 'Khánh Bình',
-    display_address: 'Xã Khánh Bình, Huyện An Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Khánh Bình',
-      city: 'Xã Khánh Bình',
-      county: 'Huyện An Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '323128457550',
-    osm_id: '13512618',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.0315481',
-    lon: '105.7554049',
-    boundingbox: ['10.0163649', '10.0463292', '105.7438028', '105.7691972'],
-    class: 'place',
-    type: 'quarter',
-    display_name: 'An Khánh, Ninh Kiều, Cần Thơ, Việt Nam',
-    display_place: 'An Khánh',
-    display_address: 'Ninh Kiều, Cần Thơ, Việt Nam',
-    address: {
-      name: 'An Khánh',
-      suburb: 'Ninh Kiều',
-      city: 'Cần Thơ',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '322063726307',
-    osm_id: '8433925',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.5054284',
-    lon: '106.3896901',
-    boundingbox: ['10.4756617', '10.5170152', '106.3706071', '106.3977145'],
-    class: 'place',
-    type: 'suburb',
-    display_name: 'Tân Khánh, Tân An, Long An, Việt Nam',
-    display_place: 'Tân Khánh',
-    display_address: 'Tân An, Long An, Việt Nam',
-    address: {
-      name: 'Tân Khánh',
-      city: 'Tân An',
-      state: 'Long An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '323012163739',
-    osm_id: '8433924',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.5122871',
-    lon: '106.3796577',
-    boundingbox: ['10.4942673', '10.5225668', '106.3665464', '106.3900058'],
-    class: 'place',
-    type: 'suburb',
-    display_name: 'Khánh Hậu, Tân An, Long An, Việt Nam',
-    display_place: 'Khánh Hậu',
-    display_address: 'Tân An, Long An, Việt Nam',
-    address: {
-      name: 'Khánh Hậu',
-      city: 'Tân An',
-      state: 'Long An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320513143587',
-    osm_id: '14672615',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.92819485',
-    lon: '105.07043667',
-    boundingbox: ['10.9161032', '10.9402751', '105.0507914', '105.0959516'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Bình, Huyện An Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Bình',
-    display_address: 'Huyện An Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Bình',
-      county: 'Huyện An Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '324012758152',
-    osm_id: '369488328',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '19.2273918',
-    lon: '105.3852207',
-    boundingbox: ['19.1873918', '19.2673918', '105.3452207', '105.4252207'],
-    class: 'place',
-    type: 'town',
-    display_name: 'Thương Khánh, Nghĩa Đàn, Nghệ An, Việt Nam',
-    display_place: 'Thương Khánh',
-    display_address: 'Nghĩa Đàn, Nghệ An, Việt Nam',
-    address: {
-      name: 'Thương Khánh',
-      county: 'Nghĩa Đàn',
-      state: 'Nghệ An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320320458964',
-    osm_id: '1813397013',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.6846538',
-    lon: '105.1908928',
-    boundingbox: ['10.6646538', '10.7046538', '105.1708928', '105.2108928'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh Hòa, Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Khánh Hòa',
-    display_address: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Khánh Hòa',
-      city: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '321747764276',
-    osm_id: '4715477227',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '18.929546',
-    lon: '105.469679',
-    boundingbox: ['18.909546', '18.949546', '105.449679', '105.489679'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Phú Khánh, Yên Thành, Nghệ An, Việt Nam',
-    display_place: 'Phú Khánh',
-    display_address: 'Yên Thành, Nghệ An, Việt Nam',
-    address: {
-      name: 'Phú Khánh',
-      county: 'Yên Thành',
-      state: 'Nghệ An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320185366578',
-    osm_id: '7947587963',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.273427',
-    lon: '105.3516333',
-    boundingbox: ['10.253427', '10.293427', '105.3316333', '105.3716333'],
-    class: 'place',
-    type: 'village',
-    display_name:
-      'Vĩnh Khánh, Xã Vĩnh Khánh, Huyện Thoại Sơn, An Giang, Việt Nam',
-    display_place: 'Vĩnh Khánh',
-    display_address: 'Xã Vĩnh Khánh, Huyện Thoại Sơn, An Giang, Việt Nam',
-    address: {
-      name: 'Vĩnh Khánh',
-      city: 'Xã Vĩnh Khánh',
-      county: 'Huyện Thoại Sơn',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '321666123411',
-    osm_id: '4791203430',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.9482174',
-    lon: '105.6986851',
-    boundingbox: ['10.9282174', '10.9682174', '105.6786851', '105.7186851'],
-    class: 'place',
-    type: 'village',
-    display_name:
-      'Khánh Hưng, Xã Khánh Hưng, Huyện Vĩnh Hưng, Long An, Việt Nam',
-    display_place: 'Khánh Hưng',
-    display_address: 'Xã Khánh Hưng, Huyện Vĩnh Hưng, Long An, Việt Nam',
-    address: {
-      name: 'Khánh Hưng',
-      city: 'Xã Khánh Hưng',
-      county: 'Huyện Vĩnh Hưng',
-      state: 'Long An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320503912533',
-    osm_id: '5552043673',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '19.4164237',
-    lon: '104.1519435',
-    boundingbox: ['19.3964237', '19.4364237', '104.1319435', '104.1719435'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh Thành, Kỳ Sơn, Nghệ An, Việt Nam',
-    display_place: 'Khánh Thành',
-    display_address: 'Kỳ Sơn, Nghệ An, Việt Nam',
-    address: {
-      name: 'Khánh Thành',
-      county: 'Kỳ Sơn',
-      state: 'Nghệ An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320503912533',
-    osm_id: '5552043673',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '19.4164237',
-    lon: '104.1519435',
-    boundingbox: ['19.3964237', '19.4364237', '104.1319435', '104.1719435'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh Thành, Kỳ Sơn, Nghệ An, Việt Nam',
-    display_place: 'Khánh Thành',
-    display_address: 'Kỳ Sơn, Nghệ An, Việt Nam',
-    address: {
-      name: 'Khánh Thành',
-      county: 'Kỳ Sơn',
-      state: 'Nghệ An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320503912533',
-    osm_id: '5552043673',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '19.4164237',
-    lon: '104.1519435',
-    boundingbox: ['19.3964237', '19.4364237', '104.1319435', '104.1719435'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh Thành, Kỳ Sơn, Nghệ An, Việt Nam',
-    display_place: 'Khánh Thành',
-    display_address: 'Kỳ Sơn, Nghệ An, Việt Nam',
-    address: {
-      name: 'Khánh Thành',
-      county: 'Kỳ Sơn',
-      state: 'Nghệ An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320503912533',
-    osm_id: '5552043673',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '19.4164237',
-    lon: '104.1519435',
-    boundingbox: ['19.3964237', '19.4364237', '104.1319435', '104.1719435'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh Thành, Kỳ Sơn, Nghệ An, Việt Nam',
-    display_place: 'Khánh Thành',
-    display_address: 'Kỳ Sơn, Nghệ An, Việt Nam',
-    address: {
-      name: 'Khánh Thành',
-      county: 'Kỳ Sơn',
-      state: 'Nghệ An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320503912533',
-    osm_id: '5552043673',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '19.4164237',
-    lon: '104.1519435',
-    boundingbox: ['19.3964237', '19.4364237', '104.1319435', '104.1719435'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh Thành, Kỳ Sơn, Nghệ An, Việt Nam',
-    display_place: 'Khánh Thành',
-    display_address: 'Kỳ Sơn, Nghệ An, Việt Nam',
-    address: {
-      name: 'Khánh Thành',
-      county: 'Kỳ Sơn',
-      state: 'Nghệ An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320503912533',
-    osm_id: '5552043673',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '19.4164237',
-    lon: '104.1519435',
-    boundingbox: ['19.3964237', '19.4364237', '104.1319435', '104.1719435'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh Thành, Kỳ Sơn, Nghệ An, Việt Nam',
-    display_place: 'Khánh Thành',
-    display_address: 'Kỳ Sơn, Nghệ An, Việt Nam',
-    address: {
-      name: 'Khánh Thành',
-      county: 'Kỳ Sơn',
-      state: 'Nghệ An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320503912533',
-    osm_id: '5552043673',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '19.4164237',
-    lon: '104.1519435',
-    boundingbox: ['19.3964237', '19.4364237', '104.1319435', '104.1719435'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh Thành, Kỳ Sơn, Nghệ An, Việt Nam',
-    display_place: 'Khánh Thành',
-    display_address: 'Kỳ Sơn, Nghệ An, Việt Nam',
-    address: {
-      name: 'Khánh Thành',
-      county: 'Kỳ Sơn',
-      state: 'Nghệ An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320503912533',
-    osm_id: '5552043673',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '19.4164237',
-    lon: '104.1519435',
-    boundingbox: ['19.3964237', '19.4364237', '104.1319435', '104.1719435'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh Thành, Kỳ Sơn, Nghệ An, Việt Nam',
-    display_place: 'Khánh Thành',
-    display_address: 'Kỳ Sơn, Nghệ An, Việt Nam',
-    address: {
-      name: 'Khánh Thành',
-      county: 'Kỳ Sơn',
-      state: 'Nghệ An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320503912533',
-    osm_id: '5552043673',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '19.4164237',
-    lon: '104.1519435',
-    boundingbox: ['19.3964237', '19.4364237', '104.1319435', '104.1719435'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh Thành, Kỳ Sơn, Nghệ An, Việt Nam',
-    display_place: 'Khánh Thành',
-    display_address: 'Kỳ Sơn, Nghệ An, Việt Nam',
-    address: {
-      name: 'Khánh Thành',
-      county: 'Kỳ Sơn',
-      state: 'Nghệ An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320503912533',
-    osm_id: '5552043673',
-    osm_type: 'node',
-    licence: 'https://locationiq.com/attribution',
-    lat: '19.4164237',
-    lon: '104.1519435',
-    boundingbox: ['19.3964237', '19.4364237', '104.1319435', '104.1719435'],
-    class: 'place',
-    type: 'village',
-    display_name: 'Khánh Thành, Kỳ Sơn, Nghệ An, Việt Nam',
-    display_place: 'Khánh Thành',
-    display_address: 'Kỳ Sơn, Nghệ An, Việt Nam',
-    address: {
-      name: 'Khánh Thành',
-      county: 'Kỳ Sơn',
-      state: 'Nghệ An',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-  {
-    place_id: '320061944786',
-    osm_id: '13645419',
-    osm_type: 'relation',
-    licence: 'https://locationiq.com/attribution',
-    lat: '10.66902335',
-    lon: '105.19513078',
-    boundingbox: ['10.6360617', '10.7030613', '105.1550785', '105.2162714'],
-    class: 'boundary',
-    type: 'administrative',
-    display_name: 'Xã Khánh Hòa, Huyện Châu Phú, An Giang, Việt Nam',
-    display_place: 'Xã Khánh Hòa',
-    display_address: 'Huyện Châu Phú, An Giang, Việt Nam',
-    address: {
-      name: 'Xã Khánh Hòa',
-      county: 'Huyện Châu Phú',
-      state: 'An Giang',
-      country: 'Việt Nam',
-      country_code: 'vn',
-    },
-  },
-];
 
 type Props = BaseModalComponentProps & {
   // onSelectLocation: (location: number) => void;
@@ -1265,14 +20,30 @@ type Props = BaseModalComponentProps & {
 };
 
 const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [location, setLocation] = React.useState<GeolocationResponse>();
+  const userLocation = useAppSelector(state => state.profile.location);
+  const userRadius = useAppSelector(state => state.profile.radius);
+  console.log('userLocation =>', userRadius);
 
-  const onGetCurrenLocation = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchTerm = useDebounce(searchQuery, 500);
+
+  const [dataLocation, setdataLocation] = useState<TLocation[]>([]);
+  const [radius, setRadius] = useState<number>(userRadius);
+
+  const dispatch = useAppDispatch();
+
+  const onGetCurrenLocation = async () => {
     Geolocation.getCurrentPosition(
       position => {
         console.log('--->', position);
-        setLocation(position);
+        reverseGeocode(
+          position.coords.latitude,
+          position.coords.longitude,
+        ).then(data => {
+          console.log('reverseGeocode ->', data);
+          setdataLocation([data]);
+        });
+        // setLocation(position);
       },
       error => {
         console.log('Error =>', error.code, error.message);
@@ -1280,16 +51,28 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
     );
   };
 
-  // useEffect(() => {
-  //   Geolocation.getCurrentPosition(
-  //     position => {
-  //       console.log(position);
-  //     },
-  //     error => {
-  //       console.log('Error =>', error.code, error.message);
-  //     },
-  //   );
-  // }, []);
+  const onPressLocation = (location: TLocation) => {
+    console.log('onPressLocation =>>', location);
+    setSearchQuery('');
+    dispatch(setAppLocation(location));
+    // onDismiss();
+    // setdataLocation([]);
+  };
+
+  useEffect(() => {
+    const fetchLocation = async () => {
+      const data = await autoCompleteLocation(debouncedSearchTerm, 15);
+      setdataLocation(data);
+    };
+
+    fetchLocation();
+  }, [debouncedSearchTerm]);
+
+  useEffect(() => {
+    return () => {
+      setdataLocation([]);
+    };
+  }, []);
 
   return (
     <RootModal
@@ -1297,7 +80,48 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
       onDismiss={onDismiss}
       style={styles.rootStyle}
       contentContainerStyle={styles.contentContainer}>
-      <Header hasBackButton={dismissable} headerTitle="Khu vực của bạn" />
+      <Header
+        hasBackButton={dismissable}
+        headerTitle="Khu vực và phạm vi của bạn"
+        onTailDone={userLocation ? onDismiss : undefined}
+      />
+
+      <View style={styles.wrapperLocationRadius}>
+        <View style={styles.wrapperShowLocation}>
+          <Text style={styles.wrapperShowLocationText}>
+            Vị trí hiện tại:{' '}
+            <Text>
+              {userLocation?.display_name
+                ? userLocation.display_name
+                : 'Chưa xác định'}
+            </Text>
+          </Text>
+        </View>
+
+        <Text style={styles.wrapperShowRadiusText}>
+          Phạm vi hiển thị:
+          <Text> {radius}km</Text>
+        </Text>
+        <View style={styles.wrapperRadiusSlider}>
+          <Text>5km</Text>
+          <Slider
+            style={styles.radiusSlider}
+            value={radius}
+            minimumValue={MIN_RADIUS}
+            maximumValue={MAX_RADIUS}
+            step={RADIUS_STEP}
+            minimumTrackTintColor={MD3Colors.primary60}
+            maximumTrackTintColor="#000000"
+            onSlidingComplete={value => {
+              setRadius(value);
+              dispatch(setAppRadius(value));
+            }}
+          />
+          <Text>50km</Text>
+        </View>
+      </View>
+
+      <Divider horizontalInset />
 
       <View style={styles.wrapSearchbar}>
         <Searchbar
@@ -1318,20 +142,25 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
         </TouchableOpacity>
       </View>
 
-      <Divider horizontalInset />
+      {/* <Divider horizontalInset /> */}
 
       <FlatList
-        // data={[]}
-        data={fakeLocations}
+        data={dataLocation}
+        // data={fakeLocations}
         style={{}}
         contentContainerStyle={styles.wrapLocation}
         renderItem={({item}) => (
-          <View key={item.osm_id} style={styles.location}>
+          <TouchableOpacity
+            key={item.osm_id}
+            style={styles.location}
+            onPress={() => onPressLocation(item)}>
             <Text>{item.display_name}</Text>
-          </View>
+          </TouchableOpacity>
         )}
         ListEmptyComponent={
-          <Text style={styles.emptyLocationText}>Không có dữ liệu</Text>
+          <Text style={styles.emptyLocationText}>
+            Không có dữ liệu. Hãy nhập và tìm kiếm
+          </Text>
         }
       />
     </RootModal>
@@ -1350,10 +179,39 @@ const styles = StyleSheet.create({
     padding: 0,
     // backgroundColor: 'transparent',
   },
+  wrapperLocationRadius: {
+    // flexDirection: 'row',
+    // justifyContent: 'center',
+    paddingHorizontal: 16,
+    // alignItems: 'center',
+    // marginVertical: 16,
+  },
+  wrapperShowLocation: {
+    marginVertical: 16,
+  },
+  wrapperShowLocationText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  wrapperShowRadiusText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  wrapperRadiusSlider: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    // marginVertical: 16,
+  },
+  radiusSlider: {
+    width: appWidth - 100,
+    height: 40,
+  },
   wrapSearchbar: {
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+    marginTop: 16,
   },
   searchbar: {
     width: appWidth - 32,

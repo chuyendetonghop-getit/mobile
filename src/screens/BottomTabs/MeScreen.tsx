@@ -6,6 +6,7 @@ import Container from '../../components/Container';
 import {signOut} from '../../redux/slices/auth.slice';
 import {useAppDispatch} from '../../redux/store';
 import {DEFAULT_AVATAR} from '../../utils/constant';
+import {signOutProfile} from '../../redux/slices/profile.slice';
 
 const meFakeData = {
   name: 'John Doe',
@@ -37,6 +38,7 @@ const MeScreen = () => {
         icon: <Icon source="logout" color={MD3Colors.primary50} size={20} />,
         onPress: () => {
           dispatch(signOut());
+          dispatch(signOutProfile());
         },
       },
     ];

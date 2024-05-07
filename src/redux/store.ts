@@ -5,16 +5,20 @@ import {TypedUseSelectorHook, useDispatch, useSelector} from 'react-redux';
 import {persistReducer, persistStore} from 'redux-persist';
 
 import {authApi} from '../api/auth/auth.api';
+import {appReducer} from './slices/app.slice';
 import {authReducer} from './slices/auth.slice';
+import {profileReducer} from './slices/profile.slice';
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['auth', 'cacheStorage'],
+  whitelist: ['auth', 'cacheStorage', 'app', 'profile'],
 };
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  app: appReducer,
+  profile: profileReducer,
 
   [authApi.reducerPath]: authApi.reducer,
 });

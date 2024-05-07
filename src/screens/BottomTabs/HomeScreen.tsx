@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Chip, Divider, Icon, MD3Colors, Text} from 'react-native-paper';
 
@@ -7,6 +7,7 @@ import Post from '../../components/Post';
 import SelectLocationModal from '../../components/modals/SelectLocationModal';
 import {navigate} from '../../navigation/NavigationUtils';
 import RouteName from '../../navigation/RouteName';
+import {useAppSelector} from '../../redux/store';
 import {appWidth} from '../../themes/spacing';
 import {category} from '../../utils/category';
 
@@ -104,15 +105,48 @@ const fakePosts = [
 ];
 
 const HomeScreen = () => {
-  const hasLocation = true;
+  const [showSelectLocationModal, setShowSelectLocationModal] = useState(false);
+
+  const appLocation = useAppSelector(state => state.profile.location);
+  const appRadius = useAppSelector(state => state.profile.radius);
+
+  useEffect(() => {
+    if (!appLocation) {
+      setShowSelectLocationModal(true);
+    }
+  }, [appLocation]);
 
   return (
     <Container style={styles.container} scrollable>
       <SelectLocationModal
-        visible={!hasLocation}
-        dismissable={hasLocation}
-        onDismiss={() => console.log('Location')}
+        // visible={true}
+        visible={showSelectLocationModal}
+        dismissable={false}
+        onDismiss={() => setShowSelectLocationModal(false)}
       />
+
+      {/* Show current location */}
+      <Chip
+        icon="map-marker"
+        mode="outlined"
+        onPress={() => setShowSelectLocationModal(true)}
+        style={styles.searchChip}>
+        {/* {appLocation?.display_name ?? 'Chọn vị trí'} */}
+        {
+          // Show location
+          appLocation && (
+            <View style={styles.wrapperLocation}>
+              <Text numberOfLines={1} style={styles.locationText}>
+                {appLocation.display_name}
+              </Text>
+            </View>
+          )
+        }
+        {
+          // Show radius
+          appLocation && <Text style={styles.radiusText}> {appRadius}km</Text>
+        }
+      </Chip>
 
       <Chip
         icon="magnify"
@@ -170,9 +204,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchChip: {
-    marginVertical: 8,
+    marginBottom: 8,
     height: 40,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  wrapperLocation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    // height: 50,
+  },
+  locationText: {
+    fontSize: 14,
+    // color: MD3Colors.primary50,
+    // backgroundColor: MD3Colors.primary50,
+    width: appWidth - 120,
+  },
+  radiusText: {
+    fontSize: 14,
+    color: MD3Colors.primary50,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   category: {
     width: '100%',

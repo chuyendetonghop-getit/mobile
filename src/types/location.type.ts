@@ -40,3 +40,7 @@ export interface AddressIQAutoComplete {
   country: string;
   country_code: string;
 }
+
+export type TLocation =
+  | ResponseLocationIQReverse
+  | ResponseLocationIQAutoComplete;

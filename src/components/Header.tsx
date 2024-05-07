@@ -10,9 +10,30 @@ type HeaderProps = {
   onBack?: () => void;
   headerTitle?: string;
   tail?: React.ReactNode;
+  onTailMore?: () => void;
+  onTailDone?: () => void;
 };
 
-const Header = ({hasBackButton, onBack, headerTitle, tail}: HeaderProps) => {
+const Header = ({
+  hasBackButton,
+  onBack,
+  headerTitle,
+  tail,
+  onTailMore,
+  onTailDone,
+}: HeaderProps) => {
+  const renderTail = () => {
+    if (tail) {
+      return <View style={styles.right}>{tail}</View>;
+    }
+    if (onTailMore) {
+      return <IconButton icon="dots-vertical" size={24} onPress={onTailMore} />;
+    }
+    if (onTailDone) {
+      return <IconButton icon="check" size={24} onPress={onTailDone} />;
+    }
+    return null;
+  };
   return (
     <View style={styles.container}>
       {hasBackButton ? (
@@ -25,7 +46,7 @@ const Header = ({hasBackButton, onBack, headerTitle, tail}: HeaderProps) => {
         />
       ) : null}
       {headerTitle ? <Text style={styles.center}>{headerTitle}</Text> : null}
-      {tail ? <View style={styles.right}>{tail}</View> : null}
+      <View style={styles.right}>{renderTail()}</View>
     </View>
   );
 };

@@ -17,3 +17,12 @@ export const MAPPED_ROUTE_NAME = {
   [RouteName.SEARCH]: 'Tìm kiếm',
   [RouteName.DETAIL_POST]: 'Chi tiết tin đăng',
 };
+
+export const DEFAULT_LOCATION = {
+  lat: 21.028511,
+  lon: 105.804817,
+};
+
+export const MIN_RADIUS = 5;
+export const MAX_RADIUS = 50;
+export const RADIUS_STEP = 5;
