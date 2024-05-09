@@ -5,8 +5,7 @@ import apiService from './apiServices';
 import {store} from '../redux/store';
 import {signOut} from '../redux/slices/auth.slice';
 
-export const DOMAIN =
-  'https://7a28-2405-4802-499-82d0-61a8-5a3-9c97-17fe.ngrok-free.app';
+export const DOMAIN = 'https://d23e-171-224-92-7.ngrok-free.app';
 export const API_URL = DOMAIN + '/api/v1/';
 
 export const axiosBaseQuery = (

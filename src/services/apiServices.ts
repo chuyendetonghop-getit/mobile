@@ -23,7 +23,7 @@ const apiService = axios.create({
 // Add a request interceptor
 apiService.interceptors.request.use(
   async config => {
-    const token = store.getState().auth.user?.token;
+    const token = store.getState().auth.user?.accessToken;
 
     // const isConnected = store.getState().network.isConnected;
     // if (!isConnected) {

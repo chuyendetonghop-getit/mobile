@@ -28,6 +28,7 @@ export default {
   // post
   uploadMedia: 'media',
   uploadMediaPost: 'media/post-media',
+  createPost: 'post',
 
   //personalize board
   personalizeBoard: '/personalization-boards',

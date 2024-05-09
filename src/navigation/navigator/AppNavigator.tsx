@@ -6,7 +6,7 @@ import {useAppSelector} from '../../redux/store';
 import {navigation} from '../NavigationUtils';
 
 export const AppNavigator = () => {
-  const isSignIn = useAppSelector(state => state.auth.isSignedIn) || true;
+  const isSignIn = useAppSelector(state => state.auth.isSignedIn);
   return (
     <NavigationContainer ref={navigation}>
       {isSignIn ? <MainStack /> : <AuthStack />}

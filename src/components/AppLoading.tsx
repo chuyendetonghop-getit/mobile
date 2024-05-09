@@ -6,8 +6,8 @@ import {
   useImperativeHandle,
   useState,
 } from 'react';
-import {ActivityIndicator, StyleSheet, View} from 'react-native';
-import {MD3Colors} from 'react-native-paper';
+import {StyleSheet, View} from 'react-native';
+import {ActivityIndicator, MD2Colors} from 'react-native-paper';
 
 // import colors from 'themes/colors';
 
@@ -50,7 +50,11 @@ const AppLoading = (
   return isLoading ? (
     <View style={[styles.container]}>
       <View style={{zIndex: 20}}>
-        <ActivityIndicator size={'large'} color={MD3Colors.neutral80} />
+        <ActivityIndicator
+          animating={true}
+          size="large"
+          color={MD2Colors.green700}
+        />
       </View>
     </View>
   ) : null;

@@ -22,7 +22,6 @@ type Props = BaseModalComponentProps & {
 const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
   const userLocation = useAppSelector(state => state.profile.location);
   const userRadius = useAppSelector(state => state.profile.radius);
-  console.log('userLocation =>', userRadius);
 
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchTerm = useDebounce(searchQuery, 500);
@@ -56,7 +55,7 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
     setSearchQuery('');
     dispatch(setAppLocation(location));
     // onDismiss();
-    // setdataLocation([]);
+    setdataLocation([]);
   };
 
   useEffect(() => {
@@ -65,7 +64,7 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
       setdataLocation(data);
     };
 
-    fetchLocation();
+    debouncedSearchTerm && fetchLocation();
   }, [debouncedSearchTerm]);
 
   useEffect(() => {

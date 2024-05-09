@@ -5,9 +5,10 @@ import {Text} from 'react-native-paper';
 import {appWidth} from '../../themes/spacing';
 import {statusPost} from '../../utils/statusPost';
 import RootModal, {BaseModalComponentProps} from './RootModal';
+import {TStatusItem} from '../../types/status.type';
 
 type Props = BaseModalComponentProps & {
-  onSelectStatus: (statusNameEn: string) => void;
+  onSelectStatus: (status: TStatusItem) => void;
 };
 
 const StatusModal = ({onSelectStatus, onDismiss, visible}: Props) => {
@@ -25,7 +26,7 @@ const StatusModal = ({onSelectStatus, onDismiss, visible}: Props) => {
             key={index}
             onPress={() => {
               console.log('Pressed', item.name_en);
-              onSelectStatus(item.name);
+              onSelectStatus(item);
               onDismiss();
             }}
             style={styles.categoryItem}>

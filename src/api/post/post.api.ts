@@ -1,6 +1,7 @@
 import {createApi} from '@reduxjs/toolkit/query/react';
 import {axiosBaseQuery} from '../../services/baseApi';
 import apiPath from '../../utils/apiPath';
+import {TPostCreate} from '../../types/post.type';
 
 export const postApi = createApi({
   reducerPath: 'postApi',
@@ -18,7 +19,15 @@ export const postApi = createApi({
         },
       }),
     }),
+
+    createPost: builder.mutation<{}, TPostCreate>({
+      query: body => ({
+        url: apiPath.createPost,
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
-export const {useUploadMediaMutation} = postApi;
+export const {useUploadMediaMutation, useCreatePostMutation} = postApi;

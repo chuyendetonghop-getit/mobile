@@ -1,13 +1,14 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
 import {NativeModules} from 'react-native';
-import Reactotron from 'reactotron-react-native';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {AppNavigator} from './src/navigation/navigator/AppNavigator';
-import {Provider} from 'react-redux';
-import {persistor, store} from './src/redux/store';
-import {PersistGate} from 'redux-persist/integration/react';
 import {PaperProvider} from 'react-native-paper';
+import {Provider} from 'react-redux';
+import Reactotron from 'reactotron-react-native';
+import {PersistGate} from 'redux-persist/integration/react';
+
+import AppLoading, {loadingRef} from './src/components/AppLoading';
+import {AppNavigator} from './src/navigation/navigator/AppNavigator';
+import {persistor, store} from './src/redux/store';
 
 if (__DEV__) {
   const scriptURL = NativeModules.SourceCode.scriptURL;
@@ -25,6 +26,7 @@ function App(): React.JSX.Element {
       <PaperProvider>
         <PersistGate persistor={persistor}>
           <AppNavigator />
+          <AppLoading ref={loadingRef} />
         </PersistGate>
       </PaperProvider>
     </Provider>

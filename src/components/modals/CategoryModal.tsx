@@ -7,7 +7,7 @@ import {appWidth} from '../../themes/spacing';
 import {category} from '../../utils/category';
 
 type Props = BaseModalComponentProps & {
-  onSelectCategory: (cat_id: number) => void;
+  onSelectCategory: (cat_id: string) => void;
 };
 
 const CategoryModal = ({onSelectCategory, onDismiss, visible}: Props) => {

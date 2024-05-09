@@ -44,3 +44,9 @@ export interface AddressIQAutoComplete {
 export type TLocation =
   | ResponseLocationIQReverse
   | ResponseLocationIQAutoComplete;
+
+export type TLocationPost = {
+  lat: string;
+  lon: string;
+  address: string;
+};

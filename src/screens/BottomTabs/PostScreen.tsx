@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {Alert, Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import ImageView from 'react-native-image-viewing';
 import MaskInput, {createNumberMask} from 'react-native-mask-input';
@@ -18,14 +18,15 @@ import SelectMediaModal from '../../components/modals/SelectMediaModal';
 import StatusModal from '../../components/modals/StatusModal';
 import {PostScreenProps} from '../../navigation/NavigationProps';
 import {goBack} from '../../navigation/NavigationUtils';
+import {useAppSelector} from '../../redux/store';
 import {appWidth} from '../../themes/spacing';
 import {category} from '../../utils/category';
 import {EPostScreenTypes} from '../../utils/enum';
+import {TPostCreate} from '../../types/post.type';
+import {useCreatePostMutation} from '../../api/post/post.api';
+import {hideLoading, showLoading} from '../../components/AppLoading';
 
-const fakeStore = {
-  location: 'An Khánh, Hoài Đức, Hà Nội',
-  category: category[0],
-};
+const DEFAULT_CATEGORY = category[3];
 
 const VNDMask = createNumberMask({
   // prefix: ['R', '$', ' '],
@@ -37,6 +38,11 @@ const VNDMask = createNumberMask({
 type TModalTypes = 'category' | 'media' | 'status';
 
 const PostScreen = (props: PostScreenProps) => {
+  const user = useAppSelector(state => state.auth.user);
+  const userLocation = useAppSelector(state => state.profile.location);
+
+  const [createPostFn, {isLoading}] = useCreatePostMutation();
+
   const [visibleModal, setVisibleModal] = React.useState<{
     [key: string]: boolean;
   }>({
@@ -54,14 +60,20 @@ const PostScreen = (props: PostScreenProps) => {
   const [currentImage, setCurrentImage] = useState(0);
 
   const navigation = props.navigation;
-  const [data, setData] = useState({
-    category: category[0],
+  const [data, setData] = useState<TPostCreate>({
+    userId: user?._id ?? '',
+    location: {
+      lat: userLocation?.lat ?? '0',
+      lon: userLocation?.lon ?? '0',
+      address: userLocation?.display_name ?? '0',
+    },
+    category: DEFAULT_CATEGORY,
     images: [] as string[],
     title: '',
     price: '',
-    status: '',
+    status: null as any,
     description: '',
-    phone: '',
+    phone: user?.phone ?? '',
   });
 
   const updateData = (key: string, value: string) => {
@@ -85,7 +97,7 @@ const PostScreen = (props: PostScreenProps) => {
     goBack();
   };
 
-  const onDone = () => {
+  const onDone = async () => {
     // Check data before post
 
     if (data.images.length === 0) {
@@ -97,7 +109,7 @@ const PostScreen = (props: PostScreenProps) => {
     } else if (data.price.length === 0) {
       Alert.alert('Giá bán không được để trống', 'Vui lòng nhập giá bán');
       return;
-    } else if (data.status.length === 0) {
+    } else if (!data.status) {
       Alert.alert('Tình trạng không được để trống', 'Vui lòng chọn tình trạng');
       return;
     } else if (data.description.length < 20) {
@@ -112,6 +124,16 @@ const PostScreen = (props: PostScreenProps) => {
     }
 
     console.log('Post data:', data);
+    //  Call API to create post createPostFn
+    try {
+      showLoading();
+      const reponse = await createPostFn(data).unwrap();
+      console.log('Create post success: ->', reponse);
+    } catch (error: any) {
+      console.log('Failed to create post:', error);
+    } finally {
+      hideLoading();
+    }
   };
 
   useEffect(() => {
@@ -135,14 +157,14 @@ const PostScreen = (props: PostScreenProps) => {
         'Dữ liệu bạn đang nhập có thể bị mất. Bạn có muốn tiếp tục?',
         [
           {
-            text: 'Hủy',
+            text: 'Ở lại',
             style: 'cancel',
             onPress: () => {
               e.preventDefault(); // Ngăn chặn việc rời khỏi màn hình
             },
           },
           {
-            text: 'Tiếp tục',
+            text: 'Rời khỏi',
             onPress: () => {
               // Tiếp tục chuyển tab
               navigation.dispatch(e.data.action);
@@ -209,7 +231,10 @@ const PostScreen = (props: PostScreenProps) => {
             color={MD3Colors.primary50}
             size={20}
           />
-          <Text> {fakeStore.location}</Text>
+          <Text numberOfLines={1} ellipsizeMode="tail">
+            {' '}
+            {userLocation?.display_name}
+          </Text>
         </Section>
         <Divider />
 
@@ -307,7 +332,7 @@ const PostScreen = (props: PostScreenProps) => {
             outlineStyle={styles.inputOutline}
             style={styles.input}
             label="Giá bán (0đ = Miễn phí)"
-            value={data.price}
+            value={data.price.toString()}
             // onChangeText={value => {
             //   updateData('price', value);
             // }}
@@ -315,10 +340,10 @@ const PostScreen = (props: PostScreenProps) => {
             render={inputProps => (
               <MaskInput
                 {...inputProps}
-                value={data.price}
+                value={data.price.toString()}
                 mask={VNDMask}
                 onChangeText={(masked, unmasked) => {
-                  updateData('price', unmasked as string);
+                  updateData('price', unmasked);
 
                   // assuming you typed "123456":
                   console.log(masked); // "R$ 1.234,56"
@@ -337,7 +362,9 @@ const PostScreen = (props: PostScreenProps) => {
           onPress={() => showModal('status')}>
           <Icon source="menu" color={MD3Colors.primary50} size={20} />
           <Text>Tình trạng: </Text>
-          <Text>{data?.status ? data.status : 'Chọn tình trạng'}</Text>
+          <Text>
+            {data?.status?.name ? data?.status?.name : 'Chọn tình trạng'}
+          </Text>
           <Icon source="chevron-down" color={MD3Colors.primary50} size={20} />
         </Section>
         <Divider />
