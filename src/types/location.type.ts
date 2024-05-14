@@ -46,7 +46,9 @@ export type TLocation =
   | ResponseLocationIQAutoComplete;
 
 export type TLocationPost = {
+  type: string;
+  coordinates: [number, number];
   lat: string;
   lon: string;
-  address: string;
+  displayName: string;
 };

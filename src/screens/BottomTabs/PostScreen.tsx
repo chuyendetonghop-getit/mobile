@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Alert, Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import ImageView from 'react-native-image-viewing';
 import MaskInput, {createNumberMask} from 'react-native-mask-input';
@@ -11,6 +11,8 @@ import {
   TextInput,
 } from 'react-native-paper';
 
+import {useCreatePostMutation} from '../../api/post/post.api';
+import {hideLoading, showLoading} from '../../components/AppLoading';
 import Container from '../../components/Container';
 import Section from '../../components/Section';
 import CategoryModal from '../../components/modals/CategoryModal';
@@ -20,11 +22,9 @@ import {PostScreenProps} from '../../navigation/NavigationProps';
 import {goBack} from '../../navigation/NavigationUtils';
 import {useAppSelector} from '../../redux/store';
 import {appWidth} from '../../themes/spacing';
+import {TPostCreate} from '../../types/post.type';
 import {category} from '../../utils/category';
 import {EPostScreenTypes} from '../../utils/enum';
-import {TPostCreate} from '../../types/post.type';
-import {useCreatePostMutation} from '../../api/post/post.api';
-import {hideLoading, showLoading} from '../../components/AppLoading';
 
 const DEFAULT_CATEGORY = category[3];
 
@@ -41,7 +41,7 @@ const PostScreen = (props: PostScreenProps) => {
   const user = useAppSelector(state => state.auth.user);
   const userLocation = useAppSelector(state => state.profile.location);
 
-  const [createPostFn, {isLoading}] = useCreatePostMutation();
+  const [createPostFn] = useCreatePostMutation();
 
   const [visibleModal, setVisibleModal] = React.useState<{
     [key: string]: boolean;
@@ -63,9 +63,14 @@ const PostScreen = (props: PostScreenProps) => {
   const [data, setData] = useState<TPostCreate>({
     userId: user?._id ?? '',
     location: {
+      type: 'Point',
+      coordinates: [
+        Number(userLocation?.lon) ?? 0,
+        Number(userLocation?.lat) ?? 0,
+      ],
       lat: userLocation?.lat ?? '0',
       lon: userLocation?.lon ?? '0',
-      address: userLocation?.display_name ?? '0',
+      displayName: userLocation?.display_name ?? '0',
     },
     category: DEFAULT_CATEGORY,
     images: [] as string[],
