@@ -2,14 +2,14 @@ import React, {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Chip, Divider, Icon, MD3Colors, Text} from 'react-native-paper';
 
-import Container from '../../components/Container';
-import Post from '../../components/Post';
-import SelectLocationModal from '../../components/modals/SelectLocationModal';
-import {navigate} from '../../navigation/NavigationUtils';
-import RouteName from '../../navigation/RouteName';
-import {useAppSelector} from '../../redux/store';
-import {appWidth} from '../../themes/spacing';
-import {category} from '../../utils/category';
+import Container from 'components/Container';
+import Post from 'components/Post';
+import SelectLocationModal from 'components/modals/SelectLocationModal';
+import {navigate} from 'navigation/NavigationUtils';
+import RouteName from 'navigation/RouteName';
+import {useAppSelector} from 'redux/store';
+import {appWidth} from 'themes/spacing';
+import {category} from 'utils/category';
 
 const fakePosts = [
   {

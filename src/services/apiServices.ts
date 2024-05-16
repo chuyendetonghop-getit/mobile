@@ -1,5 +1,5 @@
 import axios, {AxiosError} from 'axios';
-import {store} from '../redux/store';
+import {store} from 'redux/store';
 
 // const cancelTokenSource = axios.CancelToken.source();
 

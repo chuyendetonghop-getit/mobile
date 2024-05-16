@@ -1,7 +1,8 @@
 import React from 'react';
 import {Linking, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Icon, MD3Colors, Text} from 'react-native-paper';
-import {appWidth} from '../themes/spacing';
+
+import {appWidth} from 'themes/spacing';
 
 type Props = {
   phone: string | number;

@@ -1,5 +1,6 @@
 import {PayloadAction, createSlice} from '@reduxjs/toolkit';
-import RouteName from '../../navigation/RouteName';
+
+import RouteName from 'navigation/RouteName';
 
 export interface AppState {
   currentScreen: RouteName;

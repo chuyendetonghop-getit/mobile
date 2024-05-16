@@ -1,6 +1,7 @@
 import {PayloadAction, createSlice} from '@reduxjs/toolkit';
-import {TLocation} from '../../types/location.type';
-import {MIN_RADIUS} from '../../utils/constant';
+
+import {TLocation} from 'types/location.type';
+import {MIN_RADIUS} from 'utils/constant';
 
 export interface ProfileState {
   location: TLocation | null;

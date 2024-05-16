@@ -1,9 +1,9 @@
 // Custom header component in react native
+import {goBack} from 'navigation/NavigationUtils';
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {IconButton, MD3Colors, Text} from 'react-native-paper';
-import {goBack} from '../navigation/NavigationUtils';
-import {appWidth} from '../themes/spacing';
+import {appWidth} from 'themes/spacing';
 
 type HeaderProps = {
   hasBackButton?: boolean;

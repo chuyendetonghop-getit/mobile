@@ -1,10 +1,11 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
-import RouteName from '../RouteName';
-import TabNavigator from '../navigator/TabNavigator';
-import SearchScreen from '../../screens/SearchScreen';
-import DetailPostScreen from '../../screens/DetailPostScreen';
-import PostScreen from '../../screens/BottomTabs/PostScreen';
+
+import RouteName from 'navigation/RouteName';
+import TabNavigator from 'navigation/navigator/TabNavigator';
+import PostScreen from 'screens/BottomTabs/PostScreen';
+import DetailPostScreen from 'screens/DetailPostScreen';
+import SearchScreen from 'screens/SearchScreen';
 
 const Stack = createNativeStackNavigator();
 

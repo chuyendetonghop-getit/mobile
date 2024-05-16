@@ -3,9 +3,9 @@ import React, {useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Divider, List, Text} from 'react-native-paper';
 
-import {appHeight, appWidth} from '../../themes/spacing';
-import {citiesDataWithWard} from '../../utils/citiesDataWithWard';
 import RootModal, {BaseModalComponentProps} from './RootModal';
+import {citiesDataWithWard} from 'utils/citiesDataWithWard';
+import {appHeight, appWidth} from 'themes/spacing';
 
 type Props = BaseModalComponentProps & {
   onSelectLocation: (location: string) => void;

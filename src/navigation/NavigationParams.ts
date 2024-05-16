@@ -1,4 +1,4 @@
-import {EPostScreenTypes, ETokenTypes} from '../utils/enum';
+import {EPostScreenTypes, ETokenTypes} from 'utils/enum';
 
 export type LoginScreenParams = undefined;
 export type SignupScreenParams = undefined;

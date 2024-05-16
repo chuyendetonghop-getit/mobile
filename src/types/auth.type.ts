@@ -1,4 +1,5 @@
-import {TResponse} from '../response.type';
+import {TLocation} from './location.type';
+import {TResponse} from './response.type';
 
 export type UserData = {
   _id: string;
@@ -7,6 +8,10 @@ export type UserData = {
   verify: boolean;
   role: string;
   email?: string;
+  geoLocation: {
+    location: TLocation | null;
+    radius: number;
+  };
   createdAt: string;
   updatedAt: string;
 };

@@ -7,11 +7,12 @@ import {
   TextInput,
   Title,
 } from 'react-native-paper';
-import {useUpdatePasswordMutation} from '../../api/auth/auth.api';
-import Container from '../../components/Container';
-import {UpdatePasswordScreenProps} from '../../navigation/NavigationProps';
-import {navigate} from '../../navigation/NavigationUtils';
-import RouteName from '../../navigation/RouteName';
+
+import {useUpdatePasswordMutation} from 'api/auth.api';
+import Container from 'components/Container';
+import {UpdatePasswordScreenProps} from 'navigation/NavigationProps';
+import {navigate} from 'navigation/NavigationUtils';
+import RouteName from 'navigation/RouteName';
 
 const UpdatePasswordScreen = (props: UpdatePasswordScreenProps) => {
   const params = props.route.params;

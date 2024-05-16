@@ -2,11 +2,11 @@ import React, {useState} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {ActivityIndicator, Divider, MD2Colors, Text} from 'react-native-paper';
 
-import {useSelectImage} from '../../hooks/useSelectImage';
-import {appHeight, appWidth} from '../../themes/spacing';
-import {TMedia} from '../../types/media.type';
-import uploadCloudinaryImage from '../../utils/uploadImage';
-import Section from '../Section';
+import Section from 'components/Section';
+import {useSelectImage} from 'hooks/useSelectImage';
+import {appHeight, appWidth} from 'themes/spacing';
+import {TMedia} from 'types/media.type';
+import uploadCloudinaryImage from 'utils/uploadImage';
 import RootModal, {BaseModalComponentProps} from './RootModal';
 
 type Props = BaseModalComponentProps & {

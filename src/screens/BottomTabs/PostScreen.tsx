@@ -11,20 +11,20 @@ import {
   TextInput,
 } from 'react-native-paper';
 
-import {useCreatePostMutation} from '../../api/post/post.api';
-import {hideLoading, showLoading} from '../../components/AppLoading';
-import Container from '../../components/Container';
-import Section from '../../components/Section';
-import CategoryModal from '../../components/modals/CategoryModal';
-import SelectMediaModal from '../../components/modals/SelectMediaModal';
-import StatusModal from '../../components/modals/StatusModal';
-import {PostScreenProps} from '../../navigation/NavigationProps';
-import {goBack} from '../../navigation/NavigationUtils';
-import {useAppSelector} from '../../redux/store';
-import {appWidth} from '../../themes/spacing';
-import {TPostCreate} from '../../types/post.type';
-import {category} from '../../utils/category';
-import {EPostScreenTypes} from '../../utils/enum';
+import {useCreatePostMutation} from 'api/post.api';
+import {hideLoading, showLoading} from 'components/AppLoading';
+import Container from 'components/Container';
+import Section from 'components/Section';
+import CategoryModal from 'components/modals/CategoryModal';
+import SelectMediaModal from 'components/modals/SelectMediaModal';
+import StatusModal from 'components/modals/StatusModal';
+import {PostScreenProps} from 'navigation/NavigationProps';
+import {goBack} from 'navigation/NavigationUtils';
+import {useAppSelector} from 'redux/store';
+import {appWidth} from 'themes/spacing';
+import {TPostCreate} from 'types/post.type';
+import {category} from 'utils/category';
+import {EPostScreenTypes} from 'utils/enum';
 
 const DEFAULT_CATEGORY = category[3];
 

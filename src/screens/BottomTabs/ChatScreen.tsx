@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
 import {Appbar, MD3Colors, Searchbar, Text} from 'react-native-paper';
-import Container from '../../components/Container';
+
+import Container from 'components/Container';
 
 const fakeMessageLists = [
   {

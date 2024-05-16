@@ -13,12 +13,12 @@ import {
 import {SliderBox} from 'react-native-image-slider-box';
 import ImageView from 'react-native-image-viewing';
 
-import Container from '../components/Container';
-import {DetailPostScreenProps} from '../navigation/NavigationProps';
-import {goBack} from '../navigation/NavigationUtils';
-import {category} from '../utils/category';
-import {DEFAULT_AVATAR} from '../utils/constant';
-import PostAction from '../components/PostAction';
+import Container from 'components/Container';
+import PostAction from 'components/PostAction';
+import {DetailPostScreenProps} from 'navigation/NavigationProps';
+import {goBack} from 'navigation/NavigationUtils';
+import {category} from 'utils/category';
+import {DEFAULT_AVATAR} from 'utils/constant';
 
 const images = [
   'https://source.unsplash.com/1024x768/?nature',

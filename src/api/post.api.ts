@@ -1,7 +1,8 @@
 import {createApi} from '@reduxjs/toolkit/query/react';
-import {axiosBaseQuery} from '../../services/baseApi';
-import apiPath from '../../utils/apiPath';
-import {TPostCreate} from '../../types/post.type';
+
+import {axiosBaseQuery} from 'services/baseApi';
+import {TPostCreate} from 'types/post.type';
+import apiPath from 'utils/apiPath';
 
 export const postApi = createApi({
   reducerPath: 'postApi',

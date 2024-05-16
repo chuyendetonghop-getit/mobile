@@ -3,8 +3,8 @@ import React from 'react';
 import {Icon, MD3Colors, Text} from 'react-native-paper';
 
 import RootModal, {BaseModalComponentProps} from './RootModal';
-import {appWidth} from '../../themes/spacing';
-import {category} from '../../utils/category';
+import {category} from 'utils/category';
+import {appWidth} from 'themes/spacing';
 
 type Props = BaseModalComponentProps & {
   onSelectCategory: (cat_id: string) => void;

@@ -2,8 +2,10 @@ import {BaseQueryFn} from '@reduxjs/toolkit/query/react';
 import {AxiosProgressEvent, AxiosRequestConfig} from 'axios';
 
 import apiService from './apiServices';
-import {store} from '../redux/store';
-import {signOut} from '../redux/slices/auth.slice';
+import {store} from 'redux/store';
+import {signOut} from 'redux/slices/auth.slice';
+// import {store} from '../redux/store';
+// import {signOut} from '../redux/slices/auth.slice';
 
 export const DOMAIN = 'https://getit.huynh.id.vn';
 export const API_URL = DOMAIN + '/api/v1/';

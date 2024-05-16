@@ -4,7 +4,8 @@ import ImagePicker, {
   ImageOrVideo,
   Options,
 } from 'react-native-image-crop-picker';
-import {TMedia} from '../types/media.type';
+
+import {TMedia} from 'types/media.type';
 
 // import {
 //   useUploadChatMediaMutation,

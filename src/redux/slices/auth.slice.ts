@@ -1,6 +1,7 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {authApi} from '../../api/auth/auth.api';
-import {User} from '../../types/auth/auth.type';
+
+import {authApi} from 'api/auth.api';
+import {User} from 'types/auth.type';
 
 export interface AuthState {
   isSignedIn: boolean;

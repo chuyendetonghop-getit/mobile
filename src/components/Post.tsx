@@ -1,8 +1,9 @@
 import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {Divider, Text} from 'react-native-paper';
-import {navigate} from '../navigation/NavigationUtils';
-import RouteName from '../navigation/RouteName';
+
+import {navigate} from 'navigation/NavigationUtils';
+import RouteName from 'navigation/RouteName';
 
 type Props = {
   id: string | number;

@@ -1,3 +1,3 @@
-import {category} from '../utils/category';
+import {category} from 'utils/category';
 
 export type TCategoryItem = (typeof category)[number];

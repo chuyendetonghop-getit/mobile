@@ -2,10 +2,10 @@ import React from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Text} from 'react-native-paper';
 
-import {appWidth} from '../../themes/spacing';
-import {statusPost} from '../../utils/statusPost';
+import {appWidth} from 'themes/spacing';
+import {TStatusItem} from 'types/status.type';
+import {statusPost} from 'utils/statusPost';
 import RootModal, {BaseModalComponentProps} from './RootModal';
-import {TStatusItem} from '../../types/status.type';
 
 type Props = BaseModalComponentProps & {
   onSelectStatus: (status: TStatusItem) => void;

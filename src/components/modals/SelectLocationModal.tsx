@@ -1,17 +1,17 @@
+import Geolocation from '@react-native-community/geolocation';
+import Slider from '@react-native-community/slider';
 import React, {useEffect, useState} from 'react';
 import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Divider, Icon, MD3Colors, Searchbar, Text} from 'react-native-paper';
 
-import Geolocation from '@react-native-community/geolocation';
-import Slider from '@react-native-community/slider';
-import {autoCompleteLocation, reverseGeocode} from '../../api/locationApi';
-import useDebounce from '../../hooks/useDebounce';
-import {setAppLocation, setAppRadius} from '../../redux/slices/profile.slice';
-import {useAppDispatch, useAppSelector} from '../../redux/store';
-import {appWidth} from '../../themes/spacing';
-import {TLocation} from '../../types/location.type';
-import {MAX_RADIUS, MIN_RADIUS, RADIUS_STEP} from '../../utils/constant';
-import Header from '../Header';
+import {autoCompleteLocation, reverseGeocode} from 'api/locationApi';
+import Header from 'components/Header';
+import useDebounce from 'hooks/useDebounce';
+import {setAppLocation, setAppRadius} from 'redux/slices/profile.slice';
+import {useAppDispatch, useAppSelector} from 'redux/store';
+import {appWidth} from 'themes/spacing';
+import {TLocation} from 'types/location.type';
+import {MAX_RADIUS, MIN_RADIUS, RADIUS_STEP} from 'utils/constant';
 import RootModal, {BaseModalComponentProps} from './RootModal';
 
 type Props = BaseModalComponentProps & {

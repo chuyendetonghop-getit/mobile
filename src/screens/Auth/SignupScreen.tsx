@@ -9,12 +9,12 @@ import {
   Title,
 } from 'react-native-paper';
 
-import {useSignUpMutation} from '../../api/auth/auth.api';
-import Container from '../../components/Container';
-import {navigate} from '../../navigation/NavigationUtils';
-import RouteName from '../../navigation/RouteName';
-import {ETokenTypes} from '../../utils/enum';
-import {VerifyOTPScreenParams} from '../../navigation/NavigationParams';
+import {useSignUpMutation} from 'api/auth.api';
+import Container from 'components/Container';
+import {VerifyOTPScreenParams} from 'navigation/NavigationParams';
+import {navigate} from 'navigation/NavigationUtils';
+import RouteName from 'navigation/RouteName';
+import {ETokenTypes} from 'utils/enum';
 
 const SignupScreen = () => {
   const [signup, {isLoading}] = useSignUpMutation();

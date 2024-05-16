@@ -1,22 +1,23 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, Dimensions, StyleSheet, Text} from 'react-native';
 import {
   Button,
-  TextInput,
-  Title,
   HelperText,
   Snackbar,
+  TextInput,
+  Title,
 } from 'react-native-paper';
-import Container from '../../components/Container';
-import {VerifyOTPScreenProps} from '../../navigation/NavigationProps';
+
 import {
   useResendOTPMutation,
   useVerifyForgotPasswordMutation,
   useVerifySignupMutation,
-} from '../../api/auth/auth.api';
-import {navigate} from '../../navigation/NavigationUtils';
-import RouteName from '../../navigation/RouteName';
-import {ETokenTypes} from '../../utils/enum';
+} from 'api/auth.api';
+import Container from 'components/Container';
+import {VerifyOTPScreenProps} from 'navigation/NavigationProps';
+import {navigate} from 'navigation/NavigationUtils';
+import RouteName from 'navigation/RouteName';
+import {ETokenTypes} from 'utils/enum';
 
 const VerifyOTPScreen = (props: VerifyOTPScreenProps) => {
   const params = props.route.params;

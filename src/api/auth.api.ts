@@ -1,5 +1,6 @@
 import {createApi} from '@reduxjs/toolkit/query/react';
-import {axiosBaseQuery} from '../../services/baseApi';
+
+import {axiosBaseQuery} from 'services/baseApi';
 import {
   ForgotPasswordRequest,
   ForgotPasswordResponse,
@@ -7,8 +8,8 @@ import {
   LoginResponse,
   SignupRequest,
   SignupResponse,
-} from '../../types/auth/auth.type';
-import apiPath from '../../utils/apiPath';
+} from 'types/auth/auth.type';
+import apiPath from 'utils/apiPath';
 
 export const authApi = createApi({
   reducerPath: 'authApi',

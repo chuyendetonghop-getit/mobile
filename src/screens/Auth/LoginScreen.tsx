@@ -7,16 +7,17 @@ import {
 } from 'react-native';
 import {
   Button,
+  HelperText,
+  Snackbar,
+  Text,
   TextInput,
   Title,
-  Text,
-  Snackbar,
-  HelperText,
 } from 'react-native-paper';
-import {useLoginMutation} from '../../api/auth/auth.api';
-import {navigate} from '../../navigation/NavigationUtils';
-import RouteName from '../../navigation/RouteName';
-import Container from '../../components/Container';
+
+import {useLoginMutation} from 'api/auth.api';
+import Container from 'components/Container';
+import {navigate} from 'navigation/NavigationUtils';
+import RouteName from 'navigation/RouteName';
 
 const LoginScreen = () => {
   const [login, {isLoading}] = useLoginMutation();

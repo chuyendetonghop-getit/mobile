@@ -1,8 +1,8 @@
 // import {NavigationProp} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import type {StackScreenProps} from '@react-navigation/stack';
-import RootStackParamList from './RootStackParamList';
 
+import RootStackParamList from './RootStackParamList';
 import RouteName from './RouteName';
 
 export type LoginScreenProps = NativeStackScreenProps<

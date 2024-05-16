@@ -2,11 +2,11 @@ import React, {useMemo} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Avatar, Divider, Icon, MD3Colors, Text} from 'react-native-paper';
 
-import Container from '../../components/Container';
-import {signOut} from '../../redux/slices/auth.slice';
-import {useAppDispatch} from '../../redux/store';
-import {DEFAULT_AVATAR} from '../../utils/constant';
-import {signOutProfile} from '../../redux/slices/profile.slice';
+import Container from 'components/Container';
+import {signOut} from 'redux/slices/auth.slice';
+import {signOutProfile} from 'redux/slices/profile.slice';
+import {useAppDispatch} from 'redux/store';
+import {DEFAULT_AVATAR} from 'utils/constant';
 
 const meFakeData = {
   name: 'John Doe',

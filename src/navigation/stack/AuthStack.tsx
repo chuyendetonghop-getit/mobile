@@ -1,11 +1,12 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react'; // Import the 'React' module to fix eslint
-import LoginScreen from '../../screens/Auth/LoginScreen';
-import ResetPassScreen from '../../screens/Auth/ResetPassScreen';
-import SignupScreen from '../../screens/Auth/SignupScreen';
-import VerifyOTPScreen from '../../screens/Auth/VerifyOTPScreen';
-import RouteName from '../RouteName';
-import UpdatePasswordScreen from '../../screens/Auth/UpdatePasswordScreen';
+
+import RouteName from 'navigation/RouteName';
+import LoginScreen from 'screens/Auth/LoginScreen';
+import ResetPassScreen from 'screens/Auth/ResetPassScreen';
+import SignupScreen from 'screens/Auth/SignupScreen';
+import UpdatePasswordScreen from 'screens/Auth/UpdatePasswordScreen';
+import VerifyOTPScreen from 'screens/Auth/VerifyOTPScreen';
 
 const Stack = createNativeStackNavigator();
 

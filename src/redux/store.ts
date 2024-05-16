@@ -4,10 +4,10 @@ import {setupListeners} from '@reduxjs/toolkit/query';
 import {TypedUseSelectorHook, useDispatch, useSelector} from 'react-redux';
 import {persistReducer, persistStore} from 'redux-persist';
 
-import {authApi} from '../api/auth/auth.api';
 import {appReducer} from './slices/app.slice';
 import {authReducer} from './slices/auth.slice';
 import {profileReducer} from './slices/profile.slice';
+import {authApi} from '../api/auth.api';
 
 const persistConfig = {
   key: 'root',

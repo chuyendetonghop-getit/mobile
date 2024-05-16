@@ -7,12 +7,13 @@ import {
   TextInput,
   Title,
 } from 'react-native-paper';
-import {useForgotPasswordMutation} from '../../api/auth/auth.api';
-import Container from '../../components/Container';
-import {VerifyOTPScreenParams} from '../../navigation/NavigationParams';
-import {navigate} from '../../navigation/NavigationUtils';
-import RouteName from '../../navigation/RouteName';
-import {ETokenTypes} from '../../utils/enum';
+
+import {useForgotPasswordMutation} from 'api/auth.api';
+import Container from 'components/Container';
+import {VerifyOTPScreenParams} from 'navigation/NavigationParams';
+import {navigate} from 'navigation/NavigationUtils';
+import RouteName from 'navigation/RouteName';
+import {ETokenTypes} from 'utils/enum';
 
 const ResetPassScreen = () => {
   const [forgotPassword, {isLoading}] = useForgotPasswordMutation();

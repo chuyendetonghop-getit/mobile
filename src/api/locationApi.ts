@@ -1,7 +1,7 @@
 import {
   ResponseLocationIQAutoComplete,
   ResponseLocationIQReverse,
-} from '../types/location.type';
+} from 'types/location.type';
 
 const LOCATIONIQ_API_KEY = 'pk.02924aa63c27c428ca83b23d2a886c94';
 
