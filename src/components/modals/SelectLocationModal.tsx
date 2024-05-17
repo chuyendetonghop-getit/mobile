@@ -4,13 +4,15 @@ import React, {useEffect, useState} from 'react';
 import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Divider, Icon, MD3Colors, Searchbar, Text} from 'react-native-paper';
 
+import {useUpdateProfileMutation} from 'api/auth.api';
 import {autoCompleteLocation, reverseGeocode} from 'api/locationApi';
+import {hideLoading, showLoading} from 'components/AppLoading';
 import Header from 'components/Header';
 import useDebounce from 'hooks/useDebounce';
-import {setAppLocation, setAppRadius} from 'redux/slices/profile.slice';
-import {useAppDispatch, useAppSelector} from 'redux/store';
+import {useAppSelector} from 'redux/store';
 import {appWidth} from 'themes/spacing';
-import {TLocation} from 'types/location.type';
+import {UserData} from 'types/auth.type';
+import {TLocation, TLocationPost} from 'types/location.type';
 import {MAX_RADIUS, MIN_RADIUS, RADIUS_STEP} from 'utils/constant';
 import RootModal, {BaseModalComponentProps} from './RootModal';
 
@@ -20,16 +22,28 @@ type Props = BaseModalComponentProps & {
 };
 
 const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
-  const userLocation = useAppSelector(state => state.profile.location);
-  const userRadius = useAppSelector(state => state.profile.radius);
+  const [updateProfileFn] = useUpdateProfileMutation();
+
+  const user = useAppSelector(state => state.auth?.user) as UserData;
+
+  const userLocation = user?.geoLocation?.location;
+  const userRadius = user?.geoLocation?.radius;
+  // const userLocation = useAppSelector(state => state.profile.location);
+  // const userRadius = useAppSelector(state => state.profile.radius);
 
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchTerm = useDebounce(searchQuery, 500);
 
-  const [dataLocation, setdataLocation] = useState<TLocation[]>([]);
-  const [radius, setRadius] = useState<number>(userRadius);
+  const [dataLocation, setdataLocation] = useState<TLocation[]>();
+  const [radius, setRadius] = useState<number>(
+    Number(userRadius) || MIN_RADIUS,
+  );
 
-  const dispatch = useAppDispatch();
+  const [selectedLocation, setSelectedLocation] = useState<
+    TLocationPost | undefined
+  >(userLocation);
+
+  // const dispatch = useAppDispatch();
 
   const onGetCurrenLocation = async () => {
     Geolocation.getCurrentPosition(
@@ -52,10 +66,39 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
 
   const onPressLocation = (location: TLocation) => {
     console.log('onPressLocation =>>', location);
-    setSearchQuery('');
-    dispatch(setAppLocation(location));
+    // dispatch(setAppLocation(location));
     // onDismiss();
+    setSelectedLocation({
+      type: 'Point',
+      coordinates: [Number(location?.lon), Number(location?.lat)],
+      lat: location.lat,
+      lon: location.lon,
+      displayName: location.display_name,
+    });
+
+    setSearchQuery('');
     setdataLocation([]);
+  };
+
+  const onDone = async () => {
+    try {
+      showLoading();
+      if (!selectedLocation) {
+        return;
+      }
+      const result = await updateProfileFn({
+        id: user?._id,
+        geoLocation: {
+          location: selectedLocation,
+          radius,
+        },
+      }).unwrap();
+      onDismiss();
+    } catch (error) {
+      console.log('onDone -> error', error);
+    } finally {
+      hideLoading();
+    }
   };
 
   useEffect(() => {
@@ -82,7 +125,8 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
       <Header
         hasBackButton={dismissable}
         headerTitle="Khu vực và phạm vi của bạn"
-        onTailDone={userLocation ? onDismiss : undefined}
+        onTailDone={onDone}
+        // onTailDone={userLocation ? onDismiss : undefined}
       />
 
       <View style={styles.wrapperLocationRadius}>
@@ -90,8 +134,8 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
           <Text style={styles.wrapperShowLocationText}>
             Vị trí hiện tại:{' '}
             <Text>
-              {userLocation?.display_name
-                ? userLocation.display_name
+              {selectedLocation?.displayName
+                ? selectedLocation.displayName
                 : 'Chưa xác định'}
             </Text>
           </Text>
@@ -113,7 +157,7 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
             maximumTrackTintColor="#000000"
             onSlidingComplete={value => {
               setRadius(value);
-              dispatch(setAppRadius(value));
+              // dispatch(setAppRadius(value));
             }}
           />
           <Text>50km</Text>

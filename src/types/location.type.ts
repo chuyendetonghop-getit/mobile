@@ -52,3 +52,8 @@ export type TLocationPost = {
   lon: string;
   displayName: string;
 };
+
+export type TGeoLocation = {
+  location: TLocationPost;
+  radius: number;
+};

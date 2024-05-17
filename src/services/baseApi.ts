@@ -2,8 +2,6 @@ import {BaseQueryFn} from '@reduxjs/toolkit/query/react';
 import {AxiosProgressEvent, AxiosRequestConfig} from 'axios';
 
 import apiService from './apiServices';
-import {store} from 'redux/store';
-import {signOut} from 'redux/slices/auth.slice';
 // import {store} from '../redux/store';
 // import {signOut} from '../redux/slices/auth.slice';
 
@@ -46,7 +44,7 @@ export const axiosBaseQuery = (
         err?.data?.message?.includes('User is not found')
       ) {
         // handle expired token
-        store.dispatch(signOut());
+        // store.dispatch(signOut());
       }
       return {
         error: {

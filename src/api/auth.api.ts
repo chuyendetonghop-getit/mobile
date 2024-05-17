@@ -8,6 +8,8 @@ import {
   LoginResponse,
   SignupRequest,
   SignupResponse,
+  UpdateUserRequest,
+  UpdateUserResponse,
 } from 'types/auth.type';
 
 import apiPath from 'utils/apiPath';
@@ -75,6 +77,15 @@ export const authApi = createApi({
         body,
       }),
     }),
+
+    // update user profile
+    updateProfile: builder.mutation<UpdateUserResponse, UpdateUserRequest>({
+      query: body => ({
+        url: `${apiPath.bareUser}/${body.id}`,
+        method: 'PUT',
+        body,
+      }),
+    }),
   }),
 });
 
@@ -86,4 +97,5 @@ export const {
   useForgotPasswordMutation,
   useVerifyForgotPasswordMutation,
   useUpdatePasswordMutation,
+  useUpdateProfileMutation,
 } = authApi;

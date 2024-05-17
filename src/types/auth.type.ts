@@ -1,4 +1,4 @@
-import {TLocation} from './location.type';
+import {TGeoLocation} from './location.type';
 import {TResponse} from './response.type';
 
 export type UserData = {
@@ -8,10 +8,8 @@ export type UserData = {
   verify: boolean;
   role: string;
   email?: string;
-  geoLocation: {
-    location: TLocation | null;
-    radius: number;
-  };
+  avatar?: string;
+  geoLocation?: TGeoLocation;
   createdAt: string;
   updatedAt: string;
 };
@@ -64,78 +62,6 @@ export type TokenValue = {
   expires: number;
   refreshToken: string;
 };
-
-export interface Packages {
-  packageBenefits: BenefitPackage[];
-  id: number;
-  name: string;
-  priceUsd: number;
-  priceEur: number;
-  isDefault: boolean;
-  isActive: boolean;
-  packageBenefitIds: any[];
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: null;
-  packagesSubcribed?: PackagesSubcribed[];
-  PackagesSubscribed?: PackagesSubcribed;
-}
-export interface BenefitPackage {
-  id: number;
-  name: string;
-  nameInDutch: string;
-  slug: string;
-  module: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-export interface PackagesSubcribed {
-  id: number;
-  userId: number;
-  packageId: number;
-  dueDate: Date;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-export interface SignInWithEmailPasswordRequest {
-  email: string;
-  password: string;
-  deviceName: string;
-}
-export type SignInWithEmailPasswordResponse = TResponse<{
-  user: UserData;
-  token: TokenValue;
-  data: {
-    inactiveTime?: string;
-    email?: string;
-    hash?: string;
-  };
-}>;
-
-export interface SignInSocialRequest {
-  token: string;
-  deviceName: string;
-}
-export type SignInSocialResponse = TResponse<{
-  user?: UserData & {dataValues?: UserData};
-  token?: TokenValue;
-  data: {
-    inactiveTime?: string;
-    email?: string;
-    hash?: string;
-  };
-}>;
-
-// export type EditProfileRequest = Partial<
-//   Omit<RegisterRequest, 'password' | 'confirmPassword'>
-// > & {
-//   description?: string;
-//   rankId?: string; //enum level
-//   address?: string;
-//   // phone?: string;
-//   routineFrequencies?: string[];
-// };
 
 //RECOVER PASSWORD
 export type RecoverPasswordRequest = {
@@ -197,3 +123,11 @@ export type ResendVerifyCodeRequest = {
 export type DeleteProfileRequest = {
   password?: string;
 };
+
+export type UpdateUserRequest = Partial<
+  Pick<UserData, 'name' | 'avatar' | 'geoLocation'>
+> & {
+  id: string;
+};
+
+export type UpdateUserResponse = TResponse<UserData>;

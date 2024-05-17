@@ -49,6 +49,20 @@ export const authSlice = createSlice({
         // }
       },
     );
+
+    builder.addMatcher(
+      authApi.endpoints.updateProfile.matchFulfilled,
+      (state, action) => {
+        // console.log('action.payload --> ', action.payload);
+        if (action.payload.success) {
+          state.user = {
+            ...state.user,
+            ...action.payload.data,
+            accessToken: state.user?.accessToken as string,
+          } as any;
+        }
+      },
+    );
   },
 });
 

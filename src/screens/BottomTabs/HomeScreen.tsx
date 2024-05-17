@@ -107,8 +107,9 @@ const fakePosts = [
 const HomeScreen = () => {
   const [showSelectLocationModal, setShowSelectLocationModal] = useState(false);
 
-  const appLocation = useAppSelector(state => state.profile.location);
-  const appRadius = useAppSelector(state => state.profile.radius);
+  const appGeoLocation = useAppSelector(state => state.auth?.user?.geoLocation);
+  const appLocation = appGeoLocation?.location;
+  const appRadius = appGeoLocation?.radius;
 
   useEffect(() => {
     if (!appLocation) {
@@ -137,7 +138,7 @@ const HomeScreen = () => {
           appLocation && (
             <View style={styles.wrapperLocation}>
               <Text numberOfLines={1} style={styles.locationText}>
-                {appLocation.display_name}
+                {appLocation.displayName}
               </Text>
             </View>
           )
