@@ -8,7 +8,8 @@ import {
   LoginResponse,
   SignupRequest,
   SignupResponse,
-} from 'types/auth/auth.type';
+} from 'types/auth.type';
+
 import apiPath from 'utils/apiPath';
 
 export const authApi = createApi({
