@@ -1,11 +1,12 @@
 // Custom header component in react native
 import {goBack} from 'navigation/NavigationUtils';
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
 import {IconButton, MD3Colors, Text} from 'react-native-paper';
 import {appWidth} from 'themes/spacing';
 
 type HeaderProps = {
+  style?: StyleProp<ViewStyle>;
   hasBackButton?: boolean;
   onBack?: () => void;
   headerTitle?: string;
@@ -15,6 +16,7 @@ type HeaderProps = {
 };
 
 const Header = ({
+  style,
   hasBackButton,
   onBack,
   headerTitle,
@@ -35,7 +37,7 @@ const Header = ({
     return null;
   };
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       {hasBackButton ? (
         <IconButton
           icon="arrow-left"
@@ -78,5 +80,7 @@ const styles = StyleSheet.create({
     // backgroundColor: 'blue',
     position: 'absolute',
     right: 0,
+    top: 2,
+    height: 64,
   },
 });

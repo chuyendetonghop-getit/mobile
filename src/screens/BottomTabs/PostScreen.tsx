@@ -28,7 +28,7 @@ import {EPostScreenTypes} from 'utils/enum';
 
 const DEFAULT_CATEGORY = category[3];
 
-const VNDMask = createNumberMask({
+export const VNDMask = createNumberMask({
   // prefix: ['R', '$', ' '],
   delimiter: '.',
   separator: ',',
@@ -39,7 +39,7 @@ type TModalTypes = 'category' | 'media' | 'status';
 
 const PostScreen = (props: PostScreenProps) => {
   const user = useAppSelector(state => state.auth.user);
-  const userLocation = useAppSelector(state => state.profile.location);
+  const location = user?.geoLocation?.location;
 
   const [createPostFn] = useCreatePostMutation();
 
@@ -65,12 +65,12 @@ const PostScreen = (props: PostScreenProps) => {
     location: {
       type: 'Point',
       coordinates: [
-        Number(userLocation?.lon) ?? 0,
-        Number(userLocation?.lat) ?? 0,
+        location?.coordinates[0] ?? 0,
+        location?.coordinates[1] ?? 0,
       ],
-      lat: userLocation?.lat ?? '0',
-      lon: userLocation?.lon ?? '0',
-      displayName: userLocation?.display_name ?? '0',
+      lat: location?.lat ?? '0',
+      lon: location?.lon ?? '0',
+      displayName: location?.displayName ?? '0',
     },
     category: DEFAULT_CATEGORY,
     images: [] as string[],
@@ -238,7 +238,7 @@ const PostScreen = (props: PostScreenProps) => {
           />
           <Text numberOfLines={1} ellipsizeMode="tail">
             {' '}
-            {userLocation?.display_name}
+            {location?.displayName}
           </Text>
         </Section>
         <Divider />
@@ -336,7 +336,7 @@ const PostScreen = (props: PostScreenProps) => {
             mode="outlined"
             outlineStyle={styles.inputOutline}
             style={styles.input}
-            label="Giá bán (0đ = Miễn phí)"
+            label="Giá bán (đ)"
             value={data.price.toString()}
             // onChangeText={value => {
             //   updateData('price', value);

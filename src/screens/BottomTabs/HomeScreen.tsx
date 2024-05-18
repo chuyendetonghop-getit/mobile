@@ -10,6 +10,9 @@ import RouteName from 'navigation/RouteName';
 import {useAppSelector} from 'redux/store';
 import {appWidth} from 'themes/spacing';
 import {category} from 'utils/category';
+import Section from 'components/Section';
+import {ListPostScreenParams} from 'navigation/NavigationParams';
+import {EListPostScreenTypes} from 'utils/enum';
 
 const fakePosts = [
   {
@@ -153,7 +156,9 @@ const HomeScreen = () => {
         icon="magnify"
         mode="outlined"
         onPress={() => {
-          navigate(RouteName.SEARCH);
+          navigate<ListPostScreenParams>(RouteName.LIST_POST, {
+            initMode: EListPostScreenTypes.SEARCH,
+          });
         }}
         style={styles.searchChip}>
         Tìm kiếm
@@ -182,15 +187,27 @@ const HomeScreen = () => {
 
       {/* Posts section */}
       <View>
-        <Text variant="bodyLarge" style={styles.postSectionHeader}>
-          Bai dang gan day
-        </Text>
-        {fakePosts.map((post, index) => (
+        <Section style={styles.highlightPost}>
+          <Text variant="bodyLarge" style={styles.postSectionHeader}>
+            Bài đăng nổi bật
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              navigate<ListPostScreenParams>(RouteName.LIST_POST, {
+                initMode: EListPostScreenTypes.VIEW,
+              });
+            }}>
+            <Text variant="bodySmall" style={styles.postSectionHeader}>
+              xem tất cả
+            </Text>
+          </TouchableOpacity>
+        </Section>
+        {/* {fakePosts.map((post, index) => (
           <View key={index}>
             <Post key={index} {...post} />
             <Divider />
           </View>
-        ))}
+        ))} */}
       </View>
 
       <View style={styles.paddingBottomComponent} />
@@ -252,6 +269,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: (appWidth - 32) / 3 - 16,
     // backgroundColor: 'green',
+  },
+
+  highlightPost: {
+    // backgroundColor: 'red',
+    paddingTop: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 
   postSectionHeader: {

@@ -6,6 +6,7 @@ import TabNavigator from 'navigation/navigator/TabNavigator';
 import PostScreen from 'screens/BottomTabs/PostScreen';
 import DetailPostScreen from 'screens/DetailPostScreen';
 import SearchScreen from 'screens/SearchScreen';
+import ListPostScreen from 'screens/ListPostScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,7 @@ export const MainStack = () => {
       <Stack.Screen name={RouteName.SEARCH} component={SearchScreen} />
       <Stack.Screen name={RouteName.POST} component={PostScreen} />
       <Stack.Screen name={RouteName.DETAIL_POST} component={DetailPostScreen} />
+      <Stack.Screen name={RouteName.LIST_POST} component={ListPostScreen} />
     </Stack.Navigator>
   );
 };

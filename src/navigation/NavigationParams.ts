@@ -1,4 +1,4 @@
-import {EPostScreenTypes, ETokenTypes} from 'utils/enum';
+import {EListPostScreenTypes, EPostScreenTypes, ETokenTypes} from 'utils/enum';
 
 export type LoginScreenParams = undefined;
 export type SignupScreenParams = undefined;
@@ -18,4 +18,9 @@ export type PostScreenParams = {
 
 export type DetailPostScreenParams = {
   postId: string;
+};
+
+export type ListPostScreenParams = {
+  initMode: EListPostScreenTypes;
+  categoryId?: string;
 };

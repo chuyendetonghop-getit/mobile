@@ -13,3 +13,8 @@ export enum EPostScreenTypes {
   CREATE = 'create',
   UPDATE = 'update',
 }
+
+export enum EListPostScreenTypes {
+  SEARCH = 'search',
+  VIEW = 'view',
+}

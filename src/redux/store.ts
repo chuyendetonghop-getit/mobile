@@ -8,6 +8,7 @@ import {appReducer} from './slices/app.slice';
 import {authReducer} from './slices/auth.slice';
 import {profileReducer} from './slices/profile.slice';
 import {authApi} from '../api/auth.api';
+import {postApi} from 'api/post.api';
 
 const persistConfig = {
   key: 'root',
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   profile: profileReducer,
 
   [authApi.reducerPath]: authApi.reducer,
+  [postApi.reducerPath]: postApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -31,6 +33,7 @@ export const store = configureStore({
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({serializableCheck: false}).concat([
       authApi.middleware,
+      postApi.middleware,
     ]),
 });
 

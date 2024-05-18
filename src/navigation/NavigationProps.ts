@@ -39,3 +39,8 @@ export type DetailPostScreenProps = NativeStackScreenProps<
   RootStackParamList,
   RouteName.DETAIL_POST
 >;
+
+export type ListPostScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  RouteName.LIST_POST
+>;
