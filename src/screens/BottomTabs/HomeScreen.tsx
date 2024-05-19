@@ -1,6 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {Chip, Divider, Icon, MD3Colors, Text} from 'react-native-paper';
+import {
+  ActivityIndicator,
+  Chip,
+  Divider,
+  Icon,
+  MD3Colors,
+  Text,
+} from 'react-native-paper';
 
 import Container from 'components/Container';
 import Post from 'components/Post';
@@ -13,99 +20,8 @@ import {category} from 'utils/category';
 import Section from 'components/Section';
 import {ListPostScreenParams} from 'navigation/NavigationParams';
 import {EListPostScreenTypes} from 'utils/enum';
-
-const fakePosts = [
-  {
-    id: 1,
-    title: 'Bài viết 1',
-    description: 'Mô tả bài viết 1',
-    address: 'An Khanh, Hoai Duc, Ha Noi',
-    time: '1 giờ trước',
-    price: '1.000.000 đ',
-    image: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 2,
-    title: 'Bài viết 2',
-    description: 'Mô tả bài viết 2',
-    address: 'An Khanh, Hoai Duc, Ha Noi',
-    time: '1 giờ trước',
-    price: '1.000.000 đ',
-    image: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 3,
-    title: 'Bài viết 3',
-    description: 'Mô tả bài viết 3',
-    address: 'An Khanh, Hoai Duc, Ha Noi',
-    time: '1 giờ trước',
-    price: '1.000.000 đ',
-    image: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 4,
-    title: 'Bài viết 4',
-    description: 'Mô tả bài viết 4',
-    address: 'An Khanh, Hoai Duc, Ha Noi',
-    time: '1 giờ trước',
-    price: '1.000.000 đ',
-    image: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 5,
-    title: 'Bài viết 4',
-    description: 'Mô tả bài viết 4',
-    address: 'An Khanh, Hoai Duc, Ha Noi',
-    time: '1 giờ trước',
-    price: '1.000.000 đ',
-    image: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 6,
-    title: 'Bài viết 4',
-    description: 'Mô tả bài viết 4',
-    address: 'An Khanh, Hoai Duc, Ha Noi',
-    time: '1 giờ trước',
-    price: '1.000.000 đ',
-    image: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 7,
-    title: 'Bài viết 4',
-    description: 'Mô tả bài viết 4',
-    address: 'An Khanh, Hoai Duc, Ha Noi',
-    time: '1 giờ trước',
-    price: '1.000.000 đ',
-    image: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 8,
-    title: 'Bài viết 4',
-    description: 'Mô tả bài viết 4',
-    address: 'An Khanh, Hoai Duc, Ha Noi',
-    time: '1 giờ trước',
-    price: '1.000.000 đ',
-    image: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 9,
-    title: 'Bài viết 4',
-    description: 'Mô tả bài viết 4',
-    address: 'An Khanh, Hoai Duc, Ha Noi',
-    time: '1 giờ trước',
-    price: '1.000.000 đ',
-    image: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 10,
-    title: 'Bài viết 4',
-    description: 'Mô tả bài viết 4',
-    address: 'An Khanh, Hoai Duc, Ha Noi',
-    time: '1 giờ trước',
-    price: '1.000.000 đ',
-    image: 'https://picsum.photos/200/300',
-  },
-];
+import {useGetPostsQuery} from 'api/post.api';
+import {MIN_RADIUS} from 'utils/constant';
 
 const HomeScreen = () => {
   const [showSelectLocationModal, setShowSelectLocationModal] = useState(false);
@@ -113,6 +29,24 @@ const HomeScreen = () => {
   const appGeoLocation = useAppSelector(state => state.auth?.user?.geoLocation);
   const appLocation = appGeoLocation?.location;
   const appRadius = appGeoLocation?.radius;
+
+  const {
+    data: postsData,
+    isLoading,
+    error,
+  } = useGetPostsQuery(
+    {
+      lon: appLocation?.coordinates[0] ?? 0,
+      lat: appLocation?.coordinates[1] ?? 0,
+      radius: appRadius ?? MIN_RADIUS,
+      limit: 5,
+      page: 1,
+    },
+    {
+      // skip: skip,
+      refetchOnMountOrArgChange: true,
+    },
+  );
 
   useEffect(() => {
     if (!appLocation) {
@@ -202,12 +136,15 @@ const HomeScreen = () => {
             </Text>
           </TouchableOpacity>
         </Section>
-        {/* {fakePosts.map((post, index) => (
-          <View key={index}>
-            <Post key={index} {...post} />
-            <Divider />
-          </View>
-        ))} */}
+        {isLoading ? <ActivityIndicator /> : null}
+        {postsData?.data?.docs
+          ? postsData?.data?.docs?.map((post, index) => (
+              <View key={index}>
+                <Post key={index} {...post} />
+                <Divider />
+              </View>
+            ))
+          : null}
       </View>
 
       <View style={styles.paddingBottomComponent} />
