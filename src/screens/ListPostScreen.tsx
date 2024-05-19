@@ -69,10 +69,27 @@ const ListPostScreen = (props: ListPostScreenProps) => {
     data: postsData,
     isLoading,
     error,
+    isFetching,
   } = useGetPostsQuery(params, {
     skip: skip,
     refetchOnMountOrArgChange: true,
   });
+
+  const handleLoadMore = () => {
+    if (!isFetching) {
+      if (postsData?.data?.hasNextPage === false) return;
+      updateParams({page: params.page + 1});
+    }
+  };
+
+  const renderFooter = () => {
+    if (!isFetching) return null;
+    return (
+      <View style={styles.footer}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  };
 
   const drawer = useRef<DrawerLayoutAndroid>(null);
 
@@ -203,10 +220,11 @@ const ListPostScreen = (props: ListPostScreenProps) => {
   }, [debouncedSearchTerm, initMode, params.title]);
 
   useEffect(() => {
-    setPosts(pre => {
-      return postsData ? postsData.data.docs : [];
-    });
-    if (postsData) {
+    // setPosts(pre => {
+    //   return postsData ? postsData.data.docs : [];
+    // });
+    if (postsData?.data?.docs) {
+      setPosts(prevPosts => [...prevPosts, ...postsData?.data?.docs]);
     }
   }, [postsData]);
 
@@ -271,6 +289,9 @@ const ListPostScreen = (props: ListPostScreenProps) => {
                   <Divider />
                 </View>
               )}
+              ListFooterComponent={renderFooter}
+              onEndReached={handleLoadMore}
+              onEndReachedThreshold={0.5}
             />
           )}
         </View>
@@ -336,6 +357,11 @@ const styles = StyleSheet.create({
   },
   listEmtpy: {
     textAlign: 'center',
+  },
+  footer: {
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   //   Drawer
