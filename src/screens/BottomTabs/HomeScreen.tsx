@@ -103,7 +103,13 @@ const HomeScreen = () => {
         {category.map((item, index) => (
           <TouchableOpacity
             key={index}
-            onPress={() => console.log('Pressed', item.cat_id)}
+            onPress={() => {
+              console.log('Pressed', item.cat_id);
+              navigate<ListPostScreenParams>(RouteName.LIST_POST, {
+                initMode: EListPostScreenTypes.VIEW,
+                categoryId: item.cat_id,
+              });
+            }}
             style={styles.categoryItem}>
             <Icon
               source={item.cat_icon}
