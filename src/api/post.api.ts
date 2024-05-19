@@ -2,6 +2,8 @@ import {createApi} from '@reduxjs/toolkit/query/react';
 
 import {axiosBaseQuery} from 'services/baseApi';
 import {
+  GetDetailPostParams,
+  GetDetailPostResponse,
   GetListPostParams,
   GetListPostResponse,
   TPostCreate,
@@ -40,8 +42,27 @@ export const postApi = createApi({
         params,
       }),
     }),
+
+    getDetailPost: builder.query<GetDetailPostResponse, GetDetailPostParams>({
+      query: paramsX => ({
+        url: apiPath.barePost + `/${paramsX.postId}`,
+        method: 'GET',
+        params: {
+          lat: paramsX.lat,
+          lon: paramsX.lon,
+        },
+      }),
+
+      // providesTags: ['Posts'],
+      // invalidatesTags: ['Posts'],
+      // transformResponse: (response: any) => response.data,
+    }),
   }),
 });
 
-export const {useUploadMediaMutation, useCreatePostMutation, useGetPostsQuery} =
-  postApi;
+export const {
+  useUploadMediaMutation,
+  useCreatePostMutation,
+  useGetPostsQuery,
+  useGetDetailPostQuery,
+} = postApi;

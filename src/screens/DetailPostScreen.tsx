@@ -2,10 +2,12 @@ import React, {useState} from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {
+  ActivityIndicator,
   Avatar,
   Divider,
   Icon,
   IconButton,
+  MD2Colors,
   MD3Colors,
   Text,
 } from 'react-native-paper';
@@ -19,6 +21,16 @@ import {DetailPostScreenProps} from 'navigation/NavigationProps';
 import {goBack} from 'navigation/NavigationUtils';
 import {category} from 'utils/category';
 import {DEFAULT_AVATAR} from 'utils/constant';
+import {useGetDetailPostQuery} from 'api/post.api';
+import {formatWithMask} from 'react-native-mask-input';
+import {VNDMask} from './BottomTabs/PostScreen';
+import moment from 'moment';
+
+import 'moment/locale/vi';
+import {useAppSelector} from 'redux/store';
+import {appWidth} from 'themes/spacing';
+
+moment.locale('vi');
 
 const images = [
   'https://source.unsplash.com/1024x768/?nature',
@@ -27,32 +39,47 @@ const images = [
   'https://source.unsplash.com/1024x768/?tree',
 ];
 
-const fakePosts = {
-  id: 2,
-  title: 'Bài viết 2',
-  description:
-    'Ipsum dolor sit amet, consectetur adipiscing elit. Ipsum dolor sit amet, consectetur adipiscing elit. Ipsum dolor sit amet, consectetur adipiscing elit. Ipsum dolor sit amet, consectetur adipiscing elit. Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.Ipsum dolor sit amet, consectetur adipiscing elit.----',
-  category: category[0],
-  address: 'An Khanh, Hoai Duc, Ha Noi',
-  time: '1 giờ trước',
-  price: '1.000.000 đ',
-  image: 'https://picsum.photos/200/300',
-  author: {
-    id: 1,
-    name: 'Nguyen Van A',
-    avatar: DEFAULT_AVATAR,
-    sold: 100,
-    phone: '0123456789',
-  },
-};
-
 const DetailPostScreen = (props: DetailPostScreenProps) => {
+  const user = useAppSelector(state => state.auth?.user);
+  const location = user?.geoLocation?.location;
+
   const [visible, setIsVisible] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
 
   const postId = props.route.params.postId;
 
   console.log('Detail Post with ID:', postId);
+
+  const {
+    data: postDetail,
+    isLoading,
+    error,
+  } = useGetDetailPostQuery(
+    {
+      postId,
+      lon: location?.coordinates[0] ?? 0,
+      lat: location?.coordinates[1] ?? 0,
+    },
+    {
+      // skip: skip,
+      refetchOnMountOrArgChange: true,
+    },
+  );
+
+  const postData = postDetail?.data;
+
+  const {masked, unmasked, obfuscated} = formatWithMask({
+    text: postData?.price.toString(),
+    mask: VNDMask,
+  });
+
+  if (isLoading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -82,7 +109,7 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
       {/* ---------------- */}
       <ScrollView style={styles.mainContent}>
         <SliderBox
-          images={images}
+          images={postData?.images ? postData?.images : images}
           sliderBoxHeight={300}
           onCurrentImagePressed={(index: any) => {
             console.log(`image ${index} pressed`);
@@ -96,9 +123,13 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
         <Container style={styles.container} scrollable>
           {/* title - price - time */}
           <View style={styles.section}>
-            <Text variant="titleLarge">{fakePosts.title}</Text>
-            <Text variant="titleMedium">{fakePosts.price}</Text>
-            <Text variant="bodyMedium">{fakePosts.time}</Text>
+            <Text variant="titleLarge">{postData?.title}</Text>
+            <Text variant="titleMedium" style={styles.price}>
+              {masked} đ
+            </Text>
+            <Text variant="bodyMedium">
+              {moment(postData?.createdAt).fromNow()}
+            </Text>
           </View>
 
           <Divider />
@@ -107,31 +138,54 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
           <View style={styles.section}>
             <View style={styles.sectionTwo}>
               <Icon
-                source={'map-marker-radius-outline'}
+                source={postData?.category.cat_icon}
                 color={'black'}
                 size={16}
               />
-              <Text variant="bodyMedium">{fakePosts.address}</Text>
+              <Text variant="bodyMedium">{postData?.category.cat_name}</Text>
             </View>
 
             <View style={styles.sectionTwo}>
               <Icon
-                source={fakePosts.category.cat_icon}
+                source={'map-marker-radius-outline'}
                 color={'black'}
                 size={16}
               />
-              <Text variant="bodyMedium">{fakePosts.category.cat_name}</Text>
+
+              <Text>
+                {postData?.distance === 0
+                  ? 0.01
+                  : postData?.distance?.toFixed(2)}{' '}
+                km
+              </Text>
+              <Text style={styles.dotDivider}>•</Text>
+              <Text
+                variant="bodyMedium"
+                style={styles.location}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {postData?.location?.displayName ?? 'Unknow location'}
+              </Text>
             </View>
           </View>
 
           <Divider />
 
           {/* post author */}
-          <TouchableOpacity style={[styles.section, styles.author]}>
-            <Avatar.Image size={64} source={fakePosts.author.avatar} />
+          <TouchableOpacity
+            activeOpacity={1}
+            style={[styles.section, styles.author]}>
+            <Avatar.Image
+              size={64}
+              source={postData?.author.avatar || DEFAULT_AVATAR}
+            />
             <View>
-              <Text variant="titleMedium">{fakePosts.author.name}</Text>
-              <Text variant="bodyMedium">Da ban: {fakePosts.author.sold}</Text>
+              <Text variant="titleMedium">
+                {postData?.author?.name ?? 'Unknow 123'}
+              </Text>
+              <Text variant="bodyMedium">
+                Đã tham gia {moment(postData?.author?.createdAt).fromNow()}
+              </Text>
             </View>
           </TouchableOpacity>
 
@@ -139,20 +193,22 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
 
           {/* post description */}
           <View style={[styles.section]}>
-            <Text variant="bodyMedium">{fakePosts.description}</Text>
+            <Text variant="bodyMedium">{postData?.description}</Text>
           </View>
         </Container>
       </ScrollView>
 
       {/* sticky actions */}
       <PostAction
-        phone={fakePosts.author.phone}
-        authorId={fakePosts.author.id}
-        postTitle={fakePosts.title}
+        phone={postData?.author?.phone as string}
+        authorId={postData?.author?._id as string}
+        postTitle={postData?.title as string}
       />
 
       <ImageView
-        images={images.map(item => ({uri: item}))}
+        images={(postData?.images ? postData?.images : images).map(item => ({
+          uri: item,
+        }))}
         imageIndex={currentImage}
         visible={visible}
         onRequestClose={() => setIsVisible(false)}
@@ -166,7 +222,7 @@ export default DetailPostScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: 'pink',
+    backgroundColor: 'white',
     paddingTop: 0,
     paddingBottom: 32,
   },
@@ -204,6 +260,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     paddingVertical: 6,
+  },
+  price: {
+    color: 'red',
+    fontWeight: 'bold',
+  },
+  location: {
+    color: MD2Colors.grey800,
+    width: appWidth - 140,
+  },
+  dotDivider: {
+    color: MD2Colors.grey400,
+    fontSize: 10,
   },
   author: {
     flexDirection: 'row',

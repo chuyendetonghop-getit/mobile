@@ -1,6 +1,6 @@
 import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React from 'react';
-import {Divider, Text} from 'react-native-paper';
+import {Divider, MD2Colors, MD3Colors, Text} from 'react-native-paper';
 
 import {navigate} from 'navigation/NavigationUtils';
 import RouteName from 'navigation/RouteName';
@@ -12,7 +12,9 @@ import 'moment/locale/vi';
 
 moment.locale('vi');
 
-type Props = TPost;
+type Props = TPost & {
+  distance: number;
+};
 
 const Post = ({
   _id,
@@ -22,6 +24,7 @@ const Post = ({
   price,
   images,
   createdAt,
+  distance,
 }: Props) => {
   const {masked, unmasked, obfuscated} = formatWithMask({
     text: price.toString(),
@@ -36,7 +39,7 @@ const Post = ({
 
   const onPress = () => {
     console.log('Post ID: ', _id);
-    // navigate(RouteName.DETAIL_POST, {postId: props._id});
+    navigate(RouteName.DETAIL_POST, {postId: _id});
   };
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
@@ -55,10 +58,26 @@ const Post = ({
           {description}
         </Text>
         <Text variant="bodyMedium" style={styles.price}>
-          {masked}đ
+          {masked} đ
         </Text>
         <View style={styles.wrapperLocationTime}>
-          <Text variant="bodySmall">{location?.displayName}</Text>
+          <Text variant="bodySmall" style={styles.location}>
+            {distance === 0 ? 0.01 : distance.toFixed(2)} km
+          </Text>
+          <Text style={styles.dotDivider}> • </Text>
+          <Text
+            variant="bodySmall"
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={[
+              styles.location,
+              {
+                width: 120,
+              },
+            ]}>
+            {location?.displayName}
+          </Text>
+          <Text style={styles.dotDivider}> • </Text>
           <Text variant="bodySmall">{moment(createdAt).fromNow()}</Text>
         </View>
       </View>
@@ -86,12 +105,19 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   price: {
-    color: 'black',
+    color: 'red',
     fontWeight: 'bold',
   },
   wrapperLocationTime: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
+  },
+  location: {
+    color: MD2Colors.grey800,
+  },
+  dotDivider: {
+    color: MD2Colors.grey400,
+    fontSize: 10,
   },
 });

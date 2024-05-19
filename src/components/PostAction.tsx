@@ -1,12 +1,12 @@
 import React from 'react';
 import {Linking, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {Icon, MD3Colors, Text} from 'react-native-paper';
+import {Icon, MD2Colors, MD3Colors, Text} from 'react-native-paper';
 
 import {appWidth} from 'themes/spacing';
 
 type Props = {
-  phone: string | number;
-  authorId: string | number;
+  phone: string;
+  authorId: string;
   postTitle: string;
 };
 
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingVertical: 16,
-    backgroundColor: '#d3d3d3',
+    backgroundColor: MD2Colors.grey300,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',

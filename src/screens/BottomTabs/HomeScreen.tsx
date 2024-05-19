@@ -146,7 +146,7 @@ const HomeScreen = () => {
         {postsData?.data?.docs
           ? postsData?.data?.docs?.map((post, index) => (
               <View key={index}>
-                <Post key={index} {...post} />
+                <Post key={index} {...(post as any)} />
                 <Divider />
               </View>
             ))
