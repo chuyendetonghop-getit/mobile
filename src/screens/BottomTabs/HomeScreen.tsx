@@ -22,8 +22,11 @@ import {ListPostScreenParams} from 'navigation/NavigationParams';
 import {EListPostScreenTypes} from 'utils/enum';
 import {useGetPostsQuery} from 'api/post.api';
 import {MIN_RADIUS} from 'utils/constant';
+import {HomeScreenProps} from 'navigation/NavigationProps';
 
-const HomeScreen = () => {
+const HomeScreen = (props: HomeScreenProps) => {
+  const navigation = props.navigation;
+
   const [showSelectLocationModal, setShowSelectLocationModal] = useState(false);
 
   const appGeoLocation = useAppSelector(state => state.auth?.user?.geoLocation);
@@ -34,6 +37,7 @@ const HomeScreen = () => {
     data: postsData,
     isLoading,
     error,
+    refetch,
   } = useGetPostsQuery(
     {
       lon: appLocation?.coordinates[0] ?? 0,
@@ -53,6 +57,14 @@ const HomeScreen = () => {
       setShowSelectLocationModal(true);
     }
   }, [appLocation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      refetch();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <Container style={styles.container} scrollable>

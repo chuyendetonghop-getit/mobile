@@ -11,6 +11,8 @@ export type UpdatePasswordScreenParams = {
   phone: string;
 };
 
+export type HomeScreenParams = {};
+
 export type PostScreenParams = {
   mode?: EPostScreenTypes;
   postId?: string;

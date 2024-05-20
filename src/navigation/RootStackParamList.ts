@@ -1,6 +1,7 @@
 import {PostManagementScreen} from 'screens/PostManagementScreen';
 import {
   DetailPostScreenParams,
+  HomeScreenParams,
   ListPostScreenParams,
   LoginScreenParams,
   PostManagementScreenParams,
@@ -18,6 +19,7 @@ type RootStackParamList = {
   [RouteName.RESET_PASSWORD]: ResetPassScreenParams;
   [RouteName.VERIFY_OTP]: VerifyOTPScreenParams;
   [RouteName.UPDATE_PASSWORD]: UpdatePasswordScreenParams;
+  [RouteName.HOME]: HomeScreenParams;
   [RouteName.POST]: PostScreenParams;
   [RouteName.DETAIL_POST]: DetailPostScreenParams;
   [RouteName.LIST_POST]: ListPostScreenParams;
