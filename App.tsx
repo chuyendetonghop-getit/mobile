@@ -5,6 +5,7 @@ import {PaperProvider} from 'react-native-paper';
 import {Provider} from 'react-redux';
 import Reactotron from 'reactotron-react-native';
 import {PersistGate} from 'redux-persist/integration/react';
+import {EventProvider} from 'react-native-outside-press';
 
 import AppLoading, {loadingRef} from './src/components/AppLoading';
 import {AppNavigator} from './src/navigation/navigator/AppNavigator';
@@ -25,7 +26,9 @@ function App(): React.JSX.Element {
     <Provider store={store}>
       <PaperProvider>
         <PersistGate persistor={persistor}>
-          <AppNavigator />
+          <EventProvider>
+            <AppNavigator />
+          </EventProvider>
           <AppLoading ref={loadingRef} />
         </PersistGate>
       </PaperProvider>

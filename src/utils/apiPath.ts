@@ -15,4 +15,5 @@ export default {
   uploadMedia: 'media',
   createPost: 'post',
   barePost: 'post',
+  myPost: 'post/me',
 };

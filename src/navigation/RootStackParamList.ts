@@ -1,7 +1,9 @@
+import {PostManagementScreen} from 'screens/PostManagementScreen';
 import {
   DetailPostScreenParams,
   ListPostScreenParams,
   LoginScreenParams,
+  PostManagementScreenParams,
   PostScreenParams,
   ResetPassScreenParams,
   SignupScreenParams,
@@ -19,6 +21,7 @@ type RootStackParamList = {
   [RouteName.POST]: PostScreenParams;
   [RouteName.DETAIL_POST]: DetailPostScreenParams;
   [RouteName.LIST_POST]: ListPostScreenParams;
+  [RouteName.MANAGER_POST]: PostManagementScreenParams;
 };
 
 export default RootStackParamList;

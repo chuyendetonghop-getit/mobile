@@ -8,6 +8,7 @@ import DetailPostScreen from 'screens/DetailPostScreen';
 import SearchScreen from 'screens/SearchScreen';
 import ListPostScreen from 'screens/ListPostScreen';
 import UpdateProfileScreen from 'screens/UpdateProfileScreen';
+import PostManagementScreen from 'screens/PostManagementScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +26,10 @@ export const MainStack = () => {
       <Stack.Screen
         name={RouteName.UPDATE_PROFILE}
         component={UpdateProfileScreen}
+      />
+      <Stack.Screen
+        name={RouteName.MANAGER_POST}
+        component={PostManagementScreen}
       />
     </Stack.Navigator>
   );

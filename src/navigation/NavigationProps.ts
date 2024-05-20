@@ -44,3 +44,8 @@ export type ListPostScreenProps = NativeStackScreenProps<
   RootStackParamList,
   RouteName.LIST_POST
 >;
+
+export type PostManagementScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  RouteName.MANAGER_POST
+>;

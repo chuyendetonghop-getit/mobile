@@ -24,3 +24,5 @@ export type ListPostScreenParams = {
   initMode: EListPostScreenTypes;
   categoryId?: string;
 };
+
+export type PostManagementScreenParams = {};

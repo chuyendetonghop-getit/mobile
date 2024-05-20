@@ -50,3 +50,10 @@ export type GetDetailPostParams = {
   lat: number;
   lon: number;
 };
+
+export type GetMyPostRequest = {
+  userId: string;
+  page?: number;
+  limit?: number;
+};
+export type GetMyPostResponse = TResponsePaginate<TPost>;

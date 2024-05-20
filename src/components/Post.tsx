@@ -1,6 +1,14 @@
-import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
-import React from 'react';
-import {Divider, MD2Colors, MD3Colors, Text} from 'react-native-paper';
+import {Alert, Image, StyleSheet, TouchableOpacity, View} from 'react-native';
+import React, {useState} from 'react';
+import {
+  Divider,
+  Icon,
+  IconButton,
+  MD2Colors,
+  MD3Colors,
+  Text,
+} from 'react-native-paper';
+import OutsidePressHandler from 'react-native-outside-press';
 
 import {navigate} from 'navigation/NavigationUtils';
 import RouteName from 'navigation/RouteName';
@@ -9,11 +17,17 @@ import {formatWithMask} from 'react-native-mask-input';
 import {VNDMask} from 'screens/BottomTabs/PostScreen';
 import moment from 'moment';
 import 'moment/locale/vi';
+import {useDeletePostMutation} from 'api/post.api';
+import {hideLoading, showLoading} from './AppLoading';
+import {PostScreenParams} from 'navigation/NavigationParams';
+import {EPostScreenTypes} from 'utils/enum';
 
 moment.locale('vi');
 
 type Props = TPost & {
-  distance: number;
+  distance?: number;
+  isShowMore?: boolean;
+  refetch?: () => void;
 };
 
 const Post = ({
@@ -25,7 +39,13 @@ const Post = ({
   images,
   createdAt,
   distance,
+  isShowMore = false,
+  refetch,
 }: Props) => {
+  const [deletePostFn, {isLoading}] = useDeletePostMutation();
+
+  const [isShowMoreAction, setIsShowMoreAction] = useState(false);
+
   const {masked, unmasked, obfuscated} = formatWithMask({
     text: price.toString(),
     mask: VNDMask,
@@ -41,8 +61,77 @@ const Post = ({
     console.log('Post ID: ', _id);
     navigate(RouteName.DETAIL_POST, {postId: _id});
   };
+
+  const onDelete = async () => {
+    try {
+      showLoading();
+      const response = await deletePostFn({
+        id: _id,
+      });
+      console.log('Delete Post Response:', response);
+    } catch (error) {
+      console.log('Delete Post Error:', error);
+    } finally {
+      hideLoading();
+      refetch && refetch();
+    }
+  };
+
+  const actions = [
+    // {
+    //   icon: 'camera',
+    //   label: 'Ẩn',
+    //   onPress: () => {
+    //     console.log('Ẩn');
+    //   },
+    // },
+    {
+      icon: 'pencil',
+      label: 'Sửa',
+      onPress: () => {
+        console.log('Sửa');
+        navigate<PostScreenParams>(RouteName.POST, {
+          mode: EPostScreenTypes.UPDATE,
+          postId: _id,
+        });
+      },
+    },
+    {
+      icon: 'delete',
+      label: 'Xoá',
+      onPress: () => {
+        console.log('Xoá');
+        Alert.alert(
+          'Bạn có chắc chắn?',
+          'Bạn có chắc chắn muốn xoá bài đăng này?',
+          [
+            {
+              text: 'Huỷ bỏ',
+              style: 'cancel',
+              onPress: () => {
+                // Huỷ bỏ việc xoá
+              },
+            },
+            {
+              text: 'Xoá',
+              onPress: onDelete,
+            },
+          ],
+          {cancelable: false},
+        );
+      },
+    },
+  ];
+
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
+    <TouchableOpacity
+      style={[
+        styles.container,
+        {
+          paddingVertical: isShowMore ? 20 : 8,
+        },
+      ]}
+      onPress={onPress}>
       <Divider />
       <Image
         source={{
@@ -61,9 +150,11 @@ const Post = ({
           {masked} đ
         </Text>
         <View style={styles.wrapperLocationTime}>
-          <Text variant="bodySmall" style={styles.location}>
-            {distance === 0 ? 0.01 : distance.toFixed(2)} km
-          </Text>
+          {distance ? (
+            <Text variant="bodySmall" style={styles.location}>
+              {distance === 0 ? 0.01 : distance.toFixed(2)} km
+            </Text>
+          ) : null}
           <Text style={styles.dotDivider}> • </Text>
           <Text
             variant="bodySmall"
@@ -82,6 +173,47 @@ const Post = ({
         </View>
       </View>
       {/* <Divider /> */}
+      {isShowMore ? (
+        <View style={styles.wrapperMore}>
+          <IconButton
+            icon="dots-vertical"
+            iconColor="black"
+            size={20}
+            style={styles.moreIcon}
+            onPress={() => {
+              setIsShowMoreAction(!isShowMoreAction);
+            }}
+          />
+          {/* {isShowMoreAction ? <PostAction /> : null} */}
+          {isShowMoreAction ? (
+            <View style={styles.wrapperPostAction}>
+              <OutsidePressHandler
+                onOutsidePress={() => {
+                  console.log('Pressed outside the box!');
+                  setIsShowMoreAction(false);
+                }}>
+                {actions.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.actionItem}
+                    onPress={() => {
+                      setIsShowMoreAction(false);
+                      item.onPress();
+                    }}>
+                    <Icon
+                      source={item.icon}
+                      color={MD3Colors.primary50}
+                      size={20}
+                    />
+                    <Text style={[]}>{item.label}</Text>
+                    <Divider />
+                  </TouchableOpacity>
+                ))}
+              </OutsidePressHandler>
+            </View>
+          ) : null}
+        </View>
+      ) : null}
     </TouchableOpacity>
   );
 };
@@ -119,5 +251,56 @@ const styles = StyleSheet.create({
   dotDivider: {
     color: MD2Colors.grey400,
     fontSize: 10,
+  },
+
+  // Post Action
+  wrapperPostAction: {
+    position: 'absolute',
+    top: 28,
+    right: 8,
+
+    // width: 50,
+    height: 70,
+
+    backgroundColor: 'white',
+    // borderWidth: 1,
+    borderRadius: 8,
+    padding: 4,
+
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    // gap: 4,
+
+    zIndex: 20,
+    overflow: 'hidden',
+
+    shadowOffset: {width: -2, height: 4},
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+
+    elevation: 10,
+    shadowColor: '#52006A',
+  },
+  actionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+
+    // backgroundColor: 'red',
+    marginTop: 4,
+  },
+  wrapperMore: {
+    padding: 0,
+    margin: 0,
+    // backgroundColor: 'red',
+    alignItems: 'flex-end',
+    alignSelf: 'flex-start',
+  },
+  moreIcon: {
+    // padding: 0,
+    margin: 0,
+    // backgroundColor: 'pink',
+    alignItems: 'flex-end',
+    alignSelf: 'flex-start',
   },
 });

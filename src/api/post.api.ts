@@ -6,6 +6,8 @@ import {
   GetDetailPostResponse,
   GetListPostParams,
   GetListPostResponse,
+  GetMyPostRequest,
+  GetMyPostResponse,
   TPostCreate,
 } from 'types/post.type';
 import apiPath from 'utils/apiPath';
@@ -57,6 +59,31 @@ export const postApi = createApi({
       // invalidatesTags: ['Posts'],
       // transformResponse: (response: any) => response.data,
     }),
+
+    getMyPosts: builder.query<GetMyPostResponse, GetMyPostRequest>({
+      query: params => ({
+        url: apiPath.myPost,
+        method: 'GET',
+        params,
+      }),
+    }),
+
+    deletePost: builder.mutation<{}, {id: string}>({
+      query: ({id}) => ({
+        url: apiPath.barePost + `/${id}`,
+        method: 'DELETE',
+      }),
+    }),
+
+    updatePost: builder.mutation<{}, {id: string; body: Partial<TPostCreate>}>({
+      query: ({id, body}) => ({
+        url: apiPath.barePost + `/${id}`,
+        method: 'PUT',
+        body,
+      }),
+    }),
+
+    // -------------------------------------
   }),
 });
 
@@ -65,4 +92,7 @@ export const {
   useCreatePostMutation,
   useGetPostsQuery,
   useGetDetailPostQuery,
+  useGetMyPostsQuery,
+  useDeletePostMutation,
+  useUpdatePostMutation,
 } = postApi;

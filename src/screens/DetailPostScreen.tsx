@@ -177,7 +177,13 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
             style={[styles.section, styles.author]}>
             <Avatar.Image
               size={64}
-              source={postData?.author.avatar || DEFAULT_AVATAR}
+              source={
+                postData?.author.avatar
+                  ? {
+                      uri: postData?.author.avatar,
+                    }
+                  : DEFAULT_AVATAR
+              }
             />
             <View>
               <Text variant="titleMedium">

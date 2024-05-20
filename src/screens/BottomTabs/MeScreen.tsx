@@ -21,7 +21,9 @@ const MeScreen = () => {
         icon: (
           <Icon source="onepassword" color={MD3Colors.primary50} size={20} />
         ),
-        onPress: () => {},
+        onPress: () => {
+          navigate(RouteName.MANAGER_POST);
+        },
       },
       {
         title: 'Cập nhật thông tin',

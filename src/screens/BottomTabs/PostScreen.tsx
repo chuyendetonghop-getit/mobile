@@ -3,6 +3,7 @@ import {Alert, Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import ImageView from 'react-native-image-viewing';
 import MaskInput, {createNumberMask} from 'react-native-mask-input';
 import {
+  ActivityIndicator,
   Appbar,
   Divider,
   Icon,
@@ -11,7 +12,11 @@ import {
   TextInput,
 } from 'react-native-paper';
 
-import {useCreatePostMutation} from 'api/post.api';
+import {
+  useCreatePostMutation,
+  useGetDetailPostQuery,
+  useUpdatePostMutation,
+} from 'api/post.api';
 import {hideLoading, showLoading} from 'components/AppLoading';
 import Container from 'components/Container';
 import Section from 'components/Section';
@@ -25,6 +30,8 @@ import {appWidth} from 'themes/spacing';
 import {TPostCreate} from 'types/post.type';
 import {category} from 'utils/category';
 import {EPostScreenTypes} from 'utils/enum';
+import {TStatusItem} from 'types/status.type';
+import {delay} from 'lodash';
 
 const DEFAULT_CATEGORY = category[3];
 
@@ -38,10 +45,43 @@ export const VNDMask = createNumberMask({
 type TModalTypes = 'category' | 'media' | 'status';
 
 const PostScreen = (props: PostScreenProps) => {
+  const screenMode = props.route.params?.mode ?? EPostScreenTypes.CREATE;
+
+  // console.log('Post Screen with mode:', screenMode);
+
+  const postId: string | undefined =
+    screenMode === EPostScreenTypes.UPDATE
+      ? props.route.params?.postId
+      : undefined;
+
+  const titleByMode =
+    screenMode === EPostScreenTypes.CREATE ? 'Đăng tin mới' : 'Chỉnh sửa tin';
+
   const user = useAppSelector(state => state.auth.user);
   const location = user?.geoLocation?.location;
 
-  const [createPostFn] = useCreatePostMutation();
+  const [createPostFn, {isSuccess: isCreateOk}] = useCreatePostMutation();
+  const [updatePostFn, {isSuccess: isUpdateOk}] = useUpdatePostMutation();
+
+  const {
+    data: postDetail,
+    isLoading,
+    error,
+  } = useGetDetailPostQuery(
+    {
+      postId: postId ?? '',
+      lon: location?.coordinates[0] ?? 0,
+      lat: location?.coordinates[1] ?? 0,
+    },
+    {
+      skip: screenMode === EPostScreenTypes.CREATE,
+      refetchOnMountOrArgChange: true,
+    },
+  );
+
+  const postDetailData = postDetail?.data;
+
+  // console.log('Post Detail:', postDetailData);
 
   const [visibleModal, setVisibleModal] = React.useState<{
     [key: string]: boolean;
@@ -50,11 +90,6 @@ const PostScreen = (props: PostScreenProps) => {
     media: false,
     status: false,
   });
-
-  const showModal = (type: TModalTypes) =>
-    setVisibleModal({...visibleModal, [type]: true});
-  const hideModal = (type: TModalTypes) =>
-    setVisibleModal({...visibleModal, [type]: false});
 
   const [visible, setIsVisible] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
@@ -65,37 +100,55 @@ const PostScreen = (props: PostScreenProps) => {
     location: {
       type: 'Point',
       coordinates: [
-        location?.coordinates[0] ?? 0,
+        screenMode === EPostScreenTypes.CREATE
+          ? location?.coordinates[0] ?? 0
+          : postDetailData?.location?.coordinates[0] ?? 0,
         location?.coordinates[1] ?? 0,
       ],
-      lat: location?.lat ?? '0',
-      lon: location?.lon ?? '0',
-      displayName: location?.displayName ?? '0',
+      lat:
+        screenMode === EPostScreenTypes.CREATE
+          ? location?.lat ?? '0'
+          : postDetailData?.location?.lat ?? '0',
+      lon:
+        screenMode === EPostScreenTypes.CREATE
+          ? location?.lon ?? '0'
+          : postDetailData?.location?.lon ?? '0',
+      displayName:
+        screenMode === EPostScreenTypes.CREATE
+          ? location?.displayName ?? 'Chưa xác định'
+          : postDetailData?.location?.displayName ?? 'Chưa xác định',
     },
-    category: DEFAULT_CATEGORY,
-    images: [] as string[],
-    title: '',
-    price: '',
-    status: null as any,
-    description: '',
-    phone: user?.phone ?? '',
+    category:
+      screenMode === EPostScreenTypes.CREATE
+        ? DEFAULT_CATEGORY
+        : postDetailData?.category ?? DEFAULT_CATEGORY,
+    images:
+      screenMode === EPostScreenTypes.CREATE
+        ? ([] as string[])
+        : postDetailData?.images ?? [],
+    title:
+      screenMode === EPostScreenTypes.CREATE ? '' : postDetailData?.title ?? '',
+    price:
+      screenMode === EPostScreenTypes.CREATE ? '' : postDetailData?.price ?? '',
+    status:
+      screenMode === EPostScreenTypes.CREATE
+        ? {
+            id: '',
+            name: '',
+            name_en: '',
+            description: '',
+          }
+        : (postDetailData?.status as TStatusItem),
+    description:
+      screenMode === EPostScreenTypes.CREATE
+        ? ''
+        : postDetailData?.description ?? '',
+    phone: screenMode === EPostScreenTypes.CREATE ? '' : user?.phone ?? '',
   });
 
   const updateData = (key: string, value: string) => {
     setData({...data, [key]: value});
   };
-
-  const screenMode = props.route.params?.mode ?? EPostScreenTypes.CREATE;
-
-  console.log('Post Screen with mode:', screenMode);
-
-  const postId: string | undefined =
-    screenMode === EPostScreenTypes.UPDATE
-      ? props.route.params?.postId
-      : undefined;
-
-  const titleByMode =
-    screenMode === EPostScreenTypes.CREATE ? 'Đăng tin mới' : 'Chỉnh sửa tin';
 
   const onCancel = () => {
     console.log('Cancel post');
@@ -128,32 +181,50 @@ const PostScreen = (props: PostScreenProps) => {
       return;
     }
 
-    console.log('Post data:', data);
-    //  Call API to create post createPostFn
-    try {
-      showLoading();
-      const reponse = await createPostFn(data).unwrap();
-      console.log('Create post success: ->', reponse);
-    } catch (error: any) {
-      console.log('Failed to create post:', error);
-    } finally {
-      hideLoading();
+    if (screenMode === EPostScreenTypes.CREATE) {
+      //  Call API to create post createPostFn
+      try {
+        showLoading();
+        await createPostFn(data).unwrap();
+        // console.log('Create post success: ->', reponse);
+      } catch (error: any) {
+        console.log('Failed to create post:', error);
+      } finally {
+        hideLoading();
+        delay(() => goBack(), 500);
+      }
+    } else {
+      // Call API to update post updatePostFn
+      try {
+        showLoading();
+        await updatePostFn({
+          id: postId ?? '',
+          body: data,
+        }).unwrap();
+        // console.log('Update post success: ->', reponse);
+      } catch (error: any) {
+        console.log('Failed to update post:', error);
+      } finally {
+        hideLoading();
+        delay(() => goBack(), 500);
+      }
     }
   };
 
-  useEffect(() => {
-    if (!postId) return;
-    // Load post data by postId
-    console.log('Load post data by postId:', postId);
-    return () => {
-      // second
-    };
-  }, [postId]);
+  const showModal = (type: TModalTypes) =>
+    setVisibleModal({...visibleModal, [type]: true});
+  const hideModal = (type: TModalTypes) =>
+    setVisibleModal({...visibleModal, [type]: false});
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', e => {
       console.log('beforeRemove event');
       // Prevent default behavior of leaving the screen
+      // If isCreateOk or isUpdateOk is true, then allow the screen to be closed
+      if (isCreateOk || isUpdateOk) {
+        // console.log('isCreateOk or isUpdateOk is true');
+        return;
+      }
       e.preventDefault();
 
       // Hiển thị cảnh báo khi người dùng chuẩn bị rời khỏi màn hình PostScreen
@@ -181,22 +252,51 @@ const PostScreen = (props: PostScreenProps) => {
     });
 
     return unsubscribe;
-  }, [navigation]);
+  }, [isCreateOk, isUpdateOk, navigation]);
+
+  // useEffect để cập nhật state khi dữ liệu postDetailData thay đổi
+  useEffect(() => {
+    if (postDetailData) {
+      setData({
+        userId: user?._id ?? '',
+        location: {
+          type: 'Point',
+          coordinates: postDetailData?.location?.coordinates ?? [0, 0],
+          lat: postDetailData?.location?.lat ?? '0',
+          lon: postDetailData?.location?.lon ?? '0',
+          displayName: postDetailData?.location?.displayName ?? 'Chưa xác định',
+        },
+        category: postDetailData?.category ?? DEFAULT_CATEGORY,
+        images: postDetailData?.images ?? [],
+        title: postDetailData?.title ?? '',
+        price: postDetailData?.price ?? '',
+        status: postDetailData?.status as TStatusItem,
+        description: postDetailData?.description ?? '',
+        phone: user?.phone ?? '',
+      });
+    }
+  }, [postDetailData, user]);
 
   return (
     <View style={styles.wrapper}>
-      <CategoryModal
-        visible={visibleModal.category}
-        onDismiss={() => hideModal('category')}
-        onSelectCategory={cat_id => {
-          console.log('onSelectCategory =>', cat_id);
-          setData({
-            ...data,
-            category:
-              category.find(item => item.cat_id === cat_id) ?? category[0],
-          });
-        }}
-      />
+      {screenMode === EPostScreenTypes.CREATE ? (
+        <CategoryModal
+          visible={
+            screenMode === EPostScreenTypes.CREATE
+              ? visibleModal.category
+              : false
+          }
+          onDismiss={() => hideModal('category')}
+          onSelectCategory={cat_id => {
+            console.log('onSelectCategory =>', cat_id);
+            setData({
+              ...data,
+              category:
+                category.find(item => item.cat_id === cat_id) ?? category[0],
+            });
+          }}
+        />
+      ) : null}
 
       <SelectMediaModal
         visible={visibleModal.media}
@@ -223,218 +323,236 @@ const PostScreen = (props: PostScreenProps) => {
         <Appbar.Action icon="check" onPress={onDone} />
       </Appbar.Header>
 
-      <Container style={styles.container} scrollable>
-        {/* location */}
-        <Section
-          style={styles.location}
-          // touchable
-          // onPress={() => showModal('location')}
-        >
-          <Text>Đăng bài tại: </Text>
-          <Icon
-            source="map-marker-radius"
-            color={MD3Colors.primary50}
-            size={20}
-          />
-          <Text numberOfLines={1} ellipsizeMode="tail">
-            {' '}
-            {location?.displayName}
-          </Text>
-        </Section>
-        <Divider />
+      {isLoading ? (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <ActivityIndicator />
+        </View>
+      ) : (
+        <Container style={styles.container} scrollable>
+          {/* location */}
+          <Section
+            style={styles.location}
+            // touchable
+            // onPress={() => showModal('location')}
+          >
+            <Text>Đăng bài tại: </Text>
+            <Icon
+              source="map-marker-radius"
+              color={MD3Colors.primary50}
+              size={20}
+            />
+            <Text numberOfLines={1} ellipsizeMode="tail">
+              {' '}
+              {screenMode === EPostScreenTypes.CREATE
+                ? location?.displayName
+                : postDetailData?.location?.displayName}
+            </Text>
+          </Section>
+          <Divider />
 
-        {/* category */}
-        <Section
-          style={styles.location}
-          touchable
-          onPress={() => showModal('category')}>
-          <Icon
-            source={data.category.cat_icon}
-            color={MD3Colors.primary50}
-            size={20}
-          />
-          <Text> {data.category.cat_name}</Text>
-          <Icon source="chevron-down" color={MD3Colors.primary50} size={20} />
-        </Section>
-        <Divider />
+          {/* category */}
+          <Section
+            style={styles.location}
+            touchable={screenMode === EPostScreenTypes.CREATE}
+            onPress={() => {
+              if (screenMode === EPostScreenTypes.UPDATE) {
+                return;
+              }
+              showModal('category');
+            }}>
+            <Icon
+              source={data.category.cat_icon}
+              color={MD3Colors.primary50}
+              size={20}
+            />
+            <Text> {data.category.cat_name}</Text>
+            {screenMode === EPostScreenTypes.CREATE ? (
+              <Icon
+                source="chevron-down"
+                color={MD3Colors.primary50}
+                size={20}
+              />
+            ) : null}
+          </Section>
+          <Divider />
 
-        {/* image upload */}
-        <Section style={styles.uploadWrapper}>
-          <TouchableOpacity
-            style={styles.upload}
-            onPress={() => showModal('media')}>
-            <Icon source="camera-plus" color={MD3Colors.primary50} size={20} />
-            <Text>Đăng ảnh</Text>
-          </TouchableOpacity>
-
-          {data.images.map((item, index) => (
+          {/* image upload */}
+          <Section style={styles.uploadWrapper}>
             <TouchableOpacity
-              style={[
-                styles.upload,
-                {
-                  borderWidth: 0,
-                  borderColor: 'transparent',
-                },
-              ]}
-              onPress={() => {
-                setCurrentImage(index);
-                setIsVisible(true);
-              }}
-              key={index}>
-              {/* clear icon */}
+              style={styles.upload}
+              onPress={() => showModal('media')}>
+              <Icon
+                source="camera-plus"
+                color={MD3Colors.primary50}
+                size={20}
+              />
+              <Text>Đăng ảnh</Text>
+            </TouchableOpacity>
+
+            {data.images.map((item, index) => (
               <TouchableOpacity
-                activeOpacity={0.8}
-                style={styles.clearIcon}
+                style={[
+                  styles.upload,
+                  {
+                    borderWidth: 0,
+                    borderColor: 'transparent',
+                  },
+                ]}
                 onPress={() => {
-                  console.log('Clear image :', index + 1);
-                  const newImages = data.images.filter((_, i) => i !== index);
-                  setData({...data, images: newImages});
-                }}>
-                <Icon
-                  source="close-circle"
-                  color={MD3Colors.primary50}
-                  size={24}
+                  setCurrentImage(index);
+                  setIsVisible(true);
+                }}
+                key={index}>
+                {/* clear icon */}
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.clearIcon}
+                  onPress={() => {
+                    console.log('Clear image :', index + 1);
+                    const newImages = data.images.filter((_, i) => i !== index);
+                    setData({...data, images: newImages});
+                  }}>
+                  <Icon
+                    source="close-circle"
+                    color={MD3Colors.primary50}
+                    size={24}
+                  />
+                </TouchableOpacity>
+
+                <Image
+                  resizeMode="cover"
+                  source={{
+                    uri: item,
+                  }}
+                  style={styles.image}
                 />
               </TouchableOpacity>
+            ))}
+          </Section>
 
-              <Image
-                resizeMode="cover"
-                source={{
-                  uri: item,
-                }}
-                style={{
-                  borderRadius: 8,
-                  width: (appWidth - 32 - 50) / 4,
-                  height: (appWidth - 32 - 50) / 4,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              />
-            </TouchableOpacity>
-          ))}
-        </Section>
+          {/* title */}
+          <Divider />
+          <Section>
+            <TextInput
+              mode="outlined"
+              outlineStyle={styles.inputOutline}
+              style={styles.input}
+              label="Tiêu đề (tối thiểu 3 ký tự)"
+              value={data.title}
+              onChangeText={value => {
+                updateData('title', value);
+              }}
+            />
+          </Section>
+          <Divider />
 
-        {/* title */}
-        <Divider />
-        <Section>
-          <TextInput
-            mode="outlined"
-            outlineStyle={styles.inputOutline}
-            style={styles.input}
-            label="Tiêu đề (tối thiểu 3 ký tự)"
-            value={data.title}
-            onChangeText={value => {
-              updateData('title', value);
-            }}
-          />
-        </Section>
-        <Divider />
+          {/* price */}
+          <Section>
+            <TextInput
+              mode="outlined"
+              outlineStyle={styles.inputOutline}
+              style={styles.input}
+              label="Giá bán (đ)"
+              value={data.price.toString()}
+              // onChangeText={value => {
+              //   updateData('price', value);
+              // }}
+              keyboardType="numeric"
+              render={inputProps => (
+                <MaskInput
+                  {...inputProps}
+                  value={data.price.toString()}
+                  mask={VNDMask}
+                  onChangeText={(masked, unmasked) => {
+                    updateData('price', unmasked);
 
-        {/* price */}
-        <Section>
-          <TextInput
-            mode="outlined"
-            outlineStyle={styles.inputOutline}
-            style={styles.input}
-            label="Giá bán (đ)"
-            value={data.price.toString()}
-            // onChangeText={value => {
-            //   updateData('price', value);
-            // }}
-            keyboardType="numeric"
-            render={inputProps => (
-              <MaskInput
-                {...inputProps}
-                value={data.price.toString()}
-                mask={VNDMask}
-                onChangeText={(masked, unmasked) => {
-                  updateData('price', unmasked);
+                    // assuming you typed "123456":
+                    console.log(masked); // "R$ 1.234,56"
+                    console.log(unmasked); // "123456"
+                  }}
+                />
+              )}
+            />
+          </Section>
+          <Divider />
 
-                  // assuming you typed "123456":
-                  console.log(masked); // "R$ 1.234,56"
-                  console.log(unmasked); // "123456"
-                }}
-              />
-            )}
-          />
-        </Section>
-        <Divider />
+          {/* status */}
+          <Section
+            style={styles.location}
+            touchable
+            onPress={() => showModal('status')}>
+            <Icon source="menu" color={MD3Colors.primary50} size={20} />
+            <Text>Tình trạng: </Text>
+            <Text>
+              {data?.status?.name ? data?.status?.name : 'Chọn tình trạng'}
+            </Text>
+            <Icon source="chevron-down" color={MD3Colors.primary50} size={20} />
+          </Section>
+          <Divider />
 
-        {/* status */}
-        <Section
-          style={styles.location}
-          touchable
-          onPress={() => showModal('status')}>
-          <Icon source="menu" color={MD3Colors.primary50} size={20} />
-          <Text>Tình trạng: </Text>
-          <Text>
-            {data?.status?.name ? data?.status?.name : 'Chọn tình trạng'}
-          </Text>
-          <Icon source="chevron-down" color={MD3Colors.primary50} size={20} />
-        </Section>
-        <Divider />
+          {/* description */}
+          <Section>
+            <TextInput
+              multiline
+              mode="outlined"
+              numberOfLines={5}
+              outlineStyle={styles.inputOutline}
+              style={styles.input}
+              label="Mô tả (tối thiểu 20 ký tự)"
+              value={data.description}
+              onChangeText={value => {
+                updateData('description', value);
+              }}
+            />
+          </Section>
+          <Divider />
 
-        {/* description */}
-        <Section>
-          <TextInput
-            multiline
-            mode="outlined"
-            numberOfLines={5}
-            outlineStyle={styles.inputOutline}
-            style={styles.input}
-            label="Mô tả (tối thiểu 20 ký tự)"
-            value={data.description}
-            onChangeText={value => {
-              updateData('description', value);
-            }}
-          />
-        </Section>
-        <Divider />
+          {/* contact */}
+          <Section>
+            <TextInput
+              mode="outlined"
+              outlineStyle={styles.inputOutline}
+              style={styles.input}
+              label="Số điện thoại liên hệ"
+              value={data.phone}
+              // onChangeText={value => {
+              //   updateData('price', value);
+              // }}
+              editable={screenMode === EPostScreenTypes.CREATE}
+              keyboardType="numeric"
+              render={inputProps => (
+                <MaskInput
+                  {...inputProps}
+                  value={data.phone}
+                  mask={[
+                    /\d/,
+                    /\d/,
+                    /\d/,
+                    '.',
+                    /\d/,
+                    /\d/,
+                    /\d/,
+                    '.',
+                    /\d/,
+                    /\d/,
+                    '.',
+                    /\d/,
+                    /\d/,
+                  ]}
+                  onChangeText={(masked, unmasked) => {
+                    updateData('phone', unmasked as string);
 
-        {/* contact */}
-        <Section>
-          <TextInput
-            mode="outlined"
-            outlineStyle={styles.inputOutline}
-            style={styles.input}
-            label="Số điện thoại liên hệ"
-            value={data.phone}
-            // onChangeText={value => {
-            //   updateData('price', value);
-            // }}
-            keyboardType="numeric"
-            render={inputProps => (
-              <MaskInput
-                {...inputProps}
-                value={data.phone}
-                mask={[
-                  /\d/,
-                  /\d/,
-                  /\d/,
-                  '.',
-                  /\d/,
-                  /\d/,
-                  /\d/,
-                  '.',
-                  /\d/,
-                  /\d/,
-                  '.',
-                  /\d/,
-                  /\d/,
-                ]}
-                onChangeText={(masked, unmasked) => {
-                  updateData('phone', unmasked as string);
-
-                  // assuming you typed "123456":
-                  console.log(masked); // "R$ 1.234,56"
-                  console.log(unmasked); // "123456"
-                }}
-              />
-            )}
-          />
-        </Section>
-        <Divider />
-      </Container>
+                    // assuming you typed "123456":
+                    console.log(masked); // "R$ 1.234,56"
+                    console.log(unmasked); // "123456"
+                  }}
+                />
+              )}
+            />
+          </Section>
+          <Divider />
+        </Container>
+      )}
 
       <ImageView
         images={data.images.map(item => ({uri: item}))}
@@ -451,7 +569,7 @@ export default PostScreen;
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: 'red',
+    // backgroundColor: 'red',
   },
   header: {
     height: 64,
@@ -499,6 +617,13 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     borderRadius: 100,
     backgroundColor: '#fff',
+  },
+  image: {
+    borderRadius: 8,
+    width: (appWidth - 32 - 50) / 4,
+    height: (appWidth - 32 - 50) / 4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   inputOutline: {},
   input: {
