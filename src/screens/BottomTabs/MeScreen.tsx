@@ -36,13 +36,13 @@ const MeScreen = () => {
           navigate(RouteName.UPDATE_PROFILE);
         },
       },
-      {
-        title: 'Đặt lại mật khẩu',
-        icon: (
-          <Icon source="onepassword" color={MD3Colors.primary50} size={20} />
-        ),
-        onPress: () => {},
-      },
+      // {
+      //   title: 'Đặt lại mật khẩu',
+      //   icon: (
+      //     <Icon source="onepassword" color={MD3Colors.primary50} size={20} />
+      //   ),
+      //   onPress: () => {},
+      // },
       {
         title: 'Đăng xuất',
         icon: <Icon source="logout" color={MD3Colors.primary50} size={20} />,
@@ -78,7 +78,16 @@ const MeScreen = () => {
     <Container style={styles.container}>
       {/* TOP SECTION */}
       <View style={styles.topSection}>
-        <Avatar.Image size={64} source={DEFAULT_AVATAR} />
+        <Avatar.Image
+          size={64}
+          source={
+            user?.avatar
+              ? {
+                  uri: user?.avatar,
+                }
+              : DEFAULT_AVATAR
+          }
+        />
         <View style={styles.topSectionRight}>
           <Text style={styles.name}>{user?.name}</Text>
           {user?.email ? <Text>{user?.email}</Text> : null}
