@@ -178,7 +178,7 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
             <Avatar.Image
               size={64}
               source={
-                postData?.author.avatar
+                postData?.author?.avatar
                   ? {
                       uri: postData?.author.avatar,
                     }
