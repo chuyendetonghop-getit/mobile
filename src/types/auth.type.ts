@@ -125,7 +125,7 @@ export type DeleteProfileRequest = {
 };
 
 export type UpdateUserRequest = Partial<
-  Pick<UserData, 'name' | 'avatar' | 'geoLocation'>
+  Pick<UserData, 'name' | 'avatar' | 'geoLocation' | 'email'>
 > & {
   id: string;
 };

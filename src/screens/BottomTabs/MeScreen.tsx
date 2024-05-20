@@ -5,36 +5,46 @@ import {Avatar, Divider, Icon, MD3Colors, Text} from 'react-native-paper';
 import Container from 'components/Container';
 import {signOut} from 'redux/slices/auth.slice';
 import {signOutProfile} from 'redux/slices/profile.slice';
-import {useAppDispatch} from 'redux/store';
+import {useAppDispatch, useAppSelector} from 'redux/store';
 import {DEFAULT_AVATAR} from 'utils/constant';
-
-const meFakeData = {
-  name: 'John Doe',
-  email: '',
-  phone: '0912345678',
-  address: 'An Khanh, Hoai Duc, Ha Noi',
-  avatar: '',
-};
+import {navigate} from 'navigation/NavigationUtils';
+import RouteName from 'navigation/RouteName';
 
 const MeScreen = () => {
   const dispatch = useAppDispatch();
+  const user = useAppSelector(state => state.auth?.user);
 
   const profileItems = useMemo(() => {
     return [
       {
-        title: 'Cap nhat mat khau',
+        title: 'Quản lý bài đăng',
         icon: (
           <Icon source="onepassword" color={MD3Colors.primary50} size={20} />
         ),
         onPress: () => {},
       },
       {
-        title: 'Cap nhat email',
-        icon: <Icon source="email" color={MD3Colors.primary50} size={20} />,
+        title: 'Cập nhật thông tin',
+        icon: (
+          <Icon
+            source="information-outline"
+            color={MD3Colors.primary50}
+            size={20}
+          />
+        ),
+        onPress: () => {
+          navigate(RouteName.UPDATE_PROFILE);
+        },
+      },
+      {
+        title: 'Đặt lại mật khẩu',
+        icon: (
+          <Icon source="onepassword" color={MD3Colors.primary50} size={20} />
+        ),
         onPress: () => {},
       },
       {
-        title: 'Dang xuat',
+        title: 'Đăng xuất',
         icon: <Icon source="logout" color={MD3Colors.primary50} size={20} />,
         onPress: () => {
           dispatch(signOut());
@@ -47,20 +57,20 @@ const MeScreen = () => {
   const actionItems = useMemo(() => {
     return [
       {
-        title: 'Dang ban',
+        title: 'Bài đăng đang hiển thị',
         count: 1,
         onPress: () => {},
       },
       {
-        title: 'Da ban',
+        title: 'Bài đăng hết hạn',
         count: 2,
         onPress: () => {},
       },
-      {
-        title: 'Luu tin',
-        count: 3,
-        onPress: () => {},
-      },
+      // {
+      //   title: 'Luu tin',
+      //   count: 3,
+      //   onPress: () => {},
+      // },
     ];
   }, []);
 
@@ -70,17 +80,17 @@ const MeScreen = () => {
       <View style={styles.topSection}>
         <Avatar.Image size={64} source={DEFAULT_AVATAR} />
         <View style={styles.topSectionRight}>
-          <Text style={styles.name}>{meFakeData.name}</Text>
-          {meFakeData?.email ? <Text>{meFakeData.email}</Text> : null}
-          <Text>{meFakeData.phone}</Text>
-          <Text>{meFakeData.address}</Text>
+          <Text style={styles.name}>{user?.name}</Text>
+          {user?.email ? <Text>{user?.email}</Text> : null}
+          <Text>{user?.phone}</Text>
+          <Text>{user?.geoLocation?.location?.displayName}</Text>
         </View>
       </View>
 
       <Divider />
 
       {/* POST SECTION */}
-      <View style={styles.postAction}>
+      {/* <View style={styles.postAction}>
         {actionItems.map((item, index) => (
           <TouchableOpacity
             key={index}
@@ -92,7 +102,7 @@ const MeScreen = () => {
         ))}
       </View>
 
-      <Divider />
+      <Divider /> */}
 
       {/* BOTTOM SECTION */}
       <View style={styles.bottomSection}>

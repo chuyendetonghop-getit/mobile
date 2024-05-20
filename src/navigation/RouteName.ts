@@ -13,6 +13,7 @@ enum RouteName {
   SEARCH = 'Search',
   DETAIL_POST = 'DetailPost',
   LIST_POST = 'ListPost',
+  UPDATE_PROFILE = 'UpdateProfile',
 }
 
 export default RouteName;
