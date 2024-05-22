@@ -29,6 +29,7 @@ import moment from 'moment';
 import 'moment/locale/vi';
 import {useAppSelector} from 'redux/store';
 import {appWidth} from 'themes/spacing';
+import OutsidePressHandler from 'react-native-outside-press';
 
 moment.locale('vi');
 
@@ -45,6 +46,8 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
 
   const [visible, setIsVisible] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
+
+  const [isShowMoreAction, setIsShowMoreAction] = useState(false);
 
   const postId = props.route.params.postId;
 
@@ -98,12 +101,58 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
           onPress={() => goBack()}
         />
 
-        <IconButton
-          icon="dots-vertical"
-          iconColor="#FFFFFF"
-          size={32}
-          onPress={() => console.log('More action')}
-        />
+        <TouchableOpacity
+          onPress={() => setIsShowMoreAction(!isShowMoreAction)}
+          style={{
+            padding: 4,
+            // backgroundColor: 'rgba(0,0,0,0.3)',
+          }}>
+          <Icon source="dots-vertical" color="#FFFFFF" size={32} />
+          <OutsidePressHandler
+            onOutsidePress={() => {
+              console.log('Pressed outside the box!');
+              setIsShowMoreAction(false);
+            }}>
+            {isShowMoreAction && false ? (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  backgroundColor: 'white',
+                  borderRadius: 8,
+                  padding: 8,
+
+                  width: 80,
+
+                  // shadow
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
+                  },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
+                  elevation: 5,
+                }}>
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    // padding: 8,
+                  }}
+                  onPress={() => {
+                    setIsShowMoreAction(false);
+                    // report
+                  }}>
+                  <Icon source={'flag'} color={MD3Colors.primary50} size={20} />
+                  <Text style={[]}>Report</Text>
+                  <Divider />
+                </TouchableOpacity>
+              </View>
+            ) : null}
+          </OutsidePressHandler>
+        </TouchableOpacity>
       </LinearGradient>
 
       {/* ---------------- */}
@@ -248,8 +297,8 @@ const styles = StyleSheet.create({
     // backgroundColor: 'yellow',
   },
   dots: {
-    width: 12,
-    height: 12,
+    width: 10,
+    height: 10,
     borderRadius: 100,
     marginHorizontal: 10,
     padding: 0,

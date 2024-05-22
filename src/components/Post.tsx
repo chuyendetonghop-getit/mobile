@@ -150,11 +150,10 @@ const Post = ({
           {masked} đ
         </Text>
         <View style={styles.wrapperLocationTime}>
-          {distance ? (
-            <Text variant="bodySmall" style={styles.location}>
-              {distance === 0 ? 0.01 : distance.toFixed(2)} km
-            </Text>
-          ) : null}
+          <Text variant="bodySmall" style={styles.location}>
+            {!Boolean(distance) ? 0.01 : distance?.toFixed(2)} km
+          </Text>
+
           <Text style={styles.dotDivider}> • </Text>
           <Text
             variant="bodySmall"
