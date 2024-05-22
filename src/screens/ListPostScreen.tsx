@@ -50,7 +50,7 @@ const ListPostScreen = (props: ListPostScreenProps) => {
     lat: user?.geoLocation?.location?.coordinates[1] ?? 0,
     radius: user?.geoLocation?.radius ?? MIN_RADIUS,
     page: 1,
-    limit: 10,
+    limit: 1000000,
     title: '',
     categoryId: categoryParamId ?? '',
     statusId: '',

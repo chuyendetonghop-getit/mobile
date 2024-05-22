@@ -143,7 +143,10 @@ const PostScreen = (props: PostScreenProps) => {
       screenMode === EPostScreenTypes.CREATE
         ? ''
         : postDetailData?.description ?? '',
-    phone: screenMode === EPostScreenTypes.CREATE ? '' : user?.phone ?? '',
+    phone:
+      screenMode === EPostScreenTypes.CREATE
+        ? user?.phone ?? ''
+        : postDetailData?.phone ?? '',
   });
 
   const updateData = (key: string, value: string) => {
