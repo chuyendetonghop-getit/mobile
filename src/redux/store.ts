@@ -31,10 +31,11 @@ export const store = configureStore({
   reducer: persistedReducer,
   //   @ts-ignore
   middleware: getDefaultMiddleware =>
-    getDefaultMiddleware({serializableCheck: false}).concat([
-      authApi.middleware,
-      postApi.middleware,
-    ]),
+    getDefaultMiddleware({
+      // disable all middleware for serializableCheck and immutableCheck in dev mode
+      immutableCheck: false,
+      serializableCheck: false,
+    }).concat([authApi.middleware, postApi.middleware]),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
