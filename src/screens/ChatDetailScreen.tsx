@@ -9,8 +9,15 @@ import {ChatDetailScreenProps} from 'navigation/NavigationProps';
 import {Icon, MD2Colors, MD3Colors} from 'react-native-paper';
 
 const ChatDetailScreen = (props: ChatDetailScreenProps) => {
-  const {mode, conversationId} = props.route.params;
-  console.log('MODE - ID: ', mode, conversationId);
+  const {mode, conversationId, receiverId} = props.route.params;
+  console.log(
+    'MODE - ID - Receiver ID: ',
+    mode,
+    '|',
+    conversationId,
+    '|',
+    receiverId,
+  );
   const [text, setText] = useState('');
   const insets = useSafeAreaInsets();
 

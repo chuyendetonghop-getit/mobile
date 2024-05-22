@@ -1,8 +1,12 @@
+import {ChatDetailScreenParams} from 'navigation/NavigationParams';
+import {navigate} from 'navigation/NavigationUtils';
+import RouteName from 'navigation/RouteName';
 import React from 'react';
 import {Linking, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Icon, MD2Colors, MD3Colors, Text} from 'react-native-paper';
 
 import {appWidth} from 'themes/spacing';
+import {EChatDetailScreenTypes} from 'utils/enum';
 
 type Props = {
   phone: string;
@@ -24,6 +28,10 @@ const PostAction = ({phone, authorId, postTitle}: Props) => {
 
   const onChat = async () => {
     console.log('Chat with seller ID:', authorId);
+    navigate<ChatDetailScreenParams>(RouteName.CHAT_DETAIL, {
+      mode: EChatDetailScreenTypes.CREATE,
+      receiverId: authorId,
+    });
   };
   return (
     <View style={styles.container}>
