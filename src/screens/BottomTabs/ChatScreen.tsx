@@ -9,6 +9,7 @@ import {
 import {Appbar, MD3Colors, Searchbar, Text} from 'react-native-paper';
 
 import Container from 'components/Container';
+import Conversation from 'components/chats/Conversation';
 
 const fakeMessageLists = [
   {
@@ -228,33 +229,43 @@ const ChatScreen = () => {
           style={styles.listStyle}
           contentContainerStyle={styles.listContainerStyle}
           renderItem={({item, index}) => (
-            <TouchableOpacity key={index} style={styles.listItem}>
-              <View style={styles.itemLeft}>
-                <Image
-                  source={{
-                    uri: item.avatar,
-                  }}
-                  style={styles.itemLeftImage}
-                />
+            // <TouchableOpacity key={index} style={styles.listItem}>
+            //   <View style={styles.itemLeft}>
+            //     <Image
+            //       source={{
+            //         uri: item.avatar,
+            //       }}
+            //       style={styles.itemLeftImage}
+            //     />
 
-                <View>
-                  <View style={styles.userWithTime}>
-                    <Text>{item.name}</Text>
-                    <Text> - </Text>
-                    <Text style={styles.textTime}>{item.time}</Text>
-                  </View>
-                  <Text style={styles.textPostTitle}>{item.postTitle}</Text>
-                  <Text style={styles.textMessage}>{item.message}</Text>
-                </View>
-              </View>
+            //     <View>
+            //       <View style={styles.userWithTime}>
+            //         <Text>{item.name}</Text>
+            //         <Text> - </Text>
+            //         <Text style={styles.textTime}>{item.time}</Text>
+            //       </View>
+            //       <Text style={styles.textPostTitle}>{item.postTitle}</Text>
+            //       <Text style={styles.textMessage}>{item.message}</Text>
+            //     </View>
+            //   </View>
 
-              <Image
-                source={{
-                  uri: item.postImage,
-                }}
-                style={styles.imageRight}
-              />
-            </TouchableOpacity>
+            //   <Image
+            //     source={{
+            //       uri: item.postImage,
+            //     }}
+            //     style={styles.imageRight}
+            //   />
+            // </TouchableOpacity>
+            <Conversation
+              key={item?.id}
+              id={item?.id}
+              name={item?.name}
+              postTitle={item?.postTitle}
+              message={item?.message}
+              time={item?.time}
+              avatar={item?.avatar}
+              postImage={item?.postImage}
+            />
           )}
           ListEmptyComponent={
             <Text style={styles.textEmpty}>Không có tin nhắn</Text>

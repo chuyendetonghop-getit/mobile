@@ -15,6 +15,7 @@ enum RouteName {
   LIST_POST = 'ListPost',
   UPDATE_PROFILE = 'UpdateProfile',
   MANAGER_POST = 'ManagerPost',
+  CHAT_DETAIL = 'ChatDetail',
 }
 
 export default RouteName;

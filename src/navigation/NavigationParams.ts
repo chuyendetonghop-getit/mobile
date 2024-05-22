@@ -1,4 +1,9 @@
-import {EListPostScreenTypes, EPostScreenTypes, ETokenTypes} from 'utils/enum';
+import {
+  EChatDetailScreenTypes,
+  EListPostScreenTypes,
+  EPostScreenTypes,
+  ETokenTypes,
+} from 'utils/enum';
 
 export type LoginScreenParams = undefined;
 export type SignupScreenParams = undefined;
@@ -28,3 +33,8 @@ export type ListPostScreenParams = {
 };
 
 export type PostManagementScreenParams = {};
+
+export type ChatDetailScreenParams = {
+  mode: EChatDetailScreenTypes;
+  conversationId?: string;
+};

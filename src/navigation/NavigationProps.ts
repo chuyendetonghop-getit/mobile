@@ -54,3 +54,8 @@ export type PostManagementScreenProps = NativeStackScreenProps<
   RootStackParamList,
   RouteName.MANAGER_POST
 >;
+
+export type ChatDetailScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  RouteName.CHAT_DETAIL
+>;

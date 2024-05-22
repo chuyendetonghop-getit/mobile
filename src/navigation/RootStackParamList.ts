@@ -1,5 +1,5 @@
-import {PostManagementScreen} from 'screens/PostManagementScreen';
 import {
+  ChatDetailScreenParams,
   DetailPostScreenParams,
   HomeScreenParams,
   ListPostScreenParams,
@@ -24,6 +24,7 @@ type RootStackParamList = {
   [RouteName.DETAIL_POST]: DetailPostScreenParams;
   [RouteName.LIST_POST]: ListPostScreenParams;
   [RouteName.MANAGER_POST]: PostManagementScreenParams;
+  [RouteName.CHAT_DETAIL]: ChatDetailScreenParams;
 };
 
 export default RootStackParamList;

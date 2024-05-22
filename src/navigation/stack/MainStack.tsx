@@ -9,6 +9,7 @@ import SearchScreen from 'screens/SearchScreen';
 import ListPostScreen from 'screens/ListPostScreen';
 import UpdateProfileScreen from 'screens/UpdateProfileScreen';
 import PostManagementScreen from 'screens/PostManagementScreen';
+import ChatDetailScreen from 'screens/ChatDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +32,7 @@ export const MainStack = () => {
         name={RouteName.MANAGER_POST}
         component={PostManagementScreen}
       />
+      <Stack.Screen name={RouteName.CHAT_DETAIL} component={ChatDetailScreen} />
     </Stack.Navigator>
   );
 };

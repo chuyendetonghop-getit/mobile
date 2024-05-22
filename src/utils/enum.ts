@@ -18,3 +18,8 @@ export enum EListPostScreenTypes {
   SEARCH = 'search',
   VIEW = 'view',
 }
+
+export enum EChatDetailScreenTypes {
+  CREATE = 'create',
+  VIEW = 'view',
+}
