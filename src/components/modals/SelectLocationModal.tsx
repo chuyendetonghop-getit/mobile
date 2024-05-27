@@ -150,6 +150,7 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
       contentContainerStyle={styles.contentContainer}>
       <Header
         hasBackButton={dismissable}
+        onBack={onDismiss}
         headerTitle="Khu vực và phạm vi của bạn"
         onTailDone={onDone}
         // onTailDone={userLocation ? onDismiss : undefined}

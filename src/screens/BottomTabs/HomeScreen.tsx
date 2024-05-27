@@ -71,7 +71,7 @@ const HomeScreen = (props: HomeScreenProps) => {
       <SelectLocationModal
         // visible={true}
         visible={showSelectLocationModal}
-        dismissable={false}
+        dismissable={!!appLocation?.coordinates}
         onDismiss={() => setShowSelectLocationModal(false)}
       />
 
