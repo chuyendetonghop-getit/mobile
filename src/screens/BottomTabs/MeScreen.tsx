@@ -38,13 +38,6 @@ const MeScreen = () => {
           navigate(RouteName.UPDATE_PROFILE);
         },
       },
-      // {
-      //   title: 'Đặt lại mật khẩu',
-      //   icon: (
-      //     <Icon source="onepassword" color={MD3Colors.primary50} size={20} />
-      //   ),
-      //   onPress: () => {},
-      // },
       {
         title: 'Đăng xuất',
         icon: <Icon source="logout" color={MD3Colors.primary50} size={20} />,
@@ -55,26 +48,6 @@ const MeScreen = () => {
       },
     ];
   }, [dispatch]);
-
-  const actionItems = useMemo(() => {
-    return [
-      {
-        title: 'Bài đăng đang hiển thị',
-        count: 1,
-        onPress: () => {},
-      },
-      {
-        title: 'Bài đăng hết hạn',
-        count: 2,
-        onPress: () => {},
-      },
-      // {
-      //   title: 'Luu tin',
-      //   count: 3,
-      //   onPress: () => {},
-      // },
-    ];
-  }, []);
 
   return (
     <Container style={styles.container}>
