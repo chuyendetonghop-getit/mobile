@@ -2,7 +2,14 @@ import Geolocation from '@react-native-community/geolocation';
 import Slider from '@react-native-community/slider';
 import React, {useEffect, useState} from 'react';
 import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {Divider, Icon, MD3Colors, Searchbar, Text} from 'react-native-paper';
+import {
+  ActivityIndicator,
+  Divider,
+  Icon,
+  MD3Colors,
+  Searchbar,
+  Text,
+} from 'react-native-paper';
 
 import {useUpdateProfileMutation} from 'api/auth.api';
 import {autoCompleteLocation, reverseGeocode} from 'api/locationApi';
@@ -15,6 +22,15 @@ import {UserData} from 'types/auth.type';
 import {TLocation, TLocationPost} from 'types/location.type';
 import {MAX_RADIUS, MIN_RADIUS, RADIUS_STEP} from 'utils/constant';
 import RootModal, {BaseModalComponentProps} from './RootModal';
+
+// Fix error Geolocation.getCurrentPosition not work
+
+Geolocation.setRNConfiguration({
+  skipPermissionRequests: false,
+  // authorizationLevel?: 'always' | 'whenInUse' | 'auto';
+  enableBackgroundLocationUpdates: true,
+  locationProvider: 'playServices',
+});
 
 type Props = BaseModalComponentProps & {
   // onSelectLocation: (location: number) => void;
@@ -33,6 +49,7 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchTerm = useDebounce(searchQuery, 500);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [dataLocation, setdataLocation] = useState<TLocation[]>();
   const [radius, setRadius] = useState<number>(
@@ -46,6 +63,7 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
   // const dispatch = useAppDispatch();
 
   const onGetCurrenLocation = async () => {
+    setIsLoading(true);
     Geolocation.getCurrentPosition(
       position => {
         console.log('--->', position);
@@ -62,6 +80,7 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
         console.log('Error =>', error.code, error.message);
       },
     );
+    setIsLoading(false);
   };
 
   const onPressLocation = (location: TLocation) => {
@@ -103,8 +122,15 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
 
   useEffect(() => {
     const fetchLocation = async () => {
-      const data = await autoCompleteLocation(debouncedSearchTerm, 15);
-      setdataLocation(data);
+      try {
+        setIsLoading(true);
+        const data = await autoCompleteLocation(debouncedSearchTerm, 15);
+        setdataLocation(data);
+      } catch (error) {
+        console.log('fetchLocation -> error', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     debouncedSearchTerm && fetchLocation();
@@ -187,25 +213,29 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
 
       {/* <Divider horizontalInset /> */}
 
-      <FlatList
-        data={dataLocation}
-        // data={fakeLocations}
-        style={{}}
-        contentContainerStyle={styles.wrapLocation}
-        renderItem={({item}) => (
-          <TouchableOpacity
-            key={item.osm_id}
-            style={styles.location}
-            onPress={() => onPressLocation(item)}>
-            <Text>{item.display_name}</Text>
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={
-          <Text style={styles.emptyLocationText}>
-            Không có dữ liệu. Hãy nhập và tìm kiếm
-          </Text>
-        }
-      />
+      {isLoading ? (
+        <ActivityIndicator />
+      ) : (
+        <FlatList
+          data={dataLocation}
+          // data={fakeLocations}
+          style={{}}
+          contentContainerStyle={styles.wrapLocation}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              key={item.osm_id}
+              style={styles.location}
+              onPress={() => onPressLocation(item)}>
+              <Text>{item.display_name}</Text>
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={
+            <Text style={styles.emptyLocationText}>
+              Không có dữ liệu. Hãy nhập và tìm kiếm
+            </Text>
+          }
+        />
+      )}
     </RootModal>
   );
 };
