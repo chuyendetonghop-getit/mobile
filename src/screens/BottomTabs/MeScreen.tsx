@@ -64,10 +64,22 @@ const MeScreen = () => {
           }
         />
         <View style={styles.topSectionRight}>
-          <Text style={styles.name}>{user?.name}</Text>
-          {user?.email ? <Text>{user?.email}</Text> : null}
+          <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+            {user?.name}
+          </Text>
+          {user?.email ? (
+            <Text numberOfLines={1} ellipsizeMode="tail">
+              {user?.email}
+            </Text>
+          ) : null}
           <Text>{user?.phone}</Text>
-          <Text>{user?.geoLocation?.location?.displayName}</Text>
+          <Text
+            style={styles.displayName}
+            numberOfLines={2}
+            ellipsizeMode="tail"
+            lineBreakMode="middle">
+            {user?.geoLocation?.location?.displayName}
+          </Text>
         </View>
       </View>
 
@@ -117,10 +129,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 16,
+    // backgroundColor: 'green',
+    overflow: 'hidden',
   },
 
   topSectionRight: {
     marginLeft: 16,
+    // backgroundColor: 'red',
+  },
+
+  displayName: {
+    maxWidth: 300,
   },
 
   name: {

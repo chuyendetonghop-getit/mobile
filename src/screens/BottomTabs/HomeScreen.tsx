@@ -53,7 +53,7 @@ const HomeScreen = (props: HomeScreenProps) => {
   );
 
   useEffect(() => {
-    if (!appLocation) {
+    if (!appLocation?.displayName) {
       setShowSelectLocationModal(true);
     }
   }, [appLocation]);
@@ -71,7 +71,7 @@ const HomeScreen = (props: HomeScreenProps) => {
       <SelectLocationModal
         // visible={true}
         visible={showSelectLocationModal}
-        dismissable={!!appLocation?.coordinates}
+        dismissable={!!appLocation?.displayName}
         onDismiss={() => setShowSelectLocationModal(false)}
       />
 
@@ -163,6 +163,13 @@ const HomeScreen = (props: HomeScreenProps) => {
               </View>
             ))
           : null}
+
+        {
+          // Case no data
+          !isLoading && postsData?.data?.docs?.length === 0 && (
+            <Text style={styles.noData}>Không có dữ liệu</Text>
+          )
+        }
       </View>
 
       <View style={styles.paddingBottomComponent} />
@@ -240,5 +247,9 @@ const styles = StyleSheet.create({
   },
   paddingBottomComponent: {
     height: 32,
+  },
+  noData: {
+    textAlign: 'center',
+    paddingVertical: 16,
   },
 });

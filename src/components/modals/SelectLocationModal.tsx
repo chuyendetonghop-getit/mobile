@@ -43,9 +43,8 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
   const user = useAppSelector(state => state.auth?.user) as UserData;
 
   const userLocation = user?.geoLocation?.location;
+
   const userRadius = user?.geoLocation?.radius;
-  // const userLocation = useAppSelector(state => state.profile.location);
-  // const userRadius = useAppSelector(state => state.profile.radius);
 
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchTerm = useDebounce(searchQuery, 500);
@@ -152,8 +151,8 @@ const SelectLocationModal = ({dismissable, onDismiss, visible}: Props) => {
         hasBackButton={dismissable}
         onBack={onDismiss}
         headerTitle="Khu vực và phạm vi của bạn"
-        onTailDone={onDone}
-        // onTailDone={userLocation ? onDismiss : undefined}
+        // onTailDone={onDone}
+        onTailDone={selectedLocation?.displayName ? onDone : undefined}
       />
 
       <View style={styles.wrapperLocationRadius}>
