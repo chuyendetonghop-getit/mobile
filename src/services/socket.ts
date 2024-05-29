@@ -1,6 +1,13 @@
 import {io} from 'socket.io-client';
 import {DOMAIN} from './baseApi';
+import {store} from 'redux/store';
 
-const socket = io(DOMAIN, {transports: ['websocket']});
+const jwtToken = store.getState().auth.user?.accessToken;
 
-export default socket;
+const socketClient = io(DOMAIN, {
+  extraHeaders: {
+    Authorization: `Bearer ${jwtToken}`,
+  },
+});
+
+export default socketClient;

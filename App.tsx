@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {NativeModules} from 'react-native';
 import {PaperProvider} from 'react-native-paper';
 import {Provider} from 'react-redux';
@@ -10,6 +10,7 @@ import {EventProvider} from 'react-native-outside-press';
 import AppLoading, {loadingRef} from './src/components/AppLoading';
 import {AppNavigator} from './src/navigation/navigator/AppNavigator';
 import {persistor, store} from './src/redux/store';
+import socketClient from 'services/socket';
 
 if (__DEV__) {
   const scriptURL = NativeModules.SourceCode.scriptURL;
@@ -22,6 +23,18 @@ if (__DEV__) {
 }
 
 function App(): React.JSX.Element {
+  // implement socket.io in here
+  useEffect(() => {
+    // implement socket.io in here
+    socketClient.on('connect', () => {
+      console.log('Connected to server');
+    });
+
+    return () => {
+      socketClient.disconnect();
+    };
+  }, []);
+
   return (
     <Provider store={store}>
       <PaperProvider>
