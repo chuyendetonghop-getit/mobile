@@ -108,12 +108,12 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
             // backgroundColor: 'rgba(0,0,0,0.3)',
           }}>
           <Icon source="dots-vertical" color="#FFFFFF" size={32} />
-          <OutsidePressHandler
-            onOutsidePress={() => {
-              console.log('Pressed outside the box!');
-              setIsShowMoreAction(false);
-            }}>
-            {isShowMoreAction && false ? (
+          {isShowMoreAction ? (
+            <OutsidePressHandler
+              onOutsidePress={() => {
+                console.log('Pressed outside the box!');
+                setIsShowMoreAction(false);
+              }}>
               <View
                 style={{
                   position: 'absolute',
@@ -150,8 +150,8 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
                   <Divider />
                 </TouchableOpacity>
               </View>
-            ) : null}
-          </OutsidePressHandler>
+            </OutsidePressHandler>
+          ) : null}
         </TouchableOpacity>
       </LinearGradient>
 
