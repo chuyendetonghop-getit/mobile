@@ -23,18 +23,6 @@ if (__DEV__) {
 }
 
 function App(): React.JSX.Element {
-  // implement socket.io in here
-  useEffect(() => {
-    // implement socket.io in here
-    socketClient.on('connect', () => {
-      console.log('Connected to server');
-    });
-
-    return () => {
-      socketClient.disconnect();
-    };
-  }, []);
-
   return (
     <Provider store={store}>
       <PaperProvider>

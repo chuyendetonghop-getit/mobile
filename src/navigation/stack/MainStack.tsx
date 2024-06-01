@@ -1,5 +1,5 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import React from 'react';
+import React, {useEffect} from 'react';
 
 import RouteName from 'navigation/RouteName';
 import TabNavigator from 'navigation/navigator/TabNavigator';
@@ -10,10 +10,23 @@ import ListPostScreen from 'screens/ListPostScreen';
 import UpdateProfileScreen from 'screens/UpdateProfileScreen';
 import PostManagementScreen from 'screens/PostManagementScreen';
 import ChatDetailScreen from 'screens/ChatDetailScreen';
+import socketClient from 'services/socket';
 
 const Stack = createNativeStackNavigator();
 
 export const MainStack = () => {
+  // implement socket.io in here to resolve the issue when token is undefined
+  useEffect(() => {
+    // implement socket.io in here
+    socketClient.on('connect', () => {
+      console.log('Connected to server');
+    });
+
+    return () => {
+      socketClient.disconnect();
+    };
+  }, []);
+
   return (
     <Stack.Navigator
       screenOptions={{
