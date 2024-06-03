@@ -11,7 +11,7 @@ export type TPost = {
   category: TCategoryItem;
   images: string[];
   title: string;
-  price: string;
+  price: number;
   status: TStatusItem;
   description: string;
   phone: string;

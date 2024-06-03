@@ -129,7 +129,7 @@ const PostScreen = (props: PostScreenProps) => {
     title:
       screenMode === EPostScreenTypes.CREATE ? '' : postDetailData?.title ?? '',
     price:
-      screenMode === EPostScreenTypes.CREATE ? '' : postDetailData?.price ?? '',
+      screenMode === EPostScreenTypes.CREATE ? 0 : postDetailData?.price ?? 0,
     status:
       screenMode === EPostScreenTypes.CREATE
         ? {
@@ -149,7 +149,7 @@ const PostScreen = (props: PostScreenProps) => {
         : postDetailData?.phone ?? '',
   });
 
-  const updateData = (key: string, value: string) => {
+  const updateData = (key: string, value: string | number) => {
     setData({...data, [key]: value});
   };
 
@@ -167,7 +167,7 @@ const PostScreen = (props: PostScreenProps) => {
     } else if (data.title.length < 3) {
       Alert.alert('Tiêu đề quá ngắn', 'Tiêu đề phải có ít nhất 3 ký tự');
       return;
-    } else if (data.price.length === 0) {
+    } else if (data.price === 0) {
       Alert.alert('Giá bán không được để trống', 'Vui lòng nhập giá bán');
       return;
     } else if (!data.status) {
@@ -467,7 +467,7 @@ const PostScreen = (props: PostScreenProps) => {
                   value={data.price.toString()}
                   mask={VNDMask}
                   onChangeText={(masked, unmasked) => {
-                    updateData('price', unmasked);
+                    updateData('price', Number(unmasked));
 
                     // assuming you typed "123456":
                     console.log(masked); // "R$ 1.234,56"
