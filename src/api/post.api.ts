@@ -9,6 +9,7 @@ import {
   GetMyPostRequest,
   GetMyPostResponse,
   TPostCreate,
+  TReportCreate,
 } from 'types/post.type';
 import apiPath from 'utils/apiPath';
 
@@ -84,6 +85,18 @@ export const postApi = createApi({
     }),
 
     // -------------------------------------
+    // report post
+
+    reportPost: builder.mutation<{}, TReportCreate>({
+      query: ({postId, reason}) => ({
+        url: apiPath.bareReport,
+        method: 'POST',
+        body: {
+          postId,
+          reason,
+        },
+      }),
+    }),
   }),
 });
 
@@ -95,4 +108,5 @@ export const {
   useGetMyPostsQuery,
   useDeletePostMutation,
   useUpdatePostMutation,
+  useReportPostMutation,
 } = postApi;

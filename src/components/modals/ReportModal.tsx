@@ -5,15 +5,18 @@ import {Appbar, Button, MD3Colors, RadioButton} from 'react-native-paper';
 import {appWidth} from 'themes/spacing';
 import {EReportReasonTypes, reportReasonTypeToLabel} from 'utils/enum';
 import RootModal, {BaseModalComponentProps} from './RootModal';
+import {useReportPostMutation} from 'api/post.api';
 
 type Props = BaseModalComponentProps & {
   postId: string;
 };
 
 const ReportModal = ({onDismiss, visible, postId}: Props) => {
+  const [reportFn, {isLoading}] = useReportPostMutation();
+
   const [selectedReportReason, setSelectedReportReason] =
     useState<EReportReasonTypes>();
-  const [isReporting, setIsReporting] = useState(false);
+  // const [isReporting, setIsReporting] = useState(false);
 
   const reportItems = useMemo(() => {
     // map report reason type to label
@@ -26,26 +29,16 @@ const ReportModal = ({onDismiss, visible, postId}: Props) => {
 
   const onReport = async () => {
     try {
-      setIsReporting(true);
+      await reportFn({
+        postId,
+        reason: selectedReportReason as EReportReasonTypes,
+      }).unwrap();
 
-      // fake report handling
-      await new Promise(resolve =>
-        setTimeout(() => {
-          onDismiss();
-
-          console.log(
-            'Reported post:',
-            postId,
-            'with reason:',
-            selectedReportReason,
-          );
-
-          Alert.alert('Báo cáo thành công', 'Cảm ơn bạn đã báo cáo vấn đề này');
-        }, 1000),
-      );
+      onDismiss();
+      Alert.alert('Báo cáo thành công', 'Cảm ơn bạn đã báo cáo vấn đề này');
     } catch (error) {
-    } finally {
-      setIsReporting(false);
+      console.log('Failed to report post:', error);
+      Alert.alert('Báo cáo thất bại', 'Có lỗi xảy ra, vui lòng thử lại sau');
     }
   };
 
@@ -53,9 +46,6 @@ const ReportModal = ({onDismiss, visible, postId}: Props) => {
     // reset selected report reason when modal is closed
     if (!visible) {
       setSelectedReportReason(undefined);
-
-      // reset isReporting
-      setIsReporting(false);
     }
   }, [visible]);
 
@@ -94,9 +84,9 @@ const ReportModal = ({onDismiss, visible, postId}: Props) => {
 
         <Button
           mode="contained"
-          disabled={!selectedReportReason || isReporting}
+          disabled={!selectedReportReason || isLoading}
           onPress={onReport}
-          loading={isReporting}
+          loading={isLoading}
           style={styles.sendReport}>
           Gửi báo cáo
         </Button>

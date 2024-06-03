@@ -16,4 +16,7 @@ export default {
   createPost: 'post',
   barePost: 'post',
   myPost: 'post/me',
+
+  // report
+  bareReport: 'report',
 };
