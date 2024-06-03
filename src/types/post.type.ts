@@ -1,3 +1,4 @@
+import {EReportReasonTypes} from 'utils/enum';
 import {UserData} from './auth.type';
 import {TCategoryItem} from './category.type';
 import {TLocationPost} from './location.type';
@@ -57,3 +58,9 @@ export type GetMyPostRequest = {
   limit?: number;
 };
 export type GetMyPostResponse = TResponsePaginate<TPost>;
+
+// type for report post
+export type TReportCreate = {
+  postId: string;
+  reason: EReportReasonTypes;
+};

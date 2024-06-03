@@ -30,6 +30,7 @@ import OutsidePressHandler from 'react-native-outside-press';
 import {useAppSelector} from 'redux/store';
 import {appWidth} from 'themes/spacing';
 import useIsFirstRender from 'hooks/useIsFirstRender';
+import ReportModal from 'components/modals/ReportModal';
 
 moment.locale('vi');
 
@@ -48,6 +49,7 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
   const [currentImage, setCurrentImage] = useState(0);
 
   const [isShowMoreAction, setIsShowMoreAction] = useState(false);
+  const [isReportModalVisible, setIsReportModalVisible] = useState(false);
 
   const postId = props.route.params.postId;
 
@@ -148,7 +150,7 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
                           borderRadius: 8,
                           padding: 8,
 
-                          width: 80,
+                          width: 90,
 
                           // shadow
                           shadowColor: '#000',
@@ -169,13 +171,14 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
                           onPress={() => {
                             setIsShowMoreAction(false);
                             // report
+                            setIsReportModalVisible(true);
                           }}>
                           <Icon
                             source={'flag'}
                             color={MD3Colors.primary50}
                             size={20}
                           />
-                          <Text style={[]}>Report</Text>
+                          <Text style={[]}>Báo cáo</Text>
                           <Divider />
                         </TouchableOpacity>
                       </View>
@@ -304,6 +307,16 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
             imageIndex={currentImage}
             visible={visible}
             onRequestClose={() => setIsVisible(false)}
+          />
+
+          {/* ------ report modal ------ */}
+
+          <ReportModal
+            visible={isReportModalVisible}
+            onDismiss={() => {
+              setIsReportModalVisible(false);
+            }}
+            postId={postData?._id as string}
           />
         </>
       )}
