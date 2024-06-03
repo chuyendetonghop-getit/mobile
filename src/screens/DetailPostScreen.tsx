@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {
@@ -15,21 +15,21 @@ import {
 import {SliderBox} from 'react-native-image-slider-box';
 import ImageView from 'react-native-image-viewing';
 
+import {useGetDetailPostQuery} from 'api/post.api';
 import Container from 'components/Container';
 import PostAction from 'components/PostAction';
+import moment from 'moment';
 import {DetailPostScreenProps} from 'navigation/NavigationProps';
 import {goBack} from 'navigation/NavigationUtils';
-import {category} from 'utils/category';
-import {DEFAULT_AVATAR} from 'utils/constant';
-import {useGetDetailPostQuery} from 'api/post.api';
 import {formatWithMask} from 'react-native-mask-input';
+import {DEFAULT_AVATAR} from 'utils/constant';
 import {VNDMask} from './BottomTabs/PostScreen';
-import moment from 'moment';
 
 import 'moment/locale/vi';
+import OutsidePressHandler from 'react-native-outside-press';
 import {useAppSelector} from 'redux/store';
 import {appWidth} from 'themes/spacing';
-import OutsidePressHandler from 'react-native-outside-press';
+import useIsFirstRender from 'hooks/useIsFirstRender';
 
 moment.locale('vi');
 
@@ -51,12 +51,16 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
 
   const postId = props.route.params.postId;
 
+  const isFirstRender = useIsFirstRender();
+  const navigation = props.navigation;
+
   console.log('Detail Post with ID:', postId);
 
   const {
     data: postDetail,
     isLoading,
     error,
+    refetch,
   } = useGetDetailPostQuery(
     {
       postId,
@@ -76,199 +80,220 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
     mask: VNDMask,
   });
 
-  if (isLoading) {
-    return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <ActivityIndicator />
-      </View>
-    );
-  }
+  useEffect(() => {
+    // force refetch when the screen is focused from goBack() navigation
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (!isFirstRender) {
+        console.log('Refetching...');
+        refetch();
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={[
-          'rgba(0,0,0,0.3)',
-          'rgba(0,0,0,0.2)',
-          'rgba(0,0,0,0.1)',
-          'rgba(0,0,0,0)',
-        ]}
-        style={styles.header}>
-        <IconButton
-          icon="arrow-left"
-          iconColor="#FFFFFF"
-          size={32}
-          onPress={() => goBack()}
-        />
-
-        <TouchableOpacity
-          onPress={() => setIsShowMoreAction(!isShowMoreAction)}
-          style={{
-            padding: 4,
-            // backgroundColor: 'rgba(0,0,0,0.3)',
-          }}>
-          <Icon source="dots-vertical" color="#FFFFFF" size={32} />
-          {isShowMoreAction ? (
-            <OutsidePressHandler
-              onOutsidePress={() => {
-                console.log('Pressed outside the box!');
-                setIsShowMoreAction(false);
-              }}>
-              <View
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  backgroundColor: 'white',
-                  borderRadius: 8,
-                  padding: 8,
-
-                  width: 80,
-
-                  // shadow
-                  shadowColor: '#000',
-                  shadowOffset: {
-                    width: 0,
-                    height: 2,
-                  },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 3.84,
-                  elevation: 5,
-                }}>
-                <TouchableOpacity
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    // padding: 8,
-                  }}
-                  onPress={() => {
-                    setIsShowMoreAction(false);
-                    // report
-                  }}>
-                  <Icon source={'flag'} color={MD3Colors.primary50} size={20} />
-                  <Text style={[]}>Report</Text>
-                  <Divider />
-                </TouchableOpacity>
-              </View>
-            </OutsidePressHandler>
-          ) : null}
-        </TouchableOpacity>
-      </LinearGradient>
-
-      {/* ---------------- */}
-      <ScrollView style={styles.mainContent}>
-        <SliderBox
-          images={postData?.images ? postData?.images : images}
-          sliderBoxHeight={300}
-          onCurrentImagePressed={(index: any) => {
-            console.log(`image ${index} pressed`);
-            setCurrentImage(index);
-            setIsVisible(true);
-          }}
-          dotColor="#FFF"
-          inactiveDotColor="rgba(0,0,0,0.5)"
-          dotStyle={styles.dots}
-        />
-        <Container style={styles.container} scrollable>
-          {/* title - price - time */}
-          <View style={styles.section}>
-            <Text variant="titleLarge">{postData?.title}</Text>
-            <Text variant="titleMedium" style={styles.price}>
-              {masked} đ
-            </Text>
-            <Text variant="bodyMedium">
-              {moment(postData?.createdAt).fromNow()}
-            </Text>
-          </View>
-
-          <Divider />
-
-          {/* address - category */}
-          <View style={styles.section}>
-            <View style={styles.sectionTwo}>
-              <Icon
-                source={postData?.category.cat_icon}
-                color={'black'}
-                size={16}
-              />
-              <Text variant="bodyMedium">{postData?.category.cat_name}</Text>
-            </View>
-
-            <View style={styles.sectionTwo}>
-              <Icon
-                source={'map-marker-radius-outline'}
-                color={'black'}
-                size={16}
-              />
-
-              <Text>
-                {postData?.distance === 0
-                  ? 0.01
-                  : postData?.distance?.toFixed(2)}{' '}
-                km
-              </Text>
-              <Text style={styles.dotDivider}>•</Text>
-              <Text
-                variant="bodyMedium"
-                style={styles.location}
-                numberOfLines={1}
-                ellipsizeMode="tail">
-                {postData?.location?.displayName ?? 'Unknow location'}
-              </Text>
-            </View>
-          </View>
-
-          <Divider />
-
-          {/* post author */}
-          <TouchableOpacity
-            activeOpacity={1}
-            style={[styles.section, styles.author]}>
-            <Avatar.Image
-              size={64}
-              source={
-                postData?.author?.avatar
-                  ? {
-                      uri: postData?.author.avatar,
-                    }
-                  : DEFAULT_AVATAR
-              }
+      {isLoading ? (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <ActivityIndicator />
+        </View>
+      ) : (
+        <>
+          <LinearGradient
+            colors={[
+              'rgba(0,0,0,0.3)',
+              'rgba(0,0,0,0.2)',
+              'rgba(0,0,0,0.1)',
+              'rgba(0,0,0,0)',
+            ]}
+            style={styles.header}>
+            <IconButton
+              icon="arrow-left"
+              iconColor="#FFFFFF"
+              size={32}
+              onPress={() => goBack()}
             />
-            <View>
-              <Text variant="titleMedium">
-                {postData?.author?.name ?? 'Unknow 123'}
-              </Text>
-              <Text variant="bodyMedium">
-                Đã tham gia {moment(postData?.author?.createdAt).fromNow()}
-              </Text>
-            </View>
-          </TouchableOpacity>
 
-          <Divider />
+            <TouchableOpacity
+              onPress={() => setIsShowMoreAction(!isShowMoreAction)}
+              style={{
+                padding: 4,
+                // backgroundColor: 'rgba(0,0,0,0.3)',
+              }}>
+              <Icon source="dots-vertical" color="#FFFFFF" size={32} />
+              {isShowMoreAction ? (
+                <OutsidePressHandler
+                  onOutsidePress={() => {
+                    console.log('Pressed outside the box!');
+                    setIsShowMoreAction(false);
+                  }}>
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      backgroundColor: 'white',
+                      borderRadius: 8,
+                      padding: 8,
 
-          {/* post description */}
-          <View style={[styles.section]}>
-            <Text variant="bodyMedium">{postData?.description}</Text>
-          </View>
-        </Container>
-      </ScrollView>
+                      width: 80,
 
-      {/* sticky actions */}
-      <PostAction
-        phone={postData?.author?.phone as string}
-        authorId={postData?.author?._id as string}
-        postTitle={postData?.title as string}
-        postId={postData?._id as string}
-      />
+                      // shadow
+                      shadowColor: '#000',
+                      shadowOffset: {
+                        width: 0,
+                        height: 2,
+                      },
+                      shadowOpacity: 0.25,
+                      shadowRadius: 3.84,
+                      elevation: 5,
+                    }}>
+                    <TouchableOpacity
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        // padding: 8,
+                      }}
+                      onPress={() => {
+                        setIsShowMoreAction(false);
+                        // report
+                      }}>
+                      <Icon
+                        source={'flag'}
+                        color={MD3Colors.primary50}
+                        size={20}
+                      />
+                      <Text style={[]}>Report</Text>
+                      <Divider />
+                    </TouchableOpacity>
+                  </View>
+                </OutsidePressHandler>
+              ) : null}
+            </TouchableOpacity>
+          </LinearGradient>
 
-      <ImageView
-        images={(postData?.images ? postData?.images : images).map(item => ({
-          uri: item,
-        }))}
-        imageIndex={currentImage}
-        visible={visible}
-        onRequestClose={() => setIsVisible(false)}
-      />
+          {/* ---------------- */}
+          <ScrollView style={styles.mainContent}>
+            <SliderBox
+              images={postData?.images ? postData?.images : images}
+              sliderBoxHeight={300}
+              onCurrentImagePressed={(index: any) => {
+                console.log(`image ${index} pressed`);
+                setCurrentImage(index);
+                setIsVisible(true);
+              }}
+              dotColor="#FFF"
+              inactiveDotColor="rgba(0,0,0,0.5)"
+              dotStyle={styles.dots}
+            />
+            <Container style={styles.container} scrollable>
+              {/* title - price - time */}
+              <View style={styles.section}>
+                <Text variant="titleLarge">{postData?.title}</Text>
+                <Text variant="titleMedium" style={styles.price}>
+                  {masked} đ
+                </Text>
+                <Text variant="bodyMedium">
+                  {moment(postData?.createdAt).fromNow()}
+                </Text>
+              </View>
+
+              <Divider />
+
+              {/* address - category */}
+              <View style={styles.section}>
+                <View style={styles.sectionTwo}>
+                  <Icon
+                    source={postData?.category.cat_icon}
+                    color={'black'}
+                    size={16}
+                  />
+                  <Text variant="bodyMedium">
+                    {postData?.category.cat_name}
+                  </Text>
+                </View>
+
+                <View style={styles.sectionTwo}>
+                  <Icon
+                    source={'map-marker-radius-outline'}
+                    color={'black'}
+                    size={16}
+                  />
+
+                  <Text>
+                    {postData?.distance === 0
+                      ? 0.01
+                      : postData?.distance?.toFixed(2)}{' '}
+                    km
+                  </Text>
+                  <Text style={styles.dotDivider}>•</Text>
+                  <Text
+                    variant="bodyMedium"
+                    style={styles.location}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {postData?.location?.displayName ?? 'Unknow location'}
+                  </Text>
+                </View>
+              </View>
+
+              <Divider />
+
+              {/* post author */}
+              <TouchableOpacity
+                activeOpacity={1}
+                style={[styles.section, styles.author]}>
+                <Avatar.Image
+                  size={64}
+                  source={
+                    postData?.author?.avatar
+                      ? {
+                          uri: postData?.author.avatar,
+                        }
+                      : DEFAULT_AVATAR
+                  }
+                />
+                <View>
+                  <Text variant="titleMedium">
+                    {postData?.author?.name ?? 'Unknow 123'}
+                  </Text>
+                  <Text variant="bodyMedium">
+                    Đã tham gia {moment(postData?.author?.createdAt).fromNow()}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <Divider />
+
+              {/* post description */}
+              <View style={[styles.section]}>
+                <Text variant="bodyMedium">{postData?.description}</Text>
+              </View>
+            </Container>
+          </ScrollView>
+
+          {/* sticky actions */}
+          <PostAction
+            phone={postData?.author?.phone as string}
+            authorId={postData?.author?._id as string}
+            postTitle={postData?.title as string}
+            postId={postData?._id as string}
+          />
+
+          <ImageView
+            images={(postData?.images ? postData?.images : images).map(
+              item => ({
+                uri: item,
+              }),
+            )}
+            imageIndex={currentImage}
+            visible={visible}
+            onRequestClose={() => setIsVisible(false)}
+          />
+        </>
+      )}
     </View>
   );
 };
