@@ -84,6 +84,7 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
     // force refetch when the screen is focused from goBack() navigation
 
     const unsubscribe = navigation.addListener('focus', () => {
+      console.log('Focused!', isFirstRender);
       if (!isFirstRender) {
         console.log('Refetching...');
         refetch();
@@ -91,7 +92,7 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
     });
 
     return unsubscribe;
-  }, []);
+  }, [navigation, refetch, isFirstRender]);
 
   return (
     <View style={styles.container}>

@@ -30,9 +30,13 @@ import {category} from 'utils/category';
 import {MAX_RADIUS, MIN_RADIUS, RADIUS_STEP} from 'utils/constant';
 import {EListPostScreenTypes} from 'utils/enum';
 import {statusPost} from 'utils/statusPost';
+import useIsFirstRender from 'hooks/useIsFirstRender';
 
 const ListPostScreen = (props: ListPostScreenProps) => {
   const {initMode, categoryId: categoryParamId} = props.route.params;
+
+  const isFirstRender = useIsFirstRender();
+  const navigation = props.navigation;
 
   const user = useAppSelector(state => state.auth.user);
 
@@ -69,6 +73,7 @@ const ListPostScreen = (props: ListPostScreenProps) => {
     data: postsData,
     isLoading,
     error,
+    refetch,
   } = useGetPostsQuery(params, {
     skip: skip,
     refetchOnMountOrArgChange: true,
@@ -209,6 +214,20 @@ const ListPostScreen = (props: ListPostScreenProps) => {
     if (postsData) {
     }
   }, [postsData]);
+
+  useEffect(() => {
+    // force refetch when the screen is focused from goBack() navigation
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log('Focused!', isFirstRender);
+      if (!isFirstRender) {
+        console.log('Refetching...');
+        refetch();
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, refetch, isFirstRender]);
 
   return (
     <DrawerLayoutAndroid
