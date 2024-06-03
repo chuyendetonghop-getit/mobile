@@ -12,9 +12,10 @@ type Props = {
   phone: string;
   authorId: string;
   postTitle: string;
+  postId: string;
 };
 
-const PostAction = ({phone, authorId, postTitle}: Props) => {
+const PostAction = ({phone, authorId, postTitle, postId}: Props) => {
   const onCall = async () => {
     console.log('Call to seller');
     Linking.openURL(`tel:${phone}`);
@@ -31,6 +32,7 @@ const PostAction = ({phone, authorId, postTitle}: Props) => {
     navigate<ChatDetailScreenParams>(RouteName.CHAT_DETAIL, {
       mode: EChatDetailScreenTypes.CREATE,
       receiverId: authorId,
+      postId: postId,
     });
   };
   return (

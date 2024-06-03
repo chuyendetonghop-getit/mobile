@@ -258,6 +258,7 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
         phone={postData?.author?.phone as string}
         authorId={postData?.author?._id as string}
         postTitle={postData?.title as string}
+        postId={postData?._id as string}
       />
 
       <ImageView

@@ -38,4 +38,5 @@ export type ChatDetailScreenParams = {
   mode: EChatDetailScreenTypes;
   conversationId?: string;
   receiverId?: string;
+  postId?: string;
 };
