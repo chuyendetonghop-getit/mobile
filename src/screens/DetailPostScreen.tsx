@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {
@@ -80,6 +80,13 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
     mask: VNDMask,
   });
 
+  // compare authorId with userId to determine if the user is the author of the post
+  // compare once when the component is mounted
+
+  const isAuthor = useMemo(() => {
+    return postData?.author?._id === user?._id;
+  }, [postData?.author?._id, user?._id]);
+
   useEffect(() => {
     // force refetch when the screen is focused from goBack() navigation
 
@@ -117,62 +124,66 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
               onPress={() => goBack()}
             />
 
-            <TouchableOpacity
-              onPress={() => setIsShowMoreAction(!isShowMoreAction)}
-              style={{
-                padding: 4,
-                // backgroundColor: 'rgba(0,0,0,0.3)',
-              }}>
-              <Icon source="dots-vertical" color="#FFFFFF" size={32} />
-              {isShowMoreAction ? (
-                <OutsidePressHandler
-                  onOutsidePress={() => {
-                    console.log('Pressed outside the box!');
-                    setIsShowMoreAction(false);
+            {!isAuthor ? (
+              <>
+                <TouchableOpacity
+                  onPress={() => setIsShowMoreAction(!isShowMoreAction)}
+                  style={{
+                    padding: 4,
+                    // backgroundColor: 'rgba(0,0,0,0.3)',
                   }}>
-                  <View
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      right: 0,
-                      backgroundColor: 'white',
-                      borderRadius: 8,
-                      padding: 8,
-
-                      width: 80,
-
-                      // shadow
-                      shadowColor: '#000',
-                      shadowOffset: {
-                        width: 0,
-                        height: 2,
-                      },
-                      shadowOpacity: 0.25,
-                      shadowRadius: 3.84,
-                      elevation: 5,
-                    }}>
-                    <TouchableOpacity
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        // padding: 8,
-                      }}
-                      onPress={() => {
+                  <Icon source="dots-vertical" color="#FFFFFF" size={32} />
+                  {isShowMoreAction ? (
+                    <OutsidePressHandler
+                      onOutsidePress={() => {
+                        console.log('Pressed outside the box!');
                         setIsShowMoreAction(false);
-                        // report
                       }}>
-                      <Icon
-                        source={'flag'}
-                        color={MD3Colors.primary50}
-                        size={20}
-                      />
-                      <Text style={[]}>Report</Text>
-                      <Divider />
-                    </TouchableOpacity>
-                  </View>
-                </OutsidePressHandler>
-              ) : null}
-            </TouchableOpacity>
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                          backgroundColor: 'white',
+                          borderRadius: 8,
+                          padding: 8,
+
+                          width: 80,
+
+                          // shadow
+                          shadowColor: '#000',
+                          shadowOffset: {
+                            width: 0,
+                            height: 2,
+                          },
+                          shadowOpacity: 0.25,
+                          shadowRadius: 3.84,
+                          elevation: 5,
+                        }}>
+                        <TouchableOpacity
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            // padding: 8,
+                          }}
+                          onPress={() => {
+                            setIsShowMoreAction(false);
+                            // report
+                          }}>
+                          <Icon
+                            source={'flag'}
+                            color={MD3Colors.primary50}
+                            size={20}
+                          />
+                          <Text style={[]}>Report</Text>
+                          <Divider />
+                        </TouchableOpacity>
+                      </View>
+                    </OutsidePressHandler>
+                  ) : null}
+                </TouchableOpacity>
+              </>
+            ) : null}
           </LinearGradient>
 
           {/* ---------------- */}
@@ -281,6 +292,7 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
             authorId={postData?.author?._id as string}
             postTitle={postData?.title as string}
             postId={postData?._id as string}
+            isAuthor={isAuthor}
           />
 
           <ImageView

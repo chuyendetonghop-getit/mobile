@@ -1,21 +1,26 @@
-import {ChatDetailScreenParams} from 'navigation/NavigationParams';
+import {
+  ChatDetailScreenParams,
+  PostScreenParams,
+} from 'navigation/NavigationParams';
 import {navigate} from 'navigation/NavigationUtils';
 import RouteName from 'navigation/RouteName';
-import React from 'react';
+import React, {useMemo} from 'react';
 import {Linking, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Icon, MD2Colors, MD3Colors, Text} from 'react-native-paper';
+import {useAppSelector} from 'redux/store';
 
 import {appWidth} from 'themes/spacing';
-import {EChatDetailScreenTypes} from 'utils/enum';
+import {EChatDetailScreenTypes, EPostScreenTypes} from 'utils/enum';
 
 type Props = {
   phone: string;
   authorId: string;
   postTitle: string;
   postId: string;
+  isAuthor: boolean;
 };
 
-const PostAction = ({phone, authorId, postTitle, postId}: Props) => {
+const PostAction = ({phone, authorId, postTitle, postId, isAuthor}: Props) => {
   const onCall = async () => {
     console.log('Call to seller');
     Linking.openURL(`tel:${phone}`);
@@ -35,32 +40,75 @@ const PostAction = ({phone, authorId, postTitle, postId}: Props) => {
       postId: postId,
     });
   };
+
+  const onHide = async () => {
+    console.log('Hide post');
+  };
+
+  const onEdit = async () => {
+    console.log('Edit post');
+    navigate<PostScreenParams>(RouteName.POST, {
+      mode: EPostScreenTypes.UPDATE,
+      postId: postId,
+    });
+  };
+
+  const onReport = async () => {
+    console.log('Report post');
+  };
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.item} onPress={onCall}>
-        <Icon source="phone" size={32} color={MD3Colors.primary50} />
-        <Text style={styles.itemText} variant="bodyMedium">
-          Gọi điện
-        </Text>
-      </TouchableOpacity>
+      {isAuthor ? (
+        <>
+          <TouchableOpacity style={styles.item} onPress={onHide}>
+            <Icon source="eye-off" size={32} color={MD3Colors.primary50} />
+            <Text style={styles.itemText} variant="bodyMedium">
+              Đã bán/Ẩn tin
+            </Text>
+          </TouchableOpacity>
 
-      <View style={styles.divider} />
+          <View style={styles.divider} />
 
-      <TouchableOpacity style={styles.item} onPress={onSMS}>
-        <Icon source="message-text" size={32} color={MD3Colors.primary50} />
-        <Text style={styles.itemText} variant="bodyMedium">
-          Nhắn tin
-        </Text>
-      </TouchableOpacity>
+          <TouchableOpacity style={styles.item} onPress={onEdit}>
+            <Icon source="pencil" size={32} color={MD3Colors.primary50} />
+            <Text style={styles.itemText} variant="bodyMedium">
+              Sửa tin
+            </Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <>
+          <TouchableOpacity style={styles.item} onPress={onCall}>
+            <Icon source="phone" size={32} color={MD3Colors.primary50} />
+            <Text style={styles.itemText} variant="bodyMedium">
+              Gọi điện
+            </Text>
+          </TouchableOpacity>
 
-      <View style={styles.divider} />
+          <View style={styles.divider} />
 
-      <TouchableOpacity style={styles.item} onPress={onChat}>
-        <Icon source="chat-processing" size={32} color={MD3Colors.primary50} />
-        <Text style={styles.itemText} variant="bodyMedium">
-          Chat
-        </Text>
-      </TouchableOpacity>
+          <TouchableOpacity style={styles.item} onPress={onSMS}>
+            <Icon source="message-text" size={32} color={MD3Colors.primary50} />
+            <Text style={styles.itemText} variant="bodyMedium">
+              Nhắn tin
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
+          <TouchableOpacity style={styles.item} onPress={onChat}>
+            <Icon
+              source="chat-processing"
+              size={32}
+              color={MD3Colors.primary50}
+            />
+            <Text style={styles.itemText} variant="bodyMedium">
+              Chat
+            </Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 };
@@ -78,7 +126,7 @@ const styles = StyleSheet.create({
     backgroundColor: MD2Colors.grey300,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
+    justifyContent: 'space-evenly',
   },
   item: {
     height: 48,
