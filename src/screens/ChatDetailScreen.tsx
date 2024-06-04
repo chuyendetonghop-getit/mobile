@@ -21,20 +21,10 @@ import socketClient from 'services/socket';
 import {TMessage} from 'types/message.type';
 import {ESocketEvents} from 'types/socket.type';
 import {VNDMask} from './BottomTabs/PostScreen';
+import {useGetMessagesByConversationIdQuery} from 'api/message.api';
 
 const ChatDetailScreen = (props: ChatDetailScreenProps) => {
   const {mode, conversationId, receiverId, postId} = props.route.params;
-
-  // console.log(
-  //   'MODE - ID - Receiver ID: ',
-  //   mode,
-  //   '|',
-  //   conversationId,
-  //   '|',
-  //   receiverId,
-  //   '|',
-  //   postId,
-  // );
 
   const user = useAppSelector(state => state.auth.user);
 
@@ -42,6 +32,10 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
   const insets = useSafeAreaInsets();
 
   const [messages, setMessages] = useState<IMessage[]>([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+  });
 
   const {data, isLoading, error, refetch} = useGetDetailConversationQuery(
     {
@@ -53,7 +47,26 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
     },
   );
 
+  const {
+    data: dataMgs,
+    isLoading: isLoadingMgs,
+    error: errorMgs,
+    refetch: refetchMgs,
+  } = useGetMessagesByConversationIdQuery(
+    {
+      conversationId: conversationId || '',
+      page: pagination.page,
+      limit: pagination.limit,
+    },
+    {
+      // skip: skip,
+      refetchOnMountOrArgChange: true,
+    },
+  );
+
   const detailConversation = data?.data;
+
+  const listMessages = dataMgs?.data;
 
   const {masked, unmasked, obfuscated} = formatWithMask({
     text: detailConversation?.post?.price.toString(),
@@ -78,8 +91,9 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
   }, []);
 
   useEffect(() => {
-    if (detailConversation) {
-      const messages = detailConversation.preMessages.map(message => {
+    console.log('A DAY ROI | page->', pagination.page);
+    if (detailConversation && listMessages) {
+      const messages = listMessages?.docs?.map(message => {
         return {
           _id: message._id,
           text: message.text ?? '', // Provide a default empty string value
@@ -90,9 +104,11 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
         };
       });
 
-      setMessages(messages.reverse());
+      setMessages(previousMessages =>
+        GiftedChat.prepend(previousMessages, messages),
+      );
     }
-  }, [detailConversation]);
+  }, [conversationId, pagination.page]);
 
   useEffect(() => {
     socketClient.emit(ESocketEvents.CHAT_JOIN_CONVERSATION, {
@@ -136,7 +152,7 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
 
   return (
     <View style={styles.container}>
-      {isLoading ? (
+      {isLoading && isLoadingMgs ? (
         <>
           <ActivityIndicator size="large" color="#0000ff" />
         </>
@@ -228,6 +244,31 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
               </View>
             )}
             // ---------
+            infiniteScroll={true}
+            onLoadEarlier={() => {
+              console.log('Load earlier messages');
+            }}
+            isLoadingEarlier={true}
+            renderLoadEarlier={() => {
+              return <Text>Loading...</Text>;
+            }}
+            listViewProps={{
+              // scrollEventThrottle: 400,
+              // onScroll: (nativeEvent: any) => {
+              //   console.log('onScroll');
+              // },
+              onEndReachedThreshold: 0.3,
+              // When the top of the content is within 3/10 of the visible length of the content
+              onEndReached: () => {
+                // console.log('onEndReached');
+                if (listMessages?.hasNextPage) {
+                  setPagination(prev => ({
+                    ...prev,
+                    page: prev.page + 1,
+                  }));
+                }
+              },
+            }}
           />
         </>
       )}

@@ -10,6 +10,7 @@ import {profileReducer} from './slices/profile.slice';
 import {authApi} from '../api/auth.api';
 import {postApi} from 'api/post.api';
 import {conversationApi} from 'api/conversation.api';
+import {messageApi} from 'api/message.api';
 
 const persistConfig = {
   key: 'root',
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   [authApi.reducerPath]: authApi.reducer,
   [postApi.reducerPath]: postApi.reducer,
   [conversationApi.reducerPath]: conversationApi.reducer,
+  [messageApi.reducerPath]: messageApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -41,6 +43,7 @@ export const store = configureStore({
       authApi.middleware,
       postApi.middleware,
       conversationApi.middleware,
+      messageApi.middleware,
     ]),
 });
 

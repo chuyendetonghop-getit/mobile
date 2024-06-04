@@ -36,7 +36,6 @@ export type GetDetailConversationResponse = TResponse<
   TConversation & {
     post: TPost;
     partner: UserData;
-    preMessages: TMessage[];
   }
 >;
 

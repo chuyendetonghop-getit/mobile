@@ -22,4 +22,7 @@ export default {
 
   // conversation
   bareConversation: 'conversation',
+
+  // message
+  bareMessage: 'message',
 };
