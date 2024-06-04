@@ -40,5 +40,6 @@ export type GetDetailConversationResponse = TResponse<
 >;
 
 export type GetDetailConversationParams = {
-  conversationId: string;
+  receiverId: string;
+  postId: string;
 };

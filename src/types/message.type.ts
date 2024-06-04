@@ -14,7 +14,8 @@ export type TMessage = {
 export type GetListMessageResponse = TResponsePaginate<TMessage[]>;
 
 export type GetListMessageParams = {
-  conversationId: string;
+  receiverId: string;
+  postId: string;
   page: number;
   limit: number;
 };

@@ -15,7 +15,7 @@ export const messageApi = createApi({
       GetListMessageParams
     >({
       query: paramsX => ({
-        url: apiPath.bareMessage + `/${paramsX.conversationId}`,
+        url: apiPath.bareMessage + `/${paramsX.receiverId}/${paramsX.postId}`,
         method: 'GET',
         params: {
           page: paramsX.page,

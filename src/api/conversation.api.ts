@@ -31,7 +31,8 @@ export const conversationApi = createApi({
       GetDetailConversationParams
     >({
       query: paramsX => ({
-        url: apiPath.bareConversation + `/${paramsX.conversationId}`,
+        url:
+          apiPath.bareConversation + `/${paramsX.receiverId}/${paramsX.postId}`,
         method: 'GET',
         params: {},
       }),

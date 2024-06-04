@@ -4,6 +4,7 @@ import {Bubble, GiftedChat, IMessage, Send} from 'react-native-gifted-chat';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {useGetDetailConversationQuery} from 'api/conversation.api';
+import {useGetMessagesByConversationIdQuery} from 'api/message.api';
 import Header from 'components/Header';
 import {ChatDetailScreenProps} from 'navigation/NavigationProps';
 import {navigate} from 'navigation/NavigationUtils';
@@ -21,10 +22,11 @@ import socketClient from 'services/socket';
 import {TMessage} from 'types/message.type';
 import {ESocketEvents} from 'types/socket.type';
 import {VNDMask} from './BottomTabs/PostScreen';
-import {useGetMessagesByConversationIdQuery} from 'api/message.api';
 
 const ChatDetailScreen = (props: ChatDetailScreenProps) => {
   const {mode, conversationId, receiverId, postId} = props.route.params;
+
+  console.log('ChatDetailScreen:', mode, conversationId, receiverId, postId);
 
   const user = useAppSelector(state => state.auth.user);
 
@@ -39,7 +41,8 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
 
   const {data, isLoading, error, refetch} = useGetDetailConversationQuery(
     {
-      conversationId: conversationId || '',
+      receiverId: receiverId || '',
+      postId: postId || '',
     },
     {
       // skip: skip,
@@ -54,7 +57,8 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
     refetch: refetchMgs,
   } = useGetMessagesByConversationIdQuery(
     {
-      conversationId: conversationId || '',
+      receiverId: receiverId || '',
+      postId: postId || '',
       page: pagination.page,
       limit: pagination.limit,
     },
@@ -91,7 +95,6 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
   }, []);
 
   useEffect(() => {
-    console.log('A DAY ROI | page->', pagination.page);
     if (detailConversation && listMessages) {
       const messages = listMessages?.docs?.map(message => {
         return {
@@ -224,13 +227,17 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
             renderSend={props => (
               <View style={styles.renderSend}>
                 {text === '' && (
-                  <>
+                  <TouchableOpacity
+                    onPress={() => {
+                      console.log('onPress camera');
+                      // show select media modal
+                    }}>
                     <Icon
                       source="camera"
                       color={MD3Colors.primary50}
                       size={20}
                     />
-                  </>
+                  </TouchableOpacity>
                 )}
                 {text !== '' && (
                   <Send
@@ -243,6 +250,9 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
                 )}
               </View>
             )}
+            // ------
+
+            // renderMessageImage={customMessageImages}
             // ---------
             infiniteScroll={true}
             onLoadEarlier={() => {
@@ -253,6 +263,8 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
               return <Text>Loading...</Text>;
             }}
             listViewProps={{
+              // hide the scroll bar
+              showsVerticalScrollIndicator: false,
               // scrollEventThrottle: 400,
               // onScroll: (nativeEvent: any) => {
               //   console.log('onScroll');
@@ -272,6 +284,17 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
           />
         </>
       )}
+
+      {/* Select media modal */}
+      {/* <SelectMediaModal
+        visible={visibleModal.media}
+        onDismiss={() => hideModal('media')}
+        onSelectMedia={mediaURL => {
+          console.log('mediaURL ->', mediaURL);
+          // setData({...data, images: mediaURL});
+          setData({...data, images: [...data.images, ...mediaURL]});
+        }}
+      /> */}
     </View>
   );
 };
