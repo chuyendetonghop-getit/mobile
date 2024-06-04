@@ -78,6 +78,23 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
   }, []);
 
   useEffect(() => {
+    if (detailConversation) {
+      const messages = detailConversation.preMessages.map(message => {
+        return {
+          _id: message._id,
+          text: message.text ?? '', // Provide a default empty string value
+          createdAt: message.createdAt,
+          user: {
+            _id: message.senderId,
+          },
+        };
+      });
+
+      setMessages(messages.reverse());
+    }
+  }, [detailConversation]);
+
+  useEffect(() => {
     socketClient.emit(ESocketEvents.CHAT_JOIN_CONVERSATION, {
       postId,
       receiverId,

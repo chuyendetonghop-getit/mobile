@@ -1,4 +1,5 @@
 import {UserData} from './auth.type';
+import {TMessage} from './message.type';
 import {TPost} from './post.type';
 import {TResponse, TResponsePaginate} from './response.type';
 
@@ -35,6 +36,7 @@ export type GetDetailConversationResponse = TResponse<
   TConversation & {
     post: TPost;
     partner: UserData;
+    preMessages: TMessage[];
   }
 >;
 
