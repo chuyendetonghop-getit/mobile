@@ -1,206 +1,36 @@
-import React, {useState} from 'react';
-import {
-  FlatList,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import {Appbar, MD3Colors, Searchbar, Text} from 'react-native-paper';
+import React, {useEffect, useState} from 'react';
+import {FlatList, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, Appbar, MD3Colors, Text} from 'react-native-paper';
 
+import {useGetConversationsQuery} from 'api/conversation.api';
 import Container from 'components/Container';
 import Conversation from 'components/chats/Conversation';
+import useIsFirstRender from 'hooks/useIsFirstRender';
+import {ChatDetailScreenProps} from 'navigation/NavigationProps';
 
-const fakeMessageLists = [
-  {
-    id: 1,
-    name: 'Nguyen Van A',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 2,
-    name: 'Nguyen Van B',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 3,
-    name: 'Nguyen Van C',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 4,
-    name: 'Nguyen Van D',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 5,
-    name: 'Nguyen Van E',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 6,
-    name: 'Nguyen Van F',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 7,
-    name: 'Nguyen Van G',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 8,
-    name: 'Nguyen Van H',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 9,
-    name: 'Nguyen Van I',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 10,
-    name: 'Nguyen Van K',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 11,
-    name: 'Nguyen Van L',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 12,
-    name: 'Nguyen Van M',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-
-  {
-    id: 13,
-    name: 'Nguyen Van N',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 14,
-    name: 'Nguyen Van O',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-
-  {
-    id: 15,
-    name: 'Nguyen Van P',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 16,
-    name: 'Nguyen Van Q',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 17,
-    name: 'Nguyen Van R',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 18,
-    name: 'Nguyen Van S',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 19,
-    name: 'Nguyen Van T',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-  {
-    id: 20,
-    name: 'Nguyen Van U',
-    postTitle: 'Bán xe máy Honda 67',
-    message: 'Xin giá và hình ảnh sản phẩm',
-    time: '22 tháng 3',
-    avatar: 'https://picsum.photos/200/300',
-    postImage: 'https://picsum.photos/200/300',
-  },
-];
-
-const ChatScreen = () => {
+const ChatScreen = (props: ChatDetailScreenProps) => {
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [paginate, setPaginate] = useState({
+    page: 1,
+    limit: 100,
+  });
+
+  const isFirstRender = useIsFirstRender();
+  const navigation = props.navigation;
+
+  const {data, isLoading, error, refetch} = useGetConversationsQuery(
+    {
+      limit: paginate.limit,
+      page: paginate.page,
+    },
+    {
+      // skip: skip,
+      refetchOnMountOrArgChange: true,
+    },
+  );
+
+  const conversations = data?.data;
 
   const _handleSearch = () => {
     console.log('Searching');
@@ -208,76 +38,50 @@ const ChatScreen = () => {
   };
 
   const _handleMore = () => console.log('Shown more');
+
+  useEffect(() => {
+    // force refetch when the screen is focused from goBack() navigation
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log('Focused!', isFirstRender);
+      if (!isFirstRender) {
+        console.log('Refetching...');
+        refetch();
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, refetch, isFirstRender]);
+
   return (
     <View style={styles.wrapper}>
       <Appbar.Header style={styles.header}>
         <Appbar.Content title="Trang tin nhắn" titleStyle={styles.titleStyle} />
       </Appbar.Header>
       <Container style={styles.container}>
-        <Searchbar
+        {/* <Searchbar
           placeholder="Tìm kiếm tin nhắn"
           onChangeText={setSearchQuery}
           value={searchQuery}
           style={styles.searchbar}
           inputStyle={styles.inputSearchbar}
-        />
-        <FlatList
-          data={fakeMessageLists.filter(item => {
-            return item.name.toLowerCase().includes(searchQuery.toLowerCase());
-          })}
-          keyExtractor={(item, index) => index.toString()}
-          style={styles.listStyle}
-          contentContainerStyle={styles.listContainerStyle}
-          renderItem={({item, index}) => (
-            // <TouchableOpacity key={index} style={styles.listItem}>
-            //   <View style={styles.itemLeft}>
-            //     <Image
-            //       source={{
-            //         uri: item.avatar,
-            //       }}
-            //       style={styles.itemLeftImage}
-            //     />
-
-            //     <View>
-            //       <View style={styles.userWithTime}>
-            //         <Text>{item.name}</Text>
-            //         <Text> - </Text>
-            //         <Text style={styles.textTime}>{item.time}</Text>
-            //       </View>
-            //       <Text style={styles.textPostTitle}>{item.postTitle}</Text>
-            //       <Text style={styles.textMessage}>{item.message}</Text>
-            //     </View>
-            //   </View>
-
-            //   <Image
-            //     source={{
-            //       uri: item.postImage,
-            //     }}
-            //     style={styles.imageRight}
-            //   />
-            // </TouchableOpacity>
-            <Conversation
-              key={item?.id}
-              id={item?.id}
-              name={item?.name}
-              postTitle={item?.postTitle}
-              message={item?.message}
-              time={item?.time}
-              avatar={item?.avatar}
-              postImage={item?.postImage}
-            />
-          )}
-          ListEmptyComponent={
-            <Text style={styles.textEmpty}>Không có tin nhắn</Text>
-          }
-        />
-        {/* <View
-          style={{
-            height: 16,
-            marginBottom: 16,
-            backgroundColor: 'transparent',
-          }}
         /> */}
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <FlatList
+            data={conversations?.docs || []}
+            keyExtractor={(item, index) => index.toString()}
+            style={styles.listStyle}
+            contentContainerStyle={styles.listContainerStyle}
+            renderItem={({item, index}) => (
+              <Conversation key={item?._id} {...item} />
+            )}
+            ListEmptyComponent={
+              <Text style={styles.textEmpty}>Không có tin nhắn</Text>
+            }
+          />
+        )}
       </Container>
     </View>
   );

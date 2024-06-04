@@ -22,6 +22,7 @@ import Header from 'components/Header';
 import Post from 'components/Post';
 import Section from 'components/Section';
 import useDebounce from 'hooks/useDebounce';
+import useIsFirstRender from 'hooks/useIsFirstRender';
 import {ListPostScreenProps} from 'navigation/NavigationProps';
 import {useAppSelector} from 'redux/store';
 import {appWidth} from 'themes/spacing';
@@ -30,7 +31,6 @@ import {category} from 'utils/category';
 import {MAX_RADIUS, MIN_RADIUS, RADIUS_STEP} from 'utils/constant';
 import {EListPostScreenTypes} from 'utils/enum';
 import {statusPost} from 'utils/statusPost';
-import useIsFirstRender from 'hooks/useIsFirstRender';
 
 const ListPostScreen = (props: ListPostScreenProps) => {
   const {initMode, categoryId: categoryParamId} = props.route.params;

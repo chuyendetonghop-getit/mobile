@@ -1,5 +1,6 @@
-import {Alert, Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useState} from 'react';
+import {Alert, Image, StyleSheet, TouchableOpacity, View} from 'react-native';
+import OutsidePressHandler from 'react-native-outside-press';
 import {
   Divider,
   Icon,
@@ -8,19 +9,18 @@ import {
   MD3Colors,
   Text,
 } from 'react-native-paper';
-import OutsidePressHandler from 'react-native-outside-press';
 
-import {navigate} from 'navigation/NavigationUtils';
-import RouteName from 'navigation/RouteName';
-import {TPost} from 'types/post.type';
-import {formatWithMask} from 'react-native-mask-input';
-import {VNDMask} from 'screens/BottomTabs/PostScreen';
+import {useDeletePostMutation} from 'api/post.api';
 import moment from 'moment';
 import 'moment/locale/vi';
-import {useDeletePostMutation} from 'api/post.api';
-import {hideLoading, showLoading} from './AppLoading';
 import {PostScreenParams} from 'navigation/NavigationParams';
+import {navigate} from 'navigation/NavigationUtils';
+import RouteName from 'navigation/RouteName';
+import {formatWithMask} from 'react-native-mask-input';
+import {VNDMask} from 'screens/BottomTabs/PostScreen';
+import {TPost} from 'types/post.type';
 import {EPostScreenTypes} from 'utils/enum';
+import {hideLoading, showLoading} from './AppLoading';
 
 moment.locale('vi');
 

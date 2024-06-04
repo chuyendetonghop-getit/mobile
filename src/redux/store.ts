@@ -9,6 +9,7 @@ import {authReducer} from './slices/auth.slice';
 import {profileReducer} from './slices/profile.slice';
 import {authApi} from '../api/auth.api';
 import {postApi} from 'api/post.api';
+import {conversationApi} from 'api/conversation.api';
 
 const persistConfig = {
   key: 'root',
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
 
   [authApi.reducerPath]: authApi.reducer,
   [postApi.reducerPath]: postApi.reducer,
+  [conversationApi.reducerPath]: conversationApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -35,7 +37,11 @@ export const store = configureStore({
       // disable all middleware for serializableCheck and immutableCheck in dev mode
       immutableCheck: false,
       serializableCheck: false,
-    }).concat([authApi.middleware, postApi.middleware]),
+    }).concat([
+      authApi.middleware,
+      postApi.middleware,
+      conversationApi.middleware,
+    ]),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

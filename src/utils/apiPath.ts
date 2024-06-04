@@ -19,4 +19,7 @@ export default {
 
   // report
   bareReport: 'report',
+
+  // conversation
+  bareConversation: 'conversation',
 };

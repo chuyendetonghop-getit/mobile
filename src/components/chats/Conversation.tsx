@@ -1,55 +1,70 @@
-import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
+import moment from 'moment';
 import React from 'react';
+import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {MD3Colors, Text} from 'react-native-paper';
+
+import {ChatDetailScreenParams} from 'navigation/NavigationParams';
 import {navigate} from 'navigation/NavigationUtils';
 import RouteName from 'navigation/RouteName';
-import {ChatDetailScreenParams} from 'navigation/NavigationParams';
+import {TConversationItem} from 'types/conversation.type';
+import {DEFAULT_AVATAR} from 'utils/constant';
 import {EChatDetailScreenTypes} from 'utils/enum';
 
-type TConversation = {
-  id: number;
-  name: string;
-  postTitle: string;
-  message: string;
-  time: string;
-  avatar: string;
-  postImage: string;
-};
-
-const Conversation = (item: TConversation) => {
+const Conversation = (item: TConversationItem) => {
   return (
     <TouchableOpacity
       style={styles.listItem}
       onPress={() => {
-        console.log('Conversation: ', item);
         // navigate to ChatDetail
         navigate<ChatDetailScreenParams>(RouteName.CHAT_DETAIL, {
           mode: EChatDetailScreenTypes.VIEW,
-          conversationId: item.id.toString(),
+          conversationId: item._id.toString(),
+          receiverId: item.partner._id.toString(),
+          postId: item.post._id.toString(),
         });
       }}>
       <View style={styles.itemLeft}>
         <Image
-          source={{
-            uri: item.avatar,
-          }}
+          source={
+            item.partner.avatar
+              ? {
+                  uri: item.partner.avatar,
+                }
+              : DEFAULT_AVATAR
+          }
           style={styles.itemLeftImage}
         />
 
-        <View>
+        <View
+          style={{
+            width: '70%',
+            // backgroundColor: 'red',
+          }}>
           <View style={styles.userWithTime}>
-            <Text>{item.name}</Text>
+            <Text>{item.partner.name}</Text>
             <Text> - </Text>
-            <Text style={styles.textTime}>{item.time}</Text>
+            <Text style={styles.textTime}>
+              {moment(item.updatedAt).fromNow()}
+            </Text>
           </View>
-          <Text style={styles.textPostTitle}>{item.postTitle}</Text>
-          <Text style={styles.textMessage}>{item.message}</Text>
+          <Text
+            style={styles.textPostTitle}
+            numberOfLines={1}
+            ellipsizeMode="tail">
+            {item.post.title}
+          </Text>
+          <Text
+            style={styles.textMessage}
+            numberOfLines={1}
+            ellipsizeMode="tail">
+            {item.lastMessage?.text}
+          </Text>
         </View>
       </View>
 
       <Image
         source={{
-          uri: item.postImage,
+          uri: item.post.images[0],
         }}
         style={styles.imageRight}
       />
@@ -94,10 +109,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 12,
     color: MD3Colors.neutralVariant60,
+    width: '100%',
   },
   textMessage: {
     fontSize: 12,
     color: MD3Colors.neutralVariant70,
+    width: '80%',
   },
   imageRight: {
     width: 48,
