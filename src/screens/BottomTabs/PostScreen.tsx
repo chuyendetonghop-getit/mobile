@@ -23,15 +23,16 @@ import Section from 'components/Section';
 import CategoryModal from 'components/modals/CategoryModal';
 import SelectMediaModal from 'components/modals/SelectMediaModal';
 import StatusModal from 'components/modals/StatusModal';
+import {delay} from 'lodash';
 import {PostScreenProps} from 'navigation/NavigationProps';
-import {goBack} from 'navigation/NavigationUtils';
+import {goBack, replace} from 'navigation/NavigationUtils';
+import RouteName from 'navigation/RouteName';
 import {useAppSelector} from 'redux/store';
 import {appWidth} from 'themes/spacing';
 import {TPostCreate} from 'types/post.type';
+import {TStatusItem} from 'types/status.type';
 import {category} from 'utils/category';
 import {EPostScreenTypes} from 'utils/enum';
-import {TStatusItem} from 'types/status.type';
-import {delay} from 'lodash';
 
 const DEFAULT_CATEGORY = category[3];
 
@@ -186,15 +187,21 @@ const PostScreen = (props: PostScreenProps) => {
 
     if (screenMode === EPostScreenTypes.CREATE) {
       //  Call API to create post createPostFn
+      let result: any;
       try {
         showLoading();
-        await createPostFn(data).unwrap();
+        result = await createPostFn(data).unwrap();
         // console.log('Create post success: ->', reponse);
+        delay(() => {
+          // use replace instead of navigate to prevent user go back to PostScreen
+          replace(RouteName.DETAIL_POST, {postId: result?.data?._id});
+        }, 500);
       } catch (error: any) {
         console.log('Failed to create post:', error);
+        // Alert to user
+        Alert.alert('Lỗi', 'Đã có lỗi xảy ra, vui lòng thử lại sau');
       } finally {
         hideLoading();
-        delay(() => goBack(), 500);
       }
     } else {
       // Call API to update post updatePostFn
@@ -205,11 +212,13 @@ const PostScreen = (props: PostScreenProps) => {
           body: data,
         }).unwrap();
         // console.log('Update post success: ->', reponse);
+        delay(() => goBack(), 500);
       } catch (error: any) {
         console.log('Failed to update post:', error);
+        // Alert to user
+        Alert.alert('Lỗi', 'Đã có lỗi xảy ra, vui lòng thử lại sau');
       } finally {
         hideLoading();
-        delay(() => goBack(), 500);
       }
     }
   };

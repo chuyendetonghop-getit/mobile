@@ -2,15 +2,16 @@ import {
   ChatDetailScreenParams,
   PostScreenParams,
 } from 'navigation/NavigationParams';
-import {navigate} from 'navigation/NavigationUtils';
+import {goBack, navigate} from 'navigation/NavigationUtils';
 import RouteName from 'navigation/RouteName';
-import React, {useMemo} from 'react';
-import {Linking, StyleSheet, TouchableOpacity, View} from 'react-native';
+import React from 'react';
+import {Alert, Linking, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Icon, MD2Colors, MD3Colors, Text} from 'react-native-paper';
-import {useAppSelector} from 'redux/store';
 
+import {useDeletePostMutation} from 'api/post.api';
 import {appWidth} from 'themes/spacing';
 import {EChatDetailScreenTypes, EPostScreenTypes} from 'utils/enum';
+import {hideLoading, showLoading} from './AppLoading';
 
 type Props = {
   phone: string;
@@ -21,6 +22,8 @@ type Props = {
 };
 
 const PostAction = ({phone, authorId, postTitle, postId, isAuthor}: Props) => {
+  const [deletePostFn, {isLoading}] = useDeletePostMutation();
+
   const onCall = async () => {
     console.log('Call to seller');
     Linking.openURL(`tel:${phone}`);
@@ -41,8 +44,41 @@ const PostAction = ({phone, authorId, postTitle, postId, isAuthor}: Props) => {
     });
   };
 
-  const onHide = async () => {
-    console.log('Hide post');
+  const deleteHandler = async () => {
+    try {
+      showLoading();
+      const response = await deletePostFn({
+        id: postId,
+      });
+      console.log('Delete Post Response:', response);
+      goBack();
+    } catch (error) {
+      console.log('Delete Post Error:', error);
+    } finally {
+      hideLoading();
+    }
+  };
+
+  const onDelete = async () => {
+    console.log('Delete post');
+    Alert.alert(
+      'Bạn có chắc chắn?',
+      'Bạn có chắc chắn muốn xoá bài đăng này?',
+      [
+        {
+          text: 'Huỷ bỏ',
+          style: 'cancel',
+          onPress: () => {
+            // Huỷ bỏ việc xoá
+          },
+        },
+        {
+          text: 'Xoá',
+          onPress: deleteHandler,
+        },
+      ],
+      {cancelable: false},
+    );
   };
 
   const onEdit = async () => {
@@ -53,18 +89,14 @@ const PostAction = ({phone, authorId, postTitle, postId, isAuthor}: Props) => {
     });
   };
 
-  const onReport = async () => {
-    console.log('Report post');
-  };
-
   return (
     <View style={styles.container}>
       {isAuthor ? (
         <>
-          <TouchableOpacity style={styles.item} onPress={onHide}>
-            <Icon source="eye-off" size={32} color={MD3Colors.primary50} />
+          <TouchableOpacity style={styles.item} onPress={onDelete}>
+            <Icon source="delete" size={32} color={MD3Colors.primary50} />
             <Text style={styles.itemText} variant="bodyMedium">
-              Đã bán/Ẩn tin
+              Đã bán/Xoá tin
             </Text>
           </TouchableOpacity>
 
