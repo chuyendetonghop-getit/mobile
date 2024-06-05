@@ -143,7 +143,7 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
         GiftedChat.prepend(previousMessages, messages),
       );
     }
-  }, [conversationId, pagination.page]);
+  }, [conversationId, pagination.page, listMessages]);
 
   useEffect(() => {
     socketClient.emit(ESocketEvents.CHAT_JOIN_CONVERSATION, {
