@@ -1,5 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {ActivityIndicator, Dimensions, StyleSheet, Text} from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  StyleSheet,
+  Text,
+} from 'react-native';
 import {
   Button,
   HelperText,
@@ -23,7 +29,7 @@ const VerifyOTPScreen = (props: VerifyOTPScreenProps) => {
   const params = props.route.params;
   const phone = params.phone;
   const resendType = params.resendType;
-  console.log('Verify OTP for phone:', phone, resendType);
+  // console.log('Verify OTP for phone:', phone, resendType);
 
   const [verifyOTPSignup, {isLoading: isLoadingVerifySignup}] =
     useVerifySignupMutation();
@@ -71,6 +77,19 @@ const VerifyOTPScreen = (props: VerifyOTPScreenProps) => {
       }
     } catch (error) {
       console.log('Failed to verify OTP:', error);
+      // Alert user if failed to verify OTP
+      Alert.alert(
+        'Có lỗi xảy ra!',
+        'Vui lòng kiểm tra lại mã OTP hoặc thử lại sau!',
+        [
+          {
+            text: 'Ok',
+            onPress: () => {},
+            style: 'default',
+          },
+        ],
+      );
+
       onShowSnackBar();
     }
   };
@@ -99,6 +118,14 @@ const VerifyOTPScreen = (props: VerifyOTPScreenProps) => {
       console.log('Resend OTP successfully:', resultResend);
     } catch (error) {
       console.log('Failed to resend OTP:', error);
+      // Alert user if failed to resend OTP
+      Alert.alert('Có lỗi xảy ra!', 'Vui lòng thử lại sau!', [
+        {
+          text: 'Ok',
+          onPress: () => {},
+          style: 'default',
+        },
+      ]);
     }
   };
 

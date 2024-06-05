@@ -18,6 +18,7 @@ import {useLoginMutation} from 'api/auth.api';
 import Container from 'components/Container';
 import {navigate} from 'navigation/NavigationUtils';
 import RouteName from 'navigation/RouteName';
+import {ETokenTypes} from 'utils/enum';
 
 const LoginScreen = () => {
   const [login, {isLoading}] = useLoginMutation();
@@ -45,7 +46,16 @@ const LoginScreen = () => {
       return;
     }
     try {
-      await login({phone, password}).unwrap();
+      const result = await login({phone, password}).unwrap();
+
+      if (!Boolean(result.data?.verify)) {
+        console.log('NOT VERIFY -> redirect to Verify OTP Screen');
+        navigate(RouteName.VERIFY_OTP, {
+          phone,
+          resendType: ETokenTypes.OTP_VERIFY,
+        });
+        return;
+      }
     } catch (error) {
       console.log('Failed to login:', error);
       onShowSnackBar();

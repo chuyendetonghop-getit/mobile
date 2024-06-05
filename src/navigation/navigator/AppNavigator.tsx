@@ -7,9 +7,10 @@ import {navigation} from '../NavigationUtils';
 
 export const AppNavigator = () => {
   const isSignIn = useAppSelector(state => state.auth.isSignedIn);
+  const user = useAppSelector(state => state.auth.user);
   return (
     <NavigationContainer ref={navigation}>
-      {isSignIn ? <MainStack /> : <AuthStack />}
+      {isSignIn && user?.verify ? <MainStack /> : <AuthStack />}
     </NavigationContainer>
   );
 };
