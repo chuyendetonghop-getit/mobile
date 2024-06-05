@@ -6,7 +6,7 @@ export type TMessage = {
   conversationId: string;
   senderId: string;
   text?: string;
-  media?: string[];
+  image?: string[];
   createdAt: Date;
   updatedAt: Date;
 };

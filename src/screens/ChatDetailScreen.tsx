@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Bubble, GiftedChat, IMessage, Send} from 'react-native-gifted-chat';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {v4 as uuidv4} from 'uuid';
 
 import {useGetDetailConversationQuery} from 'api/conversation.api';
 import {useGetMessagesByConversationIdQuery} from 'api/message.api';
@@ -22,6 +23,7 @@ import socketClient from 'services/socket';
 import {TMessage} from 'types/message.type';
 import {ESocketEvents} from 'types/socket.type';
 import {VNDMask} from './BottomTabs/PostScreen';
+import SelectMediaModal from 'components/modals/SelectMediaModal';
 
 const ChatDetailScreen = (props: ChatDetailScreenProps) => {
   const {mode, conversationId, receiverId, postId} = props.route.params;
@@ -38,6 +40,8 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
     page: 1,
     limit: 20,
   });
+
+  const [visibleModal, setVisibleModal] = useState(false);
 
   const {data, isLoading, error, refetch} = useGetDetailConversationQuery(
     {
@@ -89,9 +93,36 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
     socketClient.emit(ESocketEvents.CHAT_SEND_MESSAGE, {
       originId: thisMessage._id,
       text: thisMessage.text,
-      // TODO: no media for now
-      // media: thisMessage.media
     });
+  }, []);
+
+  const onSendMedia = useCallback((mediaURLs: string[]) => {
+    console.log('onSendMedia:', mediaURLs);
+
+    const uuid = uuidv4();
+
+    const messagesMedia = mediaURLs.map(mediaURL => {
+      // emit message to server
+
+      socketClient.emit(ESocketEvents.CHAT_SEND_MESSAGE, {
+        originId: Date.now(),
+        image: mediaURL,
+      });
+
+      return {
+        _id: uuid,
+        createdAt: new Date(),
+        user: {
+          _id: user?._id || 123,
+        },
+        image: mediaURL,
+      } as IMessage;
+    });
+
+    // add media to messages
+    setMessages((previousMessages: IMessage[]) =>
+      GiftedChat.append(previousMessages, messagesMedia),
+    );
   }, []);
 
   useEffect(() => {
@@ -100,11 +131,12 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
         return {
           _id: message._id,
           text: message.text ?? '', // Provide a default empty string value
+          image: message.image,
           createdAt: message.createdAt,
           user: {
             _id: message.senderId,
           },
-        };
+        } as IMessage;
       });
 
       setMessages(previousMessages =>
@@ -133,16 +165,17 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
         conversationId,
         senderId,
         text,
-        media,
+        image,
         createdAt,
         updatedAt,
       }: TMessage) => {
-        console.log('CHAT_RECEIVE_MESSAGE:', text, originId);
+        console.log('CHAT_RECEIVE_MESSAGE:', text, image, originId);
 
         setMessages(previousMessages =>
           GiftedChat.append(previousMessages, {
             _id: originId,
             text: text,
+            image: image,
             createdAt: createdAt,
             user: {
               _id: senderId,
@@ -231,6 +264,7 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
                     onPress={() => {
                       console.log('onPress camera');
                       // show select media modal
+                      setVisibleModal(true);
                     }}>
                     <Icon
                       source="camera"
@@ -286,15 +320,11 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
       )}
 
       {/* Select media modal */}
-      {/* <SelectMediaModal
-        visible={visibleModal.media}
-        onDismiss={() => hideModal('media')}
-        onSelectMedia={mediaURL => {
-          console.log('mediaURL ->', mediaURL);
-          // setData({...data, images: mediaURL});
-          setData({...data, images: [...data.images, ...mediaURL]});
-        }}
-      /> */}
+      <SelectMediaModal
+        visible={visibleModal}
+        onDismiss={() => setVisibleModal(false)}
+        onSelectMedia={onSendMedia}
+      />
     </View>
   );
 };
