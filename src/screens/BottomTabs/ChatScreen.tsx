@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import {ActivityIndicator, Appbar, MD3Colors, Text} from 'react-native-paper';
 
@@ -7,22 +7,17 @@ import Container from 'components/Container';
 import Conversation from 'components/chats/Conversation';
 import useIsFirstRender from 'hooks/useIsFirstRender';
 import {ChatDetailScreenProps} from 'navigation/NavigationProps';
+import socketClient from 'services/socket';
+import {ESocketEvents} from 'types/socket.type';
 
 const ChatScreen = (props: ChatDetailScreenProps) => {
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [paginate, setPaginate] = useState({
-    page: 1,
-    limit: 100,
-  });
-
   const isFirstRender = useIsFirstRender();
   const navigation = props.navigation;
 
   const {data, isLoading, error, refetch} = useGetConversationsQuery(
     {
-      limit: paginate.limit,
-      page: paginate.page,
+      limit: 999999999,
+      page: 1,
     },
     {
       // skip: skip,
@@ -32,12 +27,19 @@ const ChatScreen = (props: ChatDetailScreenProps) => {
 
   const conversations = data?.data;
 
-  const _handleSearch = () => {
-    console.log('Searching');
-    setIsSearching(!isSearching);
-  };
+  useEffect(() => {
+    socketClient.emit(ESocketEvents.CHAT_SUBSCRIBE_CONVERSATION_CHANGE);
 
-  const _handleMore = () => console.log('Shown more');
+    return () => {
+      socketClient.emit(ESocketEvents.CHAT_UNSUBSCRIBE_CONVERSATION_CHANGE);
+    };
+  }, [socketClient]);
+
+  useEffect(() => {
+    socketClient.on(ESocketEvents.CHAT_CONVERSATION_CHANGE, () => {
+      refetch();
+    });
+  }, [socketClient]);
 
   useEffect(() => {
     // force refetch when the screen is focused from goBack() navigation
@@ -59,14 +61,7 @@ const ChatScreen = (props: ChatDetailScreenProps) => {
         <Appbar.Content title="Trang tin nhắn" titleStyle={styles.titleStyle} />
       </Appbar.Header>
       <Container style={styles.container}>
-        {/* <Searchbar
-          placeholder="Tìm kiếm tin nhắn"
-          onChangeText={setSearchQuery}
-          value={searchQuery}
-          style={styles.searchbar}
-          inputStyle={styles.inputSearchbar}
-        /> */}
-        {isLoading ? (
+        {isLoading && isFirstRender ? (
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
           <FlatList
