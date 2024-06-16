@@ -55,10 +55,6 @@ export const postApi = createApi({
           lon: paramsX.lon,
         },
       }),
-
-      // providesTags: ['Posts'],
-      // invalidatesTags: ['Posts'],
-      // transformResponse: (response: any) => response.data,
     }),
 
     getMyPosts: builder.query<GetMyPostResponse, GetMyPostRequest>({
@@ -83,9 +79,6 @@ export const postApi = createApi({
         body,
       }),
     }),
-
-    // -------------------------------------
-    // report post
 
     reportPost: builder.mutation<{}, TReportCreate>({
       query: ({postId, reason}) => ({

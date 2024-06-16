@@ -25,31 +25,23 @@ const LoginScreen = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [hidePassword, setHidePassword] = useState(true);
-
-  // SnackBar state
   const [visible, setVisible] = React.useState(false);
   const onShowSnackBar = () => setVisible(true);
   const onHideSnackBar = () => setVisible(false);
-
-  // Validate phone and password
   const hasErrorsPhone = () => {
     const phoneRegex = /^[0-9]{10}$/;
     return !phoneRegex.test(phone);
   };
-
   const hasErrorsPassword = () => {
     return password.length < 6;
   };
-
   const handleLogin = async () => {
     if (phone === '' || password === '') {
       return;
     }
     try {
       const result = await login({phone, password}).unwrap();
-
       if (!Boolean(result.data?.verify)) {
-        console.log('NOT VERIFY -> redirect to Verify OTP Screen');
         navigate(RouteName.VERIFY_OTP, {
           phone,
           resendType: ETokenTypes.OTP_VERIFY,
@@ -61,7 +53,6 @@ const LoginScreen = () => {
       onShowSnackBar();
     }
   };
-
   return (
     <Container style={styles.container}>
       <Title style={styles.title}>Đăng nhập</Title>
@@ -80,7 +71,6 @@ const LoginScreen = () => {
           Số điện thoại không hợp lệ
         </HelperText>
       ) : null}
-
       <TextInput
         style={styles.input}
         label="Mật khẩu"
@@ -102,7 +92,6 @@ const LoginScreen = () => {
           Mật khẩu phải có ít nhất 6 ký tự
         </HelperText>
       ) : null}
-
       <Pressable
         style={styles.helperLink}
         onPress={() => {

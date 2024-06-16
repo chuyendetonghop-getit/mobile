@@ -22,25 +22,18 @@ const SignupScreen = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [hidePassword, setHidePassword] = useState(true);
-
-  // SnackBar state
   const [visible, setVisible] = React.useState(false);
   const onShowSnackBar = () => setVisible(!visible);
   const onHideSnackBar = () => setVisible(false);
-
-  // Validate input data: email, name, phone, password
   const hasErrorsName = () => {
     return name.length < 3;
   };
-
   const hasPhoneErrors = () => {
     return phone.length < 10;
   };
-
   const hasErrorsPassword = () => {
     return password.length < 6;
   };
-
   const handleSignup = async () => {
     if (name === '' || password === '' || phone === '') {
       return;

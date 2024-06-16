@@ -78,7 +78,6 @@ export const authApi = createApi({
       }),
     }),
 
-    // update user profile
     updateProfile: builder.mutation<UpdateUserResponse, UpdateUserRequest>({
       query: body => ({
         url: `${apiPath.bareUser}/${body.id}`,

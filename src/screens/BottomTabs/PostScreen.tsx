@@ -42,28 +42,20 @@ export const VNDMask = createNumberMask({
   separator: ',',
   precision: 0,
 });
-
 type TModalTypes = 'category' | 'media' | 'status';
 
 const PostScreen = (props: PostScreenProps) => {
   const screenMode = props.route.params?.mode ?? EPostScreenTypes.CREATE;
-
-  // console.log('Post Screen with mode:', screenMode);
-
   const postId: string | undefined =
     screenMode === EPostScreenTypes.UPDATE
       ? props.route.params?.postId
       : undefined;
-
   const titleByMode =
     screenMode === EPostScreenTypes.CREATE ? 'Đăng tin mới' : 'Chỉnh sửa tin';
-
   const user = useAppSelector(state => state.auth.user);
   const location = user?.geoLocation?.location;
-
   const [createPostFn, {isSuccess: isCreateOk}] = useCreatePostMutation();
   const [updatePostFn, {isSuccess: isUpdateOk}] = useUpdatePostMutation();
-
   const {
     data: postDetail,
     isLoading,
@@ -79,11 +71,7 @@ const PostScreen = (props: PostScreenProps) => {
       refetchOnMountOrArgChange: true,
     },
   );
-
   const postDetailData = postDetail?.data;
-
-  // console.log('Post Detail:', postDetailData);
-
   const [visibleModal, setVisibleModal] = React.useState<{
     [key: string]: boolean;
   }>({
@@ -91,10 +79,8 @@ const PostScreen = (props: PostScreenProps) => {
     media: false,
     status: false,
   });
-
   const [visible, setIsVisible] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
-
   const navigation = props.navigation;
   const [data, setData] = useState<TPostCreate>({
     userId: user?._id ?? '',
@@ -149,16 +135,13 @@ const PostScreen = (props: PostScreenProps) => {
         ? user?.phone ?? ''
         : postDetailData?.phone ?? '',
   });
-
   const updateData = (key: string, value: string | number) => {
     setData({...data, [key]: value});
   };
-
   const onCancel = () => {
     console.log('Cancel post');
     goBack();
   };
-
   const onDone = async () => {
     // Check data before post
 
@@ -222,12 +205,10 @@ const PostScreen = (props: PostScreenProps) => {
       }
     }
   };
-
   const showModal = (type: TModalTypes) =>
     setVisibleModal({...visibleModal, [type]: true});
   const hideModal = (type: TModalTypes) =>
     setVisibleModal({...visibleModal, [type]: false});
-
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', e => {
       console.log('beforeRemove event');
@@ -262,11 +243,8 @@ const PostScreen = (props: PostScreenProps) => {
         {cancelable: false},
       );
     });
-
     return unsubscribe;
   }, [isCreateOk, isUpdateOk, navigation]);
-
-  // useEffect để cập nhật state khi dữ liệu postDetailData thay đổi
   useEffect(() => {
     if (postDetailData) {
       setData({

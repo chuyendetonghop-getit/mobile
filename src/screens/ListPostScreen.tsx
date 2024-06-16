@@ -45,7 +45,7 @@ const ListPostScreen = (props: ListPostScreenProps) => {
   );
 
   const [searchQuery, setSearchQuery] = useState('');
-  const debouncedSearchTerm = useDebounce(searchQuery, 500);
+  const debouncedSearchTerm = useDebounce(searchQuery, 200);
 
   const [posts, setPosts] = useState<TPost[]>([]);
 
@@ -258,7 +258,7 @@ const ListPostScreen = (props: ListPostScreenProps) => {
           <Searchbar
             placeholder="Tìm kiếm bài đăng"
             // onChangeText={text => updateParams({title: text})}
-            onChangeText={setSearchQuery}
+            onChangeText={text => setSearchQuery(pre => text)}
             onClearIconPress={() => {
               setSearchQuery(pre => '');
               if (initMode === EListPostScreenTypes.SEARCH) {

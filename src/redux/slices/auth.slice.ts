@@ -12,7 +12,6 @@ const initialState: AuthState = {
   isSignedIn: false,
   user: null,
 };
-
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -20,7 +19,6 @@ export const authSlice = createSlice({
     signIn: state => {
       state.isSignedIn = true;
     },
-
     signOut: () => {
       return {
         ...initialState,
@@ -31,29 +29,15 @@ export const authSlice = createSlice({
     builder.addMatcher(
       authApi.endpoints.login.matchFulfilled,
       (state, action) => {
-        console.log('action.payload --> ', action.payload);
         if (action.payload?.success) {
           state.user = action.payload?.data ?? null;
           state.isSignedIn = true;
         }
       },
     );
-
-    builder.addMatcher(
-      authApi.endpoints.signUp.matchFulfilled,
-      (state, action) => {
-        console.log('action.payload --> ', action.payload);
-        // if (action.payload?.success) {
-        //   state.user = action.payload?.data ?? null;
-        //   state.isSignedIn = true;
-        // }
-      },
-    );
-
     builder.addMatcher(
       authApi.endpoints.updateProfile.matchFulfilled,
       (state, action) => {
-        // console.log('action.payload --> ', action.payload);
         if (action.payload.success) {
           state.user = {
             ...state.user,
@@ -65,7 +49,5 @@ export const authSlice = createSlice({
     );
   },
 });
-
 export const {signIn, signOut} = authSlice.actions;
-
 export const authReducer = authSlice.reducer;
