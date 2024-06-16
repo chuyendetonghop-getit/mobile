@@ -22,7 +22,7 @@ import moment from 'moment';
 import {DetailPostScreenProps} from 'navigation/NavigationProps';
 import {goBack} from 'navigation/NavigationUtils';
 import {formatWithMask} from 'react-native-mask-input';
-import {DEFAULT_AVATAR} from 'utils/constant';
+import {DEFAULT_AVATAR, DEFAULT_FALLBACK_IMAGE} from 'utils/constant';
 import {VNDMask} from './BottomTabs/PostScreen';
 
 import 'moment/locale/vi';
@@ -291,11 +291,14 @@ const DetailPostScreen = (props: DetailPostScreenProps) => {
 
           {/* sticky actions */}
           <PostAction
+            isAuthor={isAuthor}
             phone={postData?.author?.phone as string}
             authorId={postData?.author?._id as string}
-            postTitle={postData?.title as string}
             postId={postData?._id as string}
-            isAuthor={isAuthor}
+            postTitle={postData?.title as string}
+            postImage={postData?.images[0] ?? DEFAULT_FALLBACK_IMAGE}
+            postPrice={postData?.price as number}
+            postAuthorName={postData?.author?.name as string}
           />
 
           <ImageView

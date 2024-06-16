@@ -4,9 +4,9 @@ import {Bubble, GiftedChat, IMessage, Send} from 'react-native-gifted-chat';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {v4 as uuidv4} from 'uuid';
 
-import {useGetDetailConversationQuery} from 'api/conversation.api';
 import {useGetMessagesByConversationIdQuery} from 'api/message.api';
 import Header from 'components/Header';
+import SelectMediaModal from 'components/modals/SelectMediaModal';
 import {ChatDetailScreenProps} from 'navigation/NavigationProps';
 import {navigate} from 'navigation/NavigationUtils';
 import RouteName from 'navigation/RouteName';
@@ -22,43 +22,27 @@ import {useAppSelector} from 'redux/store';
 import socketClient from 'services/socket';
 import {TMessage} from 'types/message.type';
 import {ESocketEvents} from 'types/socket.type';
+import {DEFAULT_FALLBACK_IMAGE} from 'utils/constant';
 import {VNDMask} from './BottomTabs/PostScreen';
-import SelectMediaModal from 'components/modals/SelectMediaModal';
 
 const ChatDetailScreen = (props: ChatDetailScreenProps) => {
-  const {mode, conversationId, receiverId, postId} = props.route.params;
-
-  console.log('ChatDetailScreen:', mode, conversationId, receiverId, postId);
-
+  const {receiverId, postId, postTitle, postImage, postPrice, postAuthorName} =
+    props.route.params;
   const user = useAppSelector(state => state.auth.user);
-
   const [text, setText] = useState('');
   const insets = useSafeAreaInsets();
-
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
   });
-
   const [visibleModal, setVisibleModal] = useState(false);
 
-  const {data, isLoading, error, refetch} = useGetDetailConversationQuery(
-    {
-      receiverId: receiverId || '',
-      postId: postId || '',
-    },
-    {
-      // skip: skip,
-      refetchOnMountOrArgChange: true,
-    },
-  );
-
   const {
-    data: dataMgs,
-    isLoading: isLoadingMgs,
-    error: errorMgs,
-    refetch: refetchMgs,
+    data: messageData,
+    isLoading: isMessageLoading,
+    error: messageError,
+    refetch: refetchMessages,
   } = useGetMessagesByConversationIdQuery(
     {
       receiverId: receiverId || '',
@@ -66,18 +50,14 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
       page: pagination.page,
       limit: pagination.limit,
     },
-    {
-      // skip: skip,
-      refetchOnMountOrArgChange: true,
-    },
+    {refetchOnMountOrArgChange: true},
   );
 
-  const detailConversation = data?.data;
-
-  const listMessages = dataMgs?.data;
+  const listMessages = messageData?.data;
 
   const {masked, unmasked, obfuscated} = formatWithMask({
-    text: detailConversation?.post?.price.toString(),
+    // text: detailConversation?.post?.price.toString(),
+    text: postPrice.toString(),
     mask: VNDMask,
   });
 
@@ -85,11 +65,10 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
     const thisMessage = messages[0];
     console.log('onSend:', thisMessage);
 
-    setMessages((previousMessages: IMessage[]) =>
+    setMessages(previousMessages =>
       GiftedChat.append(previousMessages, messages),
     );
 
-    // emit message to server
     socketClient.emit(ESocketEvents.CHAT_SEND_MESSAGE, {
       originId: thisMessage._id,
       text: thisMessage.text,
@@ -99,51 +78,46 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
   const onSendMedia = useCallback((mediaURLs: string[]) => {
     console.log('onSendMedia:', mediaURLs);
 
-    const uuid = uuidv4();
-
     const messagesMedia = mediaURLs.map(mediaURL => {
-      // emit message to server
+      const uuid = uuidv4();
 
       socketClient.emit(ESocketEvents.CHAT_SEND_MESSAGE, {
-        originId: Date.now(),
+        originId: uuid,
         image: mediaURL,
       });
 
       return {
         _id: uuid,
         createdAt: new Date(),
-        user: {
-          _id: user?._id || 123,
-        },
+        user: {_id: user?._id || 123},
         image: mediaURL,
       } as IMessage;
     });
 
-    // add media to messages
-    setMessages((previousMessages: IMessage[]) =>
+    setMessages(previousMessages =>
       GiftedChat.append(previousMessages, messagesMedia),
     );
   }, []);
 
   useEffect(() => {
-    if (detailConversation && listMessages) {
+    if (listMessages) {
       const messages = listMessages?.docs?.map(message => {
         return {
-          _id: message._id,
-          text: message.text ?? '', // Provide a default empty string value
+          _id: message._id || uuidv4(),
+          text: message.text ?? '',
           image: message.image,
           createdAt: message.createdAt,
-          user: {
-            _id: message.senderId,
-          },
+          user: {_id: message.senderId},
         } as IMessage;
       });
 
-      setMessages(previousMessages =>
-        GiftedChat.prepend(previousMessages, messages),
-      );
+      setMessages(previousMessages => {
+        const messageIds = new Set(previousMessages.map(m => m._id));
+        const uniqueMessages = messages.filter(m => !messageIds.has(m._id));
+        return GiftedChat.prepend(previousMessages, uniqueMessages);
+      });
     }
-  }, [conversationId, pagination.page, listMessages]);
+  }, [listMessages]);
 
   useEffect(() => {
     socketClient.emit(ESocketEvents.CHAT_JOIN_CONVERSATION, {
@@ -154,7 +128,7 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
     return () => {
       socketClient.emit(ESocketEvents.CHAT_LEAVE_CONVERSATION);
     };
-  }, [postId, receiverId, conversationId]);
+  }, [postId, receiverId]);
 
   useEffect(() => {
     socketClient.on(
@@ -171,24 +145,24 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
       }: TMessage) => {
         console.log('CHAT_RECEIVE_MESSAGE:', text, image, originId);
 
-        setMessages(previousMessages =>
-          GiftedChat.append(previousMessages, {
-            _id: originId,
-            text: text,
-            image: image,
-            createdAt: createdAt,
-            user: {
-              _id: senderId,
-            },
-          }),
-        );
+        setMessages(previousMessages => {
+          if (!previousMessages.some(m => m._id === originId)) {
+            return GiftedChat.append(previousMessages, {
+              _id: originId,
+              text,
+              image,
+              createdAt,
+              user: {_id: senderId},
+            } as any);
+          }
+          return previousMessages;
+        });
       },
     );
   }, [socketClient]);
-
   return (
     <View style={styles.container}>
-      {isLoading && isLoadingMgs ? (
+      {isMessageLoading ? (
         <>
           <ActivityIndicator size="large" color="#0000ff" />
         </>
@@ -197,25 +171,25 @@ const ChatDetailScreen = (props: ChatDetailScreenProps) => {
           <Header
             style={styles.header}
             hasBackButton={true}
-            headerTitle={detailConversation?.partner?.name || 'Loading...'}
+            headerTitle={postAuthorName ?? 'Loading...'}
           />
           <TouchableOpacity
             style={styles.post}
             onPress={() => {
               // navigate to PostDetail
               navigate(RouteName.DETAIL_POST, {
-                postId: detailConversation?.post?._id,
+                postId: postId,
               });
             }}>
             <Image
               source={{
-                uri: detailConversation?.post?.images[0],
+                uri: postImage ?? DEFAULT_FALLBACK_IMAGE,
               }}
               style={styles.postImage}
             />
             <View style={styles.postInnerRight}>
               <Text numberOfLines={2} ellipsizeMode="tail">
-                {detailConversation?.post?.title}
+                {postTitle}
               </Text>
               <Text
                 numberOfLines={1}

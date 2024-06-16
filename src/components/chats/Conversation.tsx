@@ -7,7 +7,7 @@ import {ChatDetailScreenParams} from 'navigation/NavigationParams';
 import {navigate} from 'navigation/NavigationUtils';
 import RouteName from 'navigation/RouteName';
 import {TConversationItem} from 'types/conversation.type';
-import {DEFAULT_AVATAR} from 'utils/constant';
+import {DEFAULT_AVATAR, DEFAULT_FALLBACK_IMAGE} from 'utils/constant';
 import {EChatDetailScreenTypes} from 'utils/enum';
 
 const Conversation = (item: TConversationItem) => {
@@ -17,10 +17,12 @@ const Conversation = (item: TConversationItem) => {
       onPress={() => {
         // navigate to ChatDetail
         navigate<ChatDetailScreenParams>(RouteName.CHAT_DETAIL, {
-          mode: EChatDetailScreenTypes.VIEW,
-          conversationId: item._id.toString(),
           receiverId: item.partner._id.toString(),
           postId: item.post._id.toString(),
+          postTitle: item.post.title,
+          postImage: item.post.images[0] ?? DEFAULT_FALLBACK_IMAGE,
+          postPrice: item.post.price,
+          postAuthorName: item.partner.name,
         });
       }}>
       <View style={styles.itemLeft}>

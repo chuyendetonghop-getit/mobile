@@ -25,20 +25,7 @@ export const conversationApi = createApi({
         params,
       }),
     }),
-
-    getDetailConversation: builder.query<
-      GetDetailConversationResponse,
-      GetDetailConversationParams
-    >({
-      query: paramsX => ({
-        url:
-          apiPath.bareConversation + `/${paramsX.receiverId}/${paramsX.postId}`,
-        method: 'GET',
-        params: {},
-      }),
-    }),
   }),
 });
 
-export const {useGetConversationsQuery, useGetDetailConversationQuery} =
-  conversationApi;
+export const {useGetConversationsQuery} = conversationApi;

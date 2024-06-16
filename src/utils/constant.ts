@@ -2,6 +2,12 @@ import RouteName from '../navigation/RouteName';
 
 export const DEFAULT_AVATAR = require('../assets/images/default_avatar.jpg');
 
+export const DEFAULT_AVARTAR_URL =
+  'https://res.cloudinary.com/anhkieu303252/image/upload/v1718519688/default_avatar_eyua30.jpg';
+
+export const DEFAULT_FALLBACK_IMAGE =
+  'https://res.cloudinary.com/anhkieu303252/image/upload/v1718533086/fallback_gdmm2s.webp';
+
 export const MAPPED_ROUTE_NAME = {
   [RouteName.LOGIN]: 'Đăng nhập',
   [RouteName.SIGNUP]: 'Đăng ký',

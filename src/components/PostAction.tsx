@@ -14,14 +14,26 @@ import {EChatDetailScreenTypes, EPostScreenTypes} from 'utils/enum';
 import {hideLoading, showLoading} from './AppLoading';
 
 type Props = {
+  isAuthor: boolean;
   phone: string;
   authorId: string;
-  postTitle: string;
   postId: string;
-  isAuthor: boolean;
+  postTitle: string;
+  postImage: string;
+  postPrice: number;
+  postAuthorName: string;
 };
 
-const PostAction = ({phone, authorId, postTitle, postId, isAuthor}: Props) => {
+const PostAction = ({
+  phone,
+  authorId,
+  postTitle,
+  postId,
+  isAuthor,
+  postImage,
+  postPrice,
+  postAuthorName,
+}: Props) => {
   const [deletePostFn, {isLoading}] = useDeletePostMutation();
 
   const onCall = async () => {
@@ -38,9 +50,12 @@ const PostAction = ({phone, authorId, postTitle, postId, isAuthor}: Props) => {
   const onChat = async () => {
     console.log('Chat with seller ID:', authorId);
     navigate<ChatDetailScreenParams>(RouteName.CHAT_DETAIL, {
-      mode: EChatDetailScreenTypes.CREATE,
       receiverId: authorId,
       postId: postId,
+      postTitle: postTitle,
+      postImage: postImage,
+      postPrice: postPrice,
+      postAuthorName: postAuthorName,
     });
   };
 

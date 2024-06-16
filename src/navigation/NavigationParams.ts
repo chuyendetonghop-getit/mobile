@@ -35,8 +35,12 @@ export type ListPostScreenParams = {
 export type PostManagementScreenParams = {};
 
 export type ChatDetailScreenParams = {
-  mode: EChatDetailScreenTypes;
-  conversationId?: string;
-  receiverId?: string;
-  postId?: string;
+  // mode: EChatDetailScreenTypes;
+  // conversationId?: string;
+  receiverId: string;
+  postId: string;
+  postTitle: string;
+  postImage: string;
+  postPrice: number;
+  postAuthorName: string;
 };
