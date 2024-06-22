@@ -14,8 +14,10 @@ const Conversation = (item: TConversationItem) => {
   return (
     <TouchableOpacity
       style={styles.listItem}
+      activeOpacity={!item?.partner?._id || !item?.post?._id ? 1 : 0.8}
       onPress={() => {
         // navigate to ChatDetail
+        if (!item?.partner?._id || !item?.post?._id) return;
         navigate<ChatDetailScreenParams>(RouteName.CHAT_DETAIL, {
           receiverId: item.partner._id.toString(),
           postId: item.post._id.toString(),
@@ -53,7 +55,7 @@ const Conversation = (item: TConversationItem) => {
             style={styles.textPostTitle}
             numberOfLines={1}
             ellipsizeMode="tail">
-            {item.post.title}
+            {item?.post?.title ?? 'Tin đăng đã bị xóa'}
           </Text>
           <Text
             style={styles.textMessage}
@@ -66,7 +68,7 @@ const Conversation = (item: TConversationItem) => {
 
       <Image
         source={{
-          uri: item.post.images[0],
+          uri: item?.post?.images[0] ?? DEFAULT_FALLBACK_IMAGE,
         }}
         style={styles.imageRight}
       />
