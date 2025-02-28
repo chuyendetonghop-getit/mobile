@@ -1,14 +1,98 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Ứng dụng Mua Bán - Mobile App
 
-# Getting Started
+Ứng dụng di động được xây dựng bằng React Native, cho phép người dùng đăng tin và tìm kiếm các sản phẩm mua bán.
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+## Tính năng chính
 
-## Step 1: Start the Metro Server
+### 1. Xác thực người dùng
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+- Đăng ký tài khoản với số điện thoại
+- Đăng nhập với số điện thoại và mật khẩu
+- Xác thực OTP qua SMS
+- Khôi phục mật khẩu
+- Cập nhật thông tin cá nhân
 
-To start Metro, run the following command from the _root_ of your React Native project:
+### 2. Quản lý tin đăng
+
+- Đăng tin mới với:
+  - Hình ảnh sản phẩm (bắt buộc)
+  - Tiêu đề (tối thiểu 3 ký tự)
+  - Giá bán
+  - Danh mục sản phẩm
+  - Tình trạng sản phẩm (Mới, Như mới, Tốt, Khá, Kém)
+  - Mô tả chi tiết (tối thiểu 20 ký tự)
+  - Thông tin liên hệ
+- Chỉnh sửa tin đã đăng
+- Xóa tin đăng
+- Quản lý danh sách tin đã đăng
+
+### 3. Tìm kiếm và xem tin
+
+- Tìm kiếm theo từ khóa
+- Lọc theo danh mục:
+  - Bất động sản
+  - Xe cộ
+  - Thú cưng
+  - Đồ điện tử
+  - Đồ gia dụng
+  - Thể thao & Sở thích
+  - Thời trang
+  - Đồ văn phòng
+  - Dịch vụ
+- Lọc theo bán kính (5km - 50km)
+- Xem chi tiết tin đăng
+- Báo cáo tin đăng vi phạm
+
+### 4. Liên hệ người bán
+
+- Chat trực tiếp trong ứng dụng
+- Gọi điện thoại
+- Nhắn tin SMS
+
+### 5. Tính năng khác
+
+- Định vị vị trí người dùng
+- Hiển thị khoảng cách đến người bán
+- Quản lý tin nhắn và cuộc trò chuyện
+
+## Công nghệ sử dụng
+
+- React Native
+- TypeScript
+- Redux Toolkit & RTK Query
+- React Navigation
+- React Native Paper (UI Components)
+- Socket.IO (Real-time Chat)
+- Geolocation
+
+## Cài đặt và chạy ứng dụng
+
+### Yêu cầu hệ thống
+
+- Node.js
+- React Native development environment
+- Android Studio (cho Android)
+- Xcode (cho iOS)
+
+### Các bước cài đặt
+
+1. Clone repository
+
+```bash
+git clone <repository_url>
+```
+
+2. Cài đặt dependencies
+
+```bash
+# using npm
+npm install
+
+# OR using Yarn
+yarn install
+```
+
+3. Chạy Metro Server
 
 ```bash
 # using npm
@@ -18,11 +102,9 @@ npm start
 yarn start
 ```
 
-## Step 2: Start your Application
+4. Chạy ứng dụng
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
+Cho Android:
 
 ```bash
 # using npm
@@ -32,7 +114,7 @@ npm run android
 yarn android
 ```
 
-### For iOS
+Cho iOS:
 
 ```bash
 # using npm
@@ -42,38 +124,16 @@ npm run ios
 yarn ios
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+## Đóng góp
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+Mọi đóng góp đều được hoan nghênh. Vui lòng:
 
-## Step 3: Modifying your App
+1. Fork project
+2. Tạo branch mới (`git checkout -b feature/AmazingFeature`)
+3. Commit thay đổi (`git commit -m 'Add some AmazingFeature'`)
+4. Push lên branch (`git push origin feature/AmazingFeature`)
+5. Tạo Pull Request
 
-Now that you have successfully run the app, let's modify it.
+## Giấy phép
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Project được phân phối dưới giấy phép MIT. Xem `LICENSE` để biết thêm thông tin.
