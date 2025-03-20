@@ -12,6 +12,8 @@
 - Khôi phục mật khẩu
 - Cập nhật thông tin cá nhân
 
+![Đăng nhập và Đăng ký](src/assets/images/screenshots/screenshot_1.png)
+
 ### 2. Quản lý tin đăng
 
 - Đăng tin mới với:
@@ -25,6 +27,8 @@
 - Chỉnh sửa tin đã đăng
 - Xóa tin đăng
 - Quản lý danh sách tin đã đăng
+
+![Quản lý tin đăng](src/assets/images/screenshots/screenshot_5.png)
 
 ### 3. Tìm kiếm và xem tin
 
@@ -43,17 +47,23 @@
 - Xem chi tiết tin đăng
 - Báo cáo tin đăng vi phạm
 
+![Tìm kiếm và Lọc](src/assets/images/screenshots/screenshot_3.png)
+
 ### 4. Liên hệ người bán
 
 - Chat trực tiếp trong ứng dụng
 - Gọi điện thoại
 - Nhắn tin SMS
 
+![Liên hệ người bán](src/assets/images/screenshots/screenshot_6.png)
+
 ### 5. Tính năng khác
 
 - Định vị vị trí người dùng
 - Hiển thị khoảng cách đến người bán
 - Quản lý tin nhắn và cuộc trò chuyện
+
+![Trang chủ và Danh mục](src/assets/images/screenshots/screenshot_2.png)
 
 ## Công nghệ sử dụng
 
